@@ -3,8 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Vaga, Candidatura
 from .forms import VagaForm
-from apps.usuarios.models import Recrutador
+from apps.usuarios.models import Recrutador, Candidato
 from django.http import HttpResponse, Http404
+from django.db import IntegrityError
 
 
 @login_required 
@@ -151,3 +152,44 @@ def deletar_vaga(request, vaga_id):
     }
     return render(request, 'vagas/deletar_vaga.html', contexto)
     
+@login_required
+def aplicar_vaga(request, vaga_id):
+    """
+    View para um Candidato se aplicar a uma vaga. (C do CRUD de Candidatura)
+    Esta view é chamada por um formulário POST.
+    """
+    # 1. Controle de Permissão
+    if request.user.tipo_usuario != 'candidato':
+        messages.error(request, 'Apenas candidatos podem se candidatar a vagas.')
+        return redirect('home_recrutador')
+
+    # 2. Garante que o método é POST
+    if request.method == 'POST':
+        try:
+            # 3. Pega os objetos necessários
+            vaga = get_object_or_404(Vaga, id=vaga_id, status=True) # Só pode se candidatar a vagas abertas
+            candidato = request.user.candidato # Pega o perfil de candidato do usuário logado
+            
+            # 4. Tenta criar a candidatura (Fluxo Principal UC05)
+            # A checagem de duplicidade é feita pelo 'unique_together' no model
+            Candidatura.objects.create(
+                candidato=candidato,
+                vaga=vaga,
+                status='Enviada' # Define o status inicial
+            )
+            messages.success(request, 'Candidatura enviada com sucesso! Boa sorte.')
+        
+        except IntegrityError:
+            # 5. Fluxo Alternativo A1 (Candidatura Duplicada)
+            # O 'unique_together' no model
+            # falhou, o que significa que a candidatura já existe.
+            messages.warning(request, 'Você já se candidatou para esta vaga.')
+        
+        except Candidato.DoesNotExist:
+            messages.error(request, 'Você não possui um perfil de candidato para se candidatar.')
+        
+        except Exception as e:
+            messages.error(request, f'Ocorreu um erro: {e}')
+            
+    # 6. Redireciona de volta para a lista de vagas
+    return redirect('home_candidato')
