@@ -4,7 +4,7 @@ from django.contrib import messages
 from .models import Vaga, Candidatura
 from .forms import VagaForm
 from apps.usuarios.models import Recrutador
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 
 @login_required 
@@ -83,4 +83,71 @@ def home_recrutador(request):
     }
     return render(request, 'vagas/home_recrutador.html', contexto)
 
+@login_required
+def editar_vaga(request, vaga_id):
+    """
+    View para um Recrutador editar uma de suas vagas. (U do CRUD)
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+    
+    # Busca a vaga específica no banco, ou retorna um erro 404
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+    
+    # CONTROLE DE PERMISSÃO:
+    # Garante que o recrutador logado só possa editar as SUAS PRÓPRIAS vagas
+    if vaga.recrutador.usuario != request.user:
+        messages.error(request, 'Você não tem permissão para editar esta vaga.')
+        return redirect('home_recrutador')
+
+    recrutador_logado = request.user.recrutador
+
+    if request.method == 'POST':
+        # Popula o formulário com os dados enviados (request.POST) e
+        # com a instância da vaga que estamos editando
+        form = VagaForm(request.POST, instance=vaga, empresa=recrutador_logado.empresa)
+        if form.is_valid():
+            form.save(recrutador=recrutador_logado)
+            messages.success(request, 'Vaga atualizada com sucesso!')
+            return redirect('home_recrutador')
+    else:
+        # Se for um GET, apenas mostra o formulário pré-preenchido
+        form = VagaForm(instance=vaga, empresa=recrutador_logado.empresa)
+
+    contexto = {
+        'form': form,
+        'vaga': vaga 
+    }
+    return render(request, 'vagas/editar_vaga.html', contexto)
+
+@login_required
+def deletar_vaga(request, vaga_id):
+    """
+    View para um Recrutador deletar uma de suas vagas. (D do CRUD)
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+    
+    # Busca a vaga ou retorna erro 404
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+    
+    # CONTROLE DE PERMISSÃO:
+    # Garante que o recrutador só possa deletar as SUAS PRÓPRIAS vagas
+    if vaga.recrutador.usuario != request.user:
+        messages.error(request, 'Você não tem permissão para deletar esta vaga.')
+        return redirect('home_recrutador')
+
+    if request.method == 'POST':
+        # Se o usuário confirmou no formulário (clicou no botão "Confirmar")
+        vaga.delete()
+        messages.success(request, 'Vaga deletada com sucesso!')
+        return redirect('home_recrutador') # Volta para o painel
+    
+    # Se for um GET, apenas mostra a página de confirmação
+    contexto = {
+        'vaga': vaga
+    }
+    return render(request, 'vagas/deletar_vaga.html', contexto)
     

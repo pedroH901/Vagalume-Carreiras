@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Vaga</title>
+    <style>
+        body { font-family: sans-serif; display: grid; place-items: center; min-height: 90vh; background-color: #f4f4f4; }
+        form { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 8px; max-width: 600px; }
+        form p { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="password"], input[type="email"], textarea, select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+        }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .errorlist { color: red; list-style-type: none; padding: 0; }
+    </style>
+</head>
+<body>
+
+    <form method="POST">
+        <h2>Editando Vaga: {{ vaga.titulo }}</h2>
+        <p>Ajuste os campos abaixo e salve as alterações.</p>
+
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+
+        <button type="submit">Salvar Alterações</button>
+    </form>
+
+</body>
+</html>

@@ -37,8 +37,8 @@
                     </p>
                     <div class="links">
                         <a href="#">(Ver Candidatos)</a>
-                        <a href="#">(Editar)</a>
-                        <a href="#">(Apagar)</a>
+                        <a href="{% url 'editar_vaga' vaga.id %}">(Editar)</a>
+                        <a href="{% url 'deletar_vaga' vaga.id %}">(Apagar)</a>
                     </div>
                 </div>
             {% endfor %}
