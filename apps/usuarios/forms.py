@@ -8,16 +8,15 @@ class CandidatoCadastroForm(forms.Form):
     Coleta dados para os models Usuario e Candidato.
     """
     
-    # Campos do seu design no Figma
-    first_name = forms.CharField(label='Nome', max_length=100)
-    last_name = forms.CharField(label='Sobrenome', max_length=100)
-    email = forms.EmailField(label='Email')
-    telefone = forms.CharField(label='Telefone', max_length=20)
-    cpf = forms.CharField(label='CPF', max_length=14) # Permite máscaras (ex: 123.456.789-00)
-    password = forms.CharField(label='Senha', widget=forms.PasswordInput)
-    password_confirm = forms.CharField(label='Confirmar Senha', widget=forms.PasswordInput)
+    first_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Nome'}))
+    last_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Sobrenome'}))
+    email = forms.EmailField(label='', widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
+    telefone = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Telefone'}))
+    cpf = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'CPF'}))
+    password = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Senha'}))
+    password_confirm = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Confirmar Senha'}))
 
-    def clean_cpf(self):
+def clean_cpf(self):
         # Validação do CPF 
         cpf = self.cleaned_data.get('cpf')
         cpf_digits = re.sub(r'[^0-9]', '', cpf) # Remove pontos e traços
@@ -31,15 +30,15 @@ class CandidatoCadastroForm(forms.Form):
         
         return cpf_digits # Retorna o CPF limpo
 
-    def clean_email(self):
+def clean_email(self):
         # Validação de unicidade do Email
         email = self.cleaned_data.get('email').lower()
         if Usuario.objects.filter(email=email).exists():
             raise forms.ValidationError("Este email já está cadastrado. Tente fazer login.") 
         return email
 
-    def clean(self):
-        # Validação para checar se as senhas coincidem [cite: 19]
+def clean(self):
+        # Validação para checar se as senhas coincidem
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")

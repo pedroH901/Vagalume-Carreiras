@@ -1,50 +1,97 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - Vagalume Carreiras</title>
-    <style>
-        /* Estilos muito básicos para centralizar e organizar */
-        body { font-family: sans-serif; display: grid; place-items: center; min-height: 90vh; background-color: #f4f4f4; }
-        form { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 8px; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="password"] { width: 300px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .error { color: red; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login - Vagalume Carreiras{% endblock %}
 
-    <form method="POST">
-        <h2>Login</h2>
-        <p>Acesse sua conta para continuar.</p>
+{% block content %}
+<div class="login-wrapper">
+    
+    <div class="login-info">
+        <h1>Bem-vindo vagalume.</h1>
+        <p>Continue a brilhar com milhares de vagas e empresas.</p>
+    </div>
+    
+    <div class="auth-form-container">
+        
+        <div class="form-toggle">
+            <button type="button" class="toggle-btn active" data-form="candidato">Sou Candidato</button>
+            <button type="button" class="toggle-btn" data-form="empresa">Sou Empresa</button>
+        </div>
+        
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="error">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-        {% csrf_token %}
-
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <p class="error">{{ message }}</p>
-                {% endfor %}
+            <div id="form-candidato" class="form-fields active">
+                <div>
+                    <input type="text" name="username" id="id_username_candidato" placeholder="Email/CPF">
+                </div>
             </div>
-        {% endif %}
+            
+            <div id="form-empresa" class="form-fields">
+                <div>
+                    <input type="text" name="username_empresa" id="id_username_empresa" placeholder="Email Corporativo / CNPJ" disabled>
+                </div>
+            </div>
 
-        <div>
-            <label for="id_username">Email ou CPF:</label>
-            <input type="text" name="username" id="id_username" required>
-        </div>
-        <div>
-            <label for="id_password">Senha:</label>
-            <input type="password" name="password" id="id_password" required>
-        </div>
+            <div>
+                <input type="password" name="password" id="id_password" placeholder="Senha" required>
+            </div>
 
-        <button type="submit">Entrar</button>
+            <button type="submit" class="btn-submit-green">Fazer Login</button>
+            
+            <p class="form-footer-link">
+                <a href="#">esqueceu usuário ou senha?</a>
+            </p>
+        </form>
+    </div>
+</div>
 
-        <hr>
-        <p><a href="#">Esqueceu sua senha?</a></p>
-        <p>Não possui uma conta? <a href="{% url 'cadastro_candidato' %}">Cadastre-se</a></p>
-    </form>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+        const candidatoForm = document.getElementById('form-candidato');
+        const empresaForm = document.getElementById('form-empresa');
+        
+        // Inputs (vamos habilitar/desabilitar para garantir que só um seja enviado)
+        const candidatoInput = document.getElementById('id_username_candidato');
+        const empresaInput = document.getElementById('id_username_empresa');
 
-</body>
-</html>
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove 'active' de todos
+                toggleButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Adiciona 'active' no clicado
+                this.classList.add('active');
+                
+                if (this.dataset.form === 'candidato') {
+                    // Mostra o form do candidato
+                    candidatoForm.classList.add('active');
+                    empresaForm.classList.remove('active');
+                    // Habilita o input do candidato e desabilita o da empresa
+                    candidatoInput.disabled = false;
+                    candidatoInput.name = "username"; // Nome que o backend espera
+                    empresaInput.disabled = true;
+                    empresaInput.name = "username_disabled";
+                } else {
+                    // Mostra o form da empresa
+                    candidatoForm.classList.remove('active');
+                    empresaForm.classList.add('active');
+                    // Habilita o input da empresa e desabilita o do candidato
+                    candidatoInput.disabled = true;
+                    candidatoInput.name = "username_disabled";
+                    empresaInput.disabled = false;
+                    empresaInput.name = "username"; // Nome que o backend espera
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
