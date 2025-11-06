@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar Exclusão</title>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Confirmar Exclusão</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <p>Você tem certeza que deseja apagar permanentemente a vaga:</p>
+            <h3>"{{ vaga.titulo }}"?</h3>
+            
+            <p style="color: red; font-weight: bold;">Esta ação não pode ser desfeita.</p>
+            
+            <hr>
+            
+            <button type="submit" class="btn-danger">Sim, confirmar exclusão</button>
+            <a href="{% url 'home_recrutador' %}" class="btn-secondary">Cancelar</a>
+        </form>
+    </div>
+
+</body>
+</html>

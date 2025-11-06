@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Vagas</title>
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+    <style>
+        .messages { list-style-type: none; padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+        .messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .messages .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+    {% endif %}
+    <div class="container">
+        <h1>Vagas Abertas</h1>
+        <p>Encontre sua próxima oportunidade.</p>
+
+        <hr>
+
+        {% if vagas %}
+            {% for vaga in vagas %}
+                <div class="vaga">
+                    <h3>{{ vaga.titulo }}</h3>
+                    <p class="vaga-empresa">{{ vaga.empresa.nome }}</p>
+                    <p>Localidade: {{ vaga.localidade }} | Contrato: {{ vaga.tipo_contrato }}</p>
+                    <p>Publicada em: {{ vaga.data_publicacao|date:"d/m/Y" }}</p>
+                    
+            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-detalhes">Candidatar-se Agora</button>
+            </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Nenhuma vaga aberta no momento. Volte em breve!</p>
+        {% endif %}
+
+    </div>
+</body>
+</html> 

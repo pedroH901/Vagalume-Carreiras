@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Painel - Vagas</title>
+
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'criar_vaga' %}" class="btn-criar">Criar Nova Vaga</a>
+        <h1>Painel do Recrutador</h1>
+        <p>Aqui estão as vagas que você publicou.</p>
+
+        <hr>
+
+        {% if vagas %}
+            {% for vaga in vagas %}
+                <div class="vaga">
+                    <h3>{{ vaga.titulo }}</h3>
+                    <p>Localidade: {{ vaga.localidade }} | Contrato: {{ vaga.tipo_contrato }}</p>
+                    <p>Status: 
+                        {% if vaga.status %}
+                            <span class="status-aberta">Aberta</span>
+                        {% else %}
+                            <span class="status-fechada">Fechada</span>
+                        {% endif %}
+                    </p>
+                    <div class="links">
+                        <a href="#">(Ver Candidatos)</a>
+                        <a href="{% url 'editar_vaga' vaga.id %}">(Editar)</a>
+                        <a href="{% url 'deletar_vaga' vaga.id %}">(Apagar)</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Você ainda não criou nenhuma vaga.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Vaga</title>
+</head>
+<body>
+
+    <form method="POST">
+        <h2>Editando Vaga: {{ vaga.titulo }}</h2>
+        <p>Ajuste os campos abaixo e salve as alterações.</p>
+
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+
+        <button type="submit">Salvar Alterações</button>
+    </form>
+
+</body>
+</html>

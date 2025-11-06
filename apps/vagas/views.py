@@ -1,50 +1,195 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required # Importa o decorador de login
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Vaga, Candidatura
 from .forms import VagaForm
-from apps.usuarios.models import Recrutador # Precisamos saber quem é o recrutador
-from django.http import HttpResponse
+from apps.usuarios.models import Recrutador, Candidato
+from django.http import HttpResponse, Http404
+from django.db import IntegrityError
 
-@login_required # 1. Garante que o usuário DEVE estar logado para acessar
+
+@login_required 
 def criar_vaga(request):
     """
     View para um Recrutador criar uma nova vaga.
+    (VERSÃO ATUALIZADA para funcionar com o novo forms.py)
     """
-    # 2. CONTROLE DE PERMISSÃO:
-    # Verifica se o "crachá" do usuário é de recrutador
     if request.user.tipo_usuario != 'recrutador':
         messages.error(request, 'Acesso negado. Esta página é apenas para recrutadores.')
-        return redirect('home_candidato') # Redireciona para uma página inicial genérica
+        return redirect('home_candidato') 
+
+    # Pega o perfil do recrutador logado para passar para o formulário
+    recrutador_logado = get_object_or_404(Recrutador, usuario=request.user)
 
     if request.method == 'POST':
-        form = VagaForm(request.POST)
+        # Passa a 'empresa' para o __init__ do formulário
+        form = VagaForm(request.POST, empresa=recrutador_logado.empresa)
         
         if form.is_valid():
-            # Não salva no banco ainda, precisamos adicionar o dono da vaga
-            vaga = form.save(commit=False)
-            
-            # 3. CONECTA A VAGA AO SEU DONO
-            # Pega o perfil do recrutador logado
-            recrutador_logado = get_object_or_404(Recrutador, usuario=request.user)
-            vaga.recrutador = recrutador_logado
-            vaga.empresa = recrutador_logado.empresa # Pega a empresa do recrutador
-            
-            vaga.save() # Agora sim, salva no banco
+            # Passa o 'recrutador' para o save customizado do formulário
+            vaga = form.save(commit=False, recrutador=recrutador_logado)
+            vaga.save() # O save customizado já preencheu empresa e recrutador
             
             messages.success(request, 'Vaga criada com sucesso!')
-            return redirect('home_recrutador') # Redireciona para o painel do recrutador
+            return redirect('home_recrutador')
     else:
-        # Se for um GET, apenas mostra o formulário vazio
-        form = VagaForm()
-        return render(request, 'vagas/criar_vaga.html', {'form': form})
+        # Passa a 'empresa' para o __init__ do formulário
+        form = VagaForm(empresa=recrutador_logado.empresa)
+
+    return render(request, 'vagas/criar_vaga.html', {'form': form})
     
+@login_required
 def home_candidato(request):
-    # Esta é a view temporária para o painel do candidato
-    return HttpResponse("<h1>Painel do Candidato</h1><p>Em breve, aqui você verá as vagas.</p>")
+    """
+    Painel do Candidato, lista TODAS as vagas abertas. (R do CRUD)
+    """
+    # Controle de Permissão
+    if request.user.tipo_usuario != 'candidato':
+        messages.error(request, 'Acesso negado.')
+        # Se um recrutador tentar acessar, joga ele de volta para o painel dele
+        return redirect('home_recrutador')
 
-def home_recrutador(request):
-    # Esta é a view temporária para o painel do recrutador
-    return HttpResponse("<h1>Painel do Recrutador</h1><p>Em breve, aqui você verá suas vagas criadas.</p>")
-
+    # Busca no banco:
+    # 1. Filtra apenas vagas com status=True (Abertas)
+    # 2. Ordena pela data de publicação, da mais nova para a mais antiga
+    lista_de_vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
     
+    contexto = {
+        'vagas': lista_de_vagas
+    }
+    # Renderiza o novo template que vamos criar
+    return render(request, 'vagas/home_candidato.html', contexto)
+
+@login_required
+def home_recrutador(request):
+    """
+    Painel do Recrutador, lista as vagas criadas por ele. (R do CRUD)
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+
+    try:
+        # Busca o perfil 'Recrutador' associado ao 'Usuario' logado
+        recrutador = request.user.recrutador
+    except Recrutador.DoesNotExist:
+        messages.error(request, 'Você não possui um perfil de recrutador associado.')
+        return redirect('home_candidato')
+
+    # Filtra as vagas: pega apenas aquelas onde o 'recrutador' é o usuário logado
+    minhas_vagas = Vaga.objects.filter(recrutador=recrutador)
+    
+    contexto = {
+        'vagas': minhas_vagas
+    }
+    return render(request, 'vagas/home_recrutador.html', contexto)
+
+@login_required
+def editar_vaga(request, vaga_id):
+    """
+    View para um Recrutador editar uma de suas vagas. (U do CRUD)
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+    
+    # Busca a vaga específica no banco, ou retorna um erro 404
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+    
+    # CONTROLE DE PERMISSÃO:
+    # Garante que o recrutador logado só possa editar as SUAS PRÓPRIAS vagas
+    if vaga.recrutador.usuario != request.user:
+        messages.error(request, 'Você não tem permissão para editar esta vaga.')
+        return redirect('home_recrutador')
+
+    recrutador_logado = request.user.recrutador
+
+    if request.method == 'POST':
+        # Popula o formulário com os dados enviados (request.POST) e
+        # com a instância da vaga que estamos editando
+        form = VagaForm(request.POST, instance=vaga, empresa=recrutador_logado.empresa)
+        if form.is_valid():
+            form.save(recrutador=recrutador_logado)
+            messages.success(request, 'Vaga atualizada com sucesso!')
+            return redirect('home_recrutador')
+    else:
+        # Se for um GET, apenas mostra o formulário pré-preenchido
+        form = VagaForm(instance=vaga, empresa=recrutador_logado.empresa)
+
+    contexto = {
+        'form': form,
+        'vaga': vaga 
+    }
+    return render(request, 'vagas/editar_vaga.html', contexto)
+
+@login_required
+def deletar_vaga(request, vaga_id):
+    """
+    View para um Recrutador deletar uma de suas vagas. (D do CRUD)
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+    
+    # Busca a vaga ou retorna erro 404
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+    
+    # CONTROLE DE PERMISSÃO:
+    # Garante que o recrutador só possa deletar as SUAS PRÓPRIAS vagas
+    if vaga.recrutador.usuario != request.user:
+        messages.error(request, 'Você não tem permissão para deletar esta vaga.')
+        return redirect('home_recrutador')
+
+    if request.method == 'POST':
+        # Se o usuário confirmou no formulário (clicou no botão "Confirmar")
+        vaga.delete()
+        messages.success(request, 'Vaga deletada com sucesso!')
+        return redirect('home_recrutador') # Volta para o painel
+    
+    # Se for um GET, apenas mostra a página de confirmação
+    contexto = {
+        'vaga': vaga
+    }
+    return render(request, 'vagas/deletar_vaga.html', contexto)
+    
+@login_required
+def aplicar_vaga(request, vaga_id):
+    """
+    View para um Candidato se aplicar a uma vaga. (C do CRUD de Candidatura)
+    Esta view é chamada por um formulário POST.
+    """
+    # 1. Controle de Permissão
+    if request.user.tipo_usuario != 'candidato':
+        messages.error(request, 'Apenas candidatos podem se candidatar a vagas.')
+        return redirect('home_recrutador')
+
+    # 2. Garante que o método é POST
+    if request.method == 'POST':
+        try:
+            # 3. Pega os objetos necessários
+            vaga = get_object_or_404(Vaga, id=vaga_id, status=True) # Só pode se candidatar a vagas abertas
+            candidato = request.user.candidato # Pega o perfil de candidato do usuário logado
+            
+            # 4. Tenta criar a candidatura (Fluxo Principal UC05)
+            # A checagem de duplicidade é feita pelo 'unique_together' no model
+            Candidatura.objects.create(
+                candidato=candidato,
+                vaga=vaga,
+                status='Enviada' # Define o status inicial
+            )
+            messages.success(request, 'Candidatura enviada com sucesso! Boa sorte.')
+        
+        except IntegrityError:
+            # 5. Fluxo Alternativo A1 (Candidatura Duplicada)
+            # O 'unique_together' no model
+            # falhou, o que significa que a candidatura já existe.
+            messages.warning(request, 'Você já se candidatou para esta vaga.')
+        
+        except Candidato.DoesNotExist:
+            messages.error(request, 'Você não possui um perfil de candidato para se candidatar.')
+        
+        except Exception as e:
+            messages.error(request, f'Ocorreu um erro: {e}')
+            
+    # 6. Redireciona de volta para a lista de vagas
+    return redirect('home_candidato')

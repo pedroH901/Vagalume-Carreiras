@@ -1,34 +1,87 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Cadastro de Candidato - Vagalume Carreiras</title>
-    <style>
-        body { font-family: sans-serif; display: grid; place-items: center; min-height: 90vh; background-color: #f4f4f4; }
-        form { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 8px; }
-        /* O "as_p" do Django cria <p> para cada campo */
-        form p { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="password"], input[type="email"] { width: 300px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .errorlist { color: red; list-style-type: none; padding: 0; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Cadastro - Vagalume Carreiras{% endblock %}
 
-    <form method="POST">
-        <h2>Cadastro de Candidato</h2>
-        <p>Preencha os campos para criar sua conta.</p>
+{% block content %}
+<div class="cadastro-wrapper">
+    
+    <div class="cadastro-info">
+        <h1>Deixe sua carreira brilhar.</h1>
+        <p>Junte-se a milhares de profissionais e empresas.</p>
+    </div>
+    
+    <div class="auth-form-container">
+        
+        <div class="form-toggle">
+            <a href="{% url 'cadastro_candidato' %}" class="toggle-btn active">Sou Candidato</a>
+            <a href="#" class="toggle-btn">Sou Empresa</a> 
+        </div>
+        
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="form-error-message">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
 
-        {% csrf_token %}
+            {{ form.as_p }}
+            
+            <div class="form-terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">Li e Aceito os <a href="#">Termos de Serviço</a> e a <a href="#">Política de Privacidade</a>.</label>
+            </div>
+            
+            <button type="submit" class="btn-submit-green">Criar Conta</button>
+            
+            <p class="form-footer-link">
+                Já possui uma conta? <a href="{% url 'login' %}">Faça login aqui.</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}{% extends 'base.html' %}
+{% load static %}
+{% block title %}Cadastro - Vagalume Carreiras{% endblock %}
 
-        {{ form.as_p }}
+{% block content %}
+<div class="cadastro-wrapper">
+    
+    <div class="cadastro-info">
+        <h1>Deixe sua carreira brilhar.</h1>
+        <p>Junte-se a milhares de profissionais e empresas.</p>
+    </div>
+    
+    <div class="auth-form-container">
+        
+        <div class="form-toggle">
+            <a href="{% url 'cadastro_candidato' %}" class="toggle-btn active">Sou Candidato</a>
+            <a href="#" class="toggle-btn">Sou Empresa</a> 
+        </div>
+        
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="form-error-message">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
 
-        <button type="submit">Criar Conta</button>
-
-        <hr>
-        <p>Já possui uma conta? <a href="{% url 'login' %}">Faça o login</a></p>
-    </form>
-
-</body>
-</html>
+            {{ form.as_p }}
+            
+            <div class="form-terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">Li e Aceito os <a href="#">Termos de Serviço</a> e a <a href="#">Política de Privacidade</a>.</label>
+            </div>
+            
+            <button type="submit" class="btn-submit-green">Criar Conta</button>
+            
+            <p class="form-footer-link">
+                Já possui uma conta? <a href="{% url 'login' %}">Faça login aqui.</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
