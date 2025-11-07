@@ -41,47 +41,4 @@
         </form>
     </div>
 </div>
-{% endblock %}{% extends 'base.html' %}
-{% load static %}
-{% block title %}Cadastro - Vagalume Carreiras{% endblock %}
-
-{% block content %}
-<div class="cadastro-wrapper">
-    
-    <div class="cadastro-info">
-        <h1>Deixe sua carreira brilhar.</h1>
-        <p>Junte-se a milhares de profissionais e empresas.</p>
-    </div>
-    
-    <div class="auth-form-container">
-        
-        <div class="form-toggle">
-            <a href="{% url 'cadastro_candidato' %}" class="toggle-btn active">Sou Candidato</a>
-            <a href="#" class="toggle-btn">Sou Empresa</a> 
-        </div>
-        
-        <form method="POST" class="auth-form">
-            {% csrf_token %}
-            
-            {% if form.non_field_errors %}
-                {% for error in form.non_field_errors %}
-                    <div class="form-error-message">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
-
-            {{ form.as_p }}
-            
-            <div class="form-terms">
-                <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms">Li e Aceito os <a href="#">Termos de Serviço</a> e a <a href="#">Política de Privacidade</a>.</label>
-            </div>
-            
-            <button type="submit" class="btn-submit-green">Criar Conta</button>
-            
-            <p class="form-footer-link">
-                Já possui uma conta? <a href="{% url 'login' %}">Faça login aqui.</a>
-            </p>
-        </form>
-    </div>
-</div>
 {% endblock %}

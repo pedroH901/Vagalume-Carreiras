@@ -47,3 +47,13 @@ def clean(self):
             raise forms.ValidationError("As senhas não coincidem.")
         
         return cleaned_data
+
+def clean_telefone(self):
+    # Validação de unicidade do Telefone
+    telefone = self.cleaned_data.get('telefone')
+    # (Opcional: limpar o telefone de máscaras, similar ao CPF)
+    # telefone_digits = re.sub(r'[^0-9]', '', telefone) 
+
+    if Usuario.objects.filter(telefone=telefone).exists():
+        raise forms.ValidationError("Este telefone já está cadastrado.")
+    return telefone

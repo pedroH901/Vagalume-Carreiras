@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <title>{% block title %}Vagalume Carreiras{% endblock %}</title>
 </head>
@@ -43,5 +44,33 @@
         {% endblock %}
     </main>
 
-</body>
+<footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-logo">
+                <img src="{% static 'img/vagalume_logo.png' %}" alt="Vagalume Carreiras Logo">
+            </div>
+
+            <div class="footer-social">
+                <h4>Nos encontre nas redes sociais</h4>
+                <div class="footer-social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-contact">
+                <h4>Estamos felizes em iluminar</h4>
+                <p>vagalumecarreiras@gmail.com</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <hr class="footer-hr">
+            <p class="footer-copyright">Copyright © 2025 Vagalume Carreiras</p>
+        </div>
+    </footer>
+    </body>
 </html>

@@ -14,10 +14,18 @@ body {
     line-height: 1.6;
 }
 
-.main-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
+main.main-container {
+    width: 100%;
+
+    min-height: 86px; 
+
+    /* Usa Flexbox para centralizar o conteúdo (o .login-wrapper) */
+    display: flex;
+    align-items: center;     /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+
+    /* Adiciona um padding para o conteúdo não grudar nas bordas em telas menores */
+    padding: 40px 20px;
 }
 
 a {
@@ -390,4 +398,90 @@ main.container {
 }
 .form-terms input[type="checkbox"] {
     margin-right: 10px;
+}
+
+/* ===================================================================
+   FOOTER
+   =================================================================== */
+
+.footer {
+    background-color: #0D1B2A; /* "Funde" com o fundo do body */
+    color: #8b949e; /* Cinza claro para o texto */
+    padding: 30px 0 20px 0;
+    margin-top: 50px; /* Um espaço entre o conteúdo principal e o footer */
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    
+    display: flex;
+    justify-content: space-between; /* Espalha as colunas */
+    align-items: center;
+    gap: 30px; /* Espaço entre as colunas */
+}
+
+/* Coluna 1: Logo */
+.footer-logo img {
+    height: 150px;
+    width: auto;
+}
+
+/* Colunas 2 e 3: Social e Contato */
+.footer-social,
+.footer-contact {
+    text-align: center;
+}
+
+.footer-social h4,
+.footer-contact h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    color: #FFFFFF; /* Texto principal em branco */
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.footer-contact p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #8b949e;
+    font-size: 0.9rem;
+}
+
+/* Ícones de Rede Social */
+.footer-social-icons {
+    margin-top: 15px;
+}
+
+.footer-social-icons a {
+    color: #FFFFFF; /* Ícone em branco */
+    font-size: 1.2rem;
+    margin-right: 20px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-social-icons a:hover {
+    color: #BEF264; /* Efeito hover verde */
+}
+
+/* Linha Separadora e Copyright */
+.footer-bottom {
+    max-width: 1100px;
+    margin: 40px auto 0 auto; /* Espaço acima da linha */
+    padding: 0;
+}
+
+.footer-hr {
+    border: none;
+    height: 1px;
+    background-color: #30363d; /* Linha branca fina (na verdade, cinza escuro) */
+}
+
+.footer-copyright {
+    text-align: center;
+    color: #8b949e;
+    font-size: 0.85rem;
+    margin-top: 20px;
 }

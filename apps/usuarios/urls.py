@@ -13,10 +13,9 @@ urlpatterns = [
     # URL para a página de cadastro de candidato
     path('cadastro/candidato/', views.cadastrar_candidato, name='cadastro_candidato'),
 
-    # (Mais tarde, adicionaremos o cadastro da empresa aqui)
-    # path('cadastro/empresa/', views.cadastrar_empresa, name='cadastro_empresa'),
-
     # URLs de placeholder para os painéis
-    path('dashboard/candidato/', views.home_candidato, name='home_candidato'),
-    path('dashboard/recrutador/', views.home_recrutador, name='home_recrutador'),
+    path('onboarding/bem-vindo/', views.onboarding_bem_vindo, name='onboarding_bem_vindo'),
+    path('onboarding/resumo/', views.onboarding_resumo, name='onboarding_resumo'),
+    path('onboarding/salvar-resumo/', views.salvar_resumo, name='salvar_resumo'),
+    path('onboarding/experiencia/', views.onboarding_experiencia, name='onboarding_experiencia'),
 ]
