@@ -7,6 +7,8 @@ from apps.usuarios.models import Recrutador, Candidato
 from django.http import HttpResponse, Http404
 from django.db import IntegrityError
 from apps.usuarios.forms import ExperienciaForm, FormacaoForm
+from apps.usuarios.models import Candidato, Empresa
+from .models import Vaga
 
 
 
@@ -24,8 +26,20 @@ def landing_page(request):
         elif request.user.tipo_usuario == 'recrutador':
             return redirect('home_recrutador')
     
-    # Se não estiver logado, apenas mostra a landing page
-    return render(request, 'vagas/landing_page.html')
+    # --- LÓGICA DOS STATS ---
+    # Busca os números reais do seu banco de dados
+    total_candidatos = Candidato.objects.count()
+    total_vagas = Vaga.objects.filter(status=True).count() # Conta só vagas abertas
+    total_empresas = Empresa.objects.count()
+
+    contexto = {
+        'total_candidatos': total_candidatos,
+        'total_vagas': total_vagas,
+        'total_empresas': total_empresas,
+    }
+    
+    # Se não estiver logado, mostra a landing page com os stats
+    return render(request, 'vagas/landing_page.html', contexto)
 
 @login_required 
 def criar_vaga(request):

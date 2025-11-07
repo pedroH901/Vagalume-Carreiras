@@ -5,29 +5,48 @@
 {% block content %}
 
 <style>
-    .hero-section {
-        text-align: center;
-        max-width: 800px;
-        margin: 60px auto;
-        padding: 40px;
-        background-color: #161B22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
+    /* Reseta o padding do main-container SÓ nesta página */
+main.main-container {
+        padding-top: 0;
+        padding-bottom: 0;
+        display: block;
+        width: 100%;   
+        max-width: 100%;
     }
+    /* --- PARTE 1: HERO TEXT --- */
+    .hero-section {
+        /* Cria o efeito "flutuante" */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        /* Define uma altura grande, ex: 80% da tela */
+        min-height: 80vh; 
+        padding: 0 20px;
+        background: none; /* Sem fundo */
+    }
+    
     .hero-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-weight: 800;
-        font-size: 3rem; /* 3rem */
+        font-size: 4.5rem; /* BEM GRANDE */
         color: #FFFFFF;
+        line-height: 1.1;
+        max-width: 800px; /* Limita a largura do texto */
         margin-bottom: 20px;
     }
+    
     .hero-subtitle {
-        font-size: 1.2rem;
-        color: #8b949e;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.25rem;
+        color: #8b949e; /* Cinza claro */
+        max-width: 500px;
         margin-bottom: 40px;
     }
-    /* Estilo para os botões da home */
-    .btn-cta-green {
+
+    /* --- PARTE 2: BOTÕES --- */
+    .hero-buttons .btn-cta-green {
         display: inline-block;
         text-decoration: none;
         padding: 15px 35px;
@@ -40,7 +59,8 @@
         font-weight: bold;
         margin: 0 10px;
     }
-    .btn-cta-outline {
+    
+    .hero-buttons .btn-cta-outline {
         display: inline-block;
         text-decoration: none;
         padding: 15px 35px;
@@ -54,19 +74,173 @@
         margin: 0 10px;
     }
 
+    /* --- PARTE 3: STATS --- */
+    .stats-section {
+        display: flex;
+        justify-content: center;
+        gap: 60px; /* Espaço entre os números */
+        padding: 50px 20px;
+        text-align: center;
+    }
+    .stat-item h3 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 3rem; /* Números grandes */
+        font-weight: 700;
+        color: #BEF264; /* Verde Vagalume */
+        margin: 0;
+    }
+    .stat-item p {
+        color: #8b949e;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    
+    /* --- PARTE 4: MARQUEE (LETREIRO) --- */
+    .marquee-section {
+        position: relative; /* Contexto para as faixas */
+        height: 250px; /* Altura para o "X" caber */
+        overflow: hidden; /* ESSENCIAL: esconde o que vaza */
+        margin: 80px 0; /* Espaçamento */
+        
+        /* Remove a necessidade das faixas serem 200% largas */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150vw; /* Faz o wrapper ser MAIOR que a tela */
+    }
+
+    .marquee-stripe {
+        position: absolute;
+        width: 100%;
+        padding: 50px 0;
+        /* O gradiente que você pediu */
+        background: linear-gradient(to bottom, #BEF264, #ffffff);
+        color: #0D1B2A; /* Texto escuro para contrastar */
+        font-weight: 800;
+        font-size: 2rem;
+        
+        display: flex; /* Para o letreiro funcionar */
+        overflow: hidden; /* Esconde o texto que não está animando */
+    }
+
+    /* A inclinação do "X" */
+    .stripe-1 {
+        transform: rotate(3deg);
+        top: 100px; 
+        z-index: 2; /* Coloca a faixa 1 na frente */
+        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3); /* A sombra! */
+    }
+    
+    .stripe-2 {
+        transform: rotate(-3deg); 
+        bottom: 40px; 
+        z-index: 1;
+    }
+
+    /* O container da animação */
+    .marquee-inner {
+        display: flex;
+        width: 200%; 
+        animation: scroll-left 30s linear infinite;
+    }
+    
+    /* O grupo de logos (uma cópia) */
+    .marquee-group {
+        width: 100%;
+        display: flex;
+        /* Espalha os nomes */
+        justify-content: space-around; 
+        align-items: center;
+    }
+
+    .marquee-group span {
+        white-space: nowrap; /* Impede quebra de linha */
+        padding: 0 30px;
+    }
+    
+    /* A Animação do letreiro */
+    @keyframes scroll-left {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            /* Move 50% para a esquerda (o tamanho de um .marquee-group) */
+            transform: translateX(-50%);
+        }
+    }
+    
 </style>
 
-<div class="hero-section">
-    <h1 class="hero-title">
-        Sua próxima oportunidade de brilhar está aqui.
-    </h1>
-    <p class="hero-subtitle">
-        Conectamos profissionais incríveis como você às empresas mais inovadoras do mercado.
-    </p>
+<section class="hero-section">
     
-    <div>
-        <a href="{% url 'cadastro_candidato' %}" class="btn-cta-green">Quero ser Vagalume</a>
-        <a href="#" class="btn-cta-outline">Sou Empresa</a> </div>
-</div>
+    <h1 class="hero-title">
+        A um passo do <br> emprego dos seus <br> Sonhos!
+    </h1>
+    
+    <p class="hero-subtitle">
+        Deixe-nos ajudá-lo a encontrar um emprego que seja ideal para você!
+    </p>
+
+    <div class="hero-buttons">
+        <a href="{% url 'cadastro_candidato' %}" class="btn-cta-green">Vamos começar</a>
+        <a href="#" class="btn-cta-outline">Sou Empresa</a>
+    </div>
+
+</section>
+
+<section class="stats-section">
+    <div class="stat-item">
+        <h3>+{{ total_candidatos }}</h3>
+        <p>Usuários Ativos</p>
+    </div>
+    <div class="stat-item">
+        <h3>+{{ total_vagas }}</h3>
+        <p>Empregos Abertos</p>
+    </div>
+    <div class="stat-item">
+        <h3>+{{ total_empresas }}</h3>
+        <p>Empresas Parceiras</p>
+    </div>
+</section>
+
+<section class="marquee-section">
+    
+    <div class="marquee-stripe stripe-1">
+        <div class="marquee-inner">
+            <div class="marquee-group">
+                <span>TechFlow</span>
+                <span>InovaSoft</span>
+                <span>PixelPerfect</span>
+                <span>CodeCrafters</span>
+                <span>NextGen Soluções</span>
+            </div>
+            <div class="marquee-group">
+                <span>TechFlow</span>
+                <span>InovaSoft</span>
+                <span>PixelPerfect</span>
+                <span>CodeCrafters</span>
+                <span>NextGen Soluções</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="marquee-stripe stripe-2">
+        <div class="marquee-inner" style="animation-direction: reverse;"> <div class="marquee-group">
+                <span>Apex Digital</span>
+                <span>QuantumLeap</span>
+                <span>Zenith Tech</span>
+                <span>Stellar Labs</span>
+                <span>FutureWorks</span>
+            </div>
+            <div class="marquee-group">
+                <span>Apex Digital</span>
+                <span>QuantumLeap</span>
+                <span>Zenith Tech</span>
+                <span>Stellar Labs</span>
+                <span>FutureWorks</span>
+            </div>
+        </div>
+    </div>
+
+</section>
 
 {% endblock %}
