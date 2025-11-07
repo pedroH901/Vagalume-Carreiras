@@ -1,49 +1,249 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Painel de Vagas</title>
-</head>
-<body>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                {{ message }}
-            </li>
-        {% endfor %}
-    </ul>
-    <style>
-        .messages { list-style-type: none; padding: 10px; margin-bottom: 15px; border-radius: 5px; }
-        .messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .messages .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    </style>
-    {% endif %}
-    <div class="container">
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Painel de Vagas{% endblock %}
+
+{% block content %}
+
+<div class="onboarding-container" id="onboarding-container">
+    <h1 class="onboarding-title">
+        Bem-vindo(a), {{ user.first_name|default:user.username }}!
+    </h1>
+    <p class="onboarding-subtitle">
+        Vamos preparar seu perfil para que as melhores oportunidades encontrem você.
+    </p>
+    
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+    </div>
+    <p class="progress-text" id="progress-text">0%</p>
+    
+    <a href="{% url 'onboarding_teste' %}" class="btn-submit-green" id="btn-vamos-comecar">
+        Vamos começar
+    </a>
+</div>
+
+<div class="onboarding-container" id="onboarding-step-2">
+    <h1 class="onboarding-title">
+        Resumo Profissional
+    </h1>
+    <p class="onboarding-subtitle">
+        Adicione um resumo sobre sua carreira para que os recrutadores te conheçam melhor.
+    </p>
+
+    <form action="{% url 'salvar_resumo' %}" method="POST" class="onboarding-form">
+        {% csrf_token %}
+        <textarea name="resumo" class="onboarding-textarea" placeholder="Escreva sobre suas experiências, habilidades e objetivos..."></textarea>
+
+        <button type="submit" class="btn-submit-green">Continuar</button>
+    </form>
+
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar-fill-2" style="width: 10%;"></div>
+    </div>
+    <p class="progress-text" id="progress-text-2">30%</p>
+</div>
+
+<div class="vagas-container" id="vagas-container">
+    <div class="container-header">
         <h1>Vagas Abertas</h1>
         <p>Encontre sua próxima oportunidade.</p>
+    </div>
 
-        <hr>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                {% if 'FIRST_LOGIN' not in message.tags %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
 
+    <div class="vaga-lista">
         {% if vagas %}
             {% for vaga in vagas %}
-                <div class="vaga">
+                <div class="vaga-card">
                     <h3>{{ vaga.titulo }}</h3>
                     <p class="vaga-empresa">{{ vaga.empresa.nome }}</p>
                     <p>Localidade: {{ vaga.localidade }} | Contrato: {{ vaga.tipo_contrato }}</p>
                     <p>Publicada em: {{ vaga.data_publicacao|date:"d/m/Y" }}</p>
                     
-            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn-detalhes">Candidatar-se Agora</button>
-            </form>
+                    <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-detalhes">Candidatar-se Agora</button>
+                    </form>
                 </div>
             {% endfor %}
         {% else %}
             <p>Nenhuma vaga aberta no momento. Volte em breve!</p>
         {% endif %}
-
     </div>
-</body>
-</html> 
+</div>
+
+<style>
+    /* Estilos da Cutscene (CORRIGIDO) */
+    .onboarding-container {
+        text-align: center;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #161B22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        
+        /* MUDANÇA: Escondido por padrão via CSS, não inline */
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    /* Classe que o JS adiciona para o Bloco 1 aparecer */
+    .onboarding-container.is-active {
+        display: block; /* Torna visível */
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 0.5s ease-out forwards; /* Animação de entrada original */
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* (O resto do .onboarding-title, .progress-bar, etc. continua igual) */
+    .onboarding-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 2.2rem; color: #FFFFFF; margin-bottom: 10px; }
+    .onboarding-subtitle { font-size: 1.1rem; color: #8b949e; margin-bottom: 30px; }
+    .progress-bar-wrapper { width: 100%; height: 10px; background-color: #0D1B2A; border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
+    .progress-bar-fill { width: 0%; height: 100%; background-color: #BEF264; border-radius: 5px; transition: width 1.5s ease-out; }
+    .progress-text { color: #8b949e; font-size: 0.9rem; margin-top: 5px; margin-bottom: 30px; }
+    .btn-submit-green { display: inline-block; text-decoration: none; width: auto; padding: 12px 30px; }
+
+    /* (O resto dos estilos de .vagas-container, .vaga-card, .messages, etc. continua igual) */
+    .vagas-container { max-width: 900px; margin: auto; }
+    .container-header { text-align: center; margin-bottom: 30px; }
+    .container-header h1 { font-size: 2.5rem; }
+    .container-header p { font-size: 1.1rem; color: #8b949e; }
+    .vaga-card { background: #161B22; border: 1px solid #30363d; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
+    .vaga-card h3 { color: #fff; margin-top: 0; }
+    .vaga-empresa { font-weight: bold; color: #8b949e; }
+    .btn-detalhes { background: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; font-size: 0.9rem; }
+    .btn-detalhes:hover { background: #0056b3; }
+    .messages { list-style-type: none; padding: 0; }
+    .messages li { padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+    .messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .messages .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    .messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    /* ==========================================================
+       CSS DA NOVA TRANSIÇÃO (Fade Out/Down, Fade In/Up)
+       ========================================================== */
+
+    /* Animação do Bloco 1: Desce e some (Como você pediu) */
+    @keyframes fadeOutDown {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(50px); /* Desce */
+        }
+    }
+
+    /* Animação do Bloco 2: Sobe e aparece (Como você pediu) */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px); /* Começa de baixo */
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Classe que o JS vai adicionar ao Bloco 1 para sumir */
+    .onboarding-container.fade-out {
+        animation: fadeOutDown 0.5s ease-in forwards;
+    }
+
+    /* Classe que o JS vai adicionar ao Bloco 2 para aparecer */
+    .onboarding-container.fade-in {
+        display: block; /* Torna o bloco visível */
+        opacity: 0; /* Garante que comece invisível */
+        /* Inicia a animação de subida com um delay */
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    /* (Estilos do textarea, .onboarding-form, etc. continuam iguais) */
+    .onboarding-form { width: 100%; margin-bottom: 20px; }
+    .onboarding-textarea { width: 100%; min-height: 150px; background-color: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: 12px 15px; border-radius: 5px; font-size: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 20px; }
+    .onboarding-textarea::placeholder { color: #8b949e; }
+    .onboarding-textarea:focus { border-color: #58a6ff; outline: none; box-shadow: 0 0 0 3px rgba(88,166,255,0.3); }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pega os elementos da página
+    const vagasContainer = document.getElementById('vagas-container');
+    const step1Container = document.getElementById('onboarding-container');
+    const step2Container = document.getElementById('onboarding-step-2');
+    const btnVamosComecar = document.getElementById('btn-vamos-comecar');
+
+    // --- 1. LÓGICA DE EXIBIÇÃO INICIAL ---
+    let isFirstLogin = false;
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'FIRST_LOGIN' in message.tags %}
+                isFirstLogin = true;
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    if (isFirstLogin) {
+        // Se for o primeiro login, esconde as vagas e mostra o Passo 1
+        vagasContainer.style.display = 'none';
+        step1Container.classList.add('is-active');
+        
+        // MUDANÇA: Usamos 'is-active' para o CSS fazer o fade in inicial
+        step1Container.classList.add('is-active'); 
+
+        setTimeout(() => {
+            document.getElementById('progress-bar-fill').style.width = '10%';
+            document.getElementById('progress-text').innerText = '10%';
+        }, 500); 
+    }
+
+    // --- 2. LÓGICA DA TRANSIÇÃO (CORRIGIDA COM DELAY DE 1 SEGUNDO) ---
+    if (btnVamosComecar) {
+        btnVamosComecar.addEventListener('click', function(event) {
+            event.preventDefault(); // Impede o link de navegar
+
+            // 1. Aplica a animação "fade-out-down" no Bloco 1
+            step1Container.classList.add('fade-out');
+
+            // 2. Espera a animação do Bloco 1 TERMINAR (500ms)
+            setTimeout(() => {
+                step1Container.style.display = 'none'; // Esconde o Bloco 1
+                
+                // 3. Espera o "intervalo" de 1 segundo (1000ms) que você pediu
+                setTimeout(() => {
+                    
+                    // 4. Aplica a animação "fade-in-up" no Bloco 2
+                    step2Container.classList.add('fade-in'); 
+
+                    // 5. Anima a barra de progresso do Bloco 2
+                    setTimeout(() => {
+                        document.getElementById('progress-bar-fill-2').style.width = '30%';
+                        document.getElementById('progress-text-2').innerText = '30%';
+                    }, 500); // Meio segundo de delay para a barra
+
+                }, 1000); // O intervalo de 1 segundo
+
+            }, 500); // Tempo da animação fade-out
+        });
+    }
+});
+</script>
+{% endblock %}
