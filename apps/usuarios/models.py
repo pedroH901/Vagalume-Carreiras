@@ -48,6 +48,7 @@ class Candidato(models.Model):
     # CAMPOS ESPECÍFICOS (Removemos nome, email, senha, etc., pois estão no Usuario)
     cpf = models.CharField(max_length=11, unique=True)
     headline = models.CharField(max_length=255, blank=True, null=True)
+    curriculo_pdf = models.FileField(upload_to='curriculos_pdf/', blank=True, null=True)
 
     def __str__(self):
         return self.usuario.email # Puxa o email do sistema de login

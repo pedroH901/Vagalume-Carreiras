@@ -4,6 +4,7 @@ from django.urls import path
 from . import views  # Importa as views do app (views.py)
 
 urlpatterns = [
+    path('', views.landing_page, name='landing_page'),
     path('vagas/criar/', views.criar_vaga, name='criar_vaga'),
     path('vagas/editar/<int:vaga_id>/', views.editar_vaga, name='editar_vaga'),
     path('vagas/deletar/<int:vaga_id>/', views.deletar_vaga, name='deletar_vaga'),

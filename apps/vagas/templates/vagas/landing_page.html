@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Vagalume Carreiras - Ilumine sua Carreira{% endblock %}
+
+{% block content %}
+
+<style>
+    .hero-section {
+        text-align: center;
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 40px;
+        background-color: #161B22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+    }
+    .hero-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 3rem; /* 3rem */
+        color: #FFFFFF;
+        margin-bottom: 20px;
+    }
+    .hero-subtitle {
+        font-size: 1.2rem;
+        color: #8b949e;
+        margin-bottom: 40px;
+    }
+    /* Estilo para os botões da home */
+    .btn-cta-green {
+        display: inline-block;
+        text-decoration: none;
+        padding: 15px 35px;
+        background-color: #AFEB83; 
+        color: #0D1117; 
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin: 0 10px;
+    }
+    .btn-cta-outline {
+        display: inline-block;
+        text-decoration: none;
+        padding: 15px 35px;
+        background: transparent;
+        border: 2px solid #AFEB83;
+        color: #FFFFFF;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin: 0 10px;
+    }
+
+</style>
+
+<div class="hero-section">
+    <h1 class="hero-title">
+        Sua próxima oportunidade de brilhar está aqui.
+    </h1>
+    <p class="hero-subtitle">
+        Conectamos profissionais incríveis como você às empresas mais inovadoras do mercado.
+    </p>
+    
+    <div>
+        <a href="{% url 'cadastro_candidato' %}" class="btn-cta-green">Quero ser Vagalume</a>
+        <a href="#" class="btn-cta-outline">Sou Empresa</a> </div>
+</div>
+
+{% endblock %}

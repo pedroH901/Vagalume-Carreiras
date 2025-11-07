@@ -14,17 +14,21 @@ body {
     line-height: 1.6;
 }
 
+/* ===================================================================
+   CONTAINER PRINCIPAL (main) - CORRIGIDO
+   =================================================================== */
+
 main.main-container {
     width: 100%;
+    /* Altura mínima = 100% da tela - altura do header (aprox. 86px) */
+    min-height: calc(100vh - 86px); 
 
-    min-height: 86px; 
-
-    /* Usa Flexbox para centralizar o conteúdo (o .login-wrapper) */
+    /* Magia do Flexbox para centralizar */
     display: flex;
     align-items: center;     /* Centraliza verticalmente */
     justify-content: center; /* Centraliza horizontalmente */
 
-    /* Adiciona um padding para o conteúdo não grudar nas bordas em telas menores */
+    /* Padding para o conteúdo não grudar nas bordas */
     padding: 40px 20px;
 }
 

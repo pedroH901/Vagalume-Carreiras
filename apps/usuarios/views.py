@@ -1,15 +1,25 @@
+# Arquivo: apps/usuarios/views.py
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from .forms import CandidatoCadastroForm # Importa o formulário que acabamos de criar
-from .models import Usuario, Candidato
-from django.db import transaction # Garante que os dois models sejam criados com segurança
+from django.db import transaction
 from django.contrib import messages
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from .models import Resumo_Profissional
 
-@transaction.atomic # Garante que ou os dois são criados, ou nenhum é
+# 1. IMPORTE OS MODELS E FORMS QUE CRIAMOS
+from .models import (
+    Usuario, Candidato, Resumo_Profissional, 
+    Experiencia, Formacao_Academica, Skill
+)
+from .forms import (
+    CandidatoCadastroForm, ExperienciaForm, 
+    FormacaoForm, SkillForm, CurriculoForm
+)
+
+
+@transaction.atomic
 def cadastrar_candidato(request):
     """
     Processa o formulário de cadastro do UC01.
@@ -18,12 +28,11 @@ def cadastrar_candidato(request):
         form = CandidatoCadastroForm(request.POST)
         
         if form.is_valid():
+            # ... (seu código de criação do user e candidato continua igual) ...
             data = form.cleaned_data
             
-            # 1. Cria o Usuario (Portaria) 
-            # Usamos o email como username, como discutido
             user = Usuario.objects.create_user(
-                username=data['email'], # Usa email como username
+                username=data['email'],
                 email=data['email'],
                 password=data['password'],
                 first_name=data['first_name'],
@@ -32,25 +41,22 @@ def cadastrar_candidato(request):
                 tipo_usuario='candidato'
             )
             
-            # 2. Cria o Candidato (Sala) 
             candidato = Candidato.objects.create(
-                usuario=user, # Conecta o perfil ao login
+                usuario=user,
                 cpf=data['cpf']
             )
             
-            # 3. Loga o usuário automaticamente após o cadastro
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
             messages.info(request, 'Bem-vindo!', extra_tags='FIRST_LOGIN')
             
-            # Redireciona para o painel do candidato (vamos criar essa URL depois)
-            return redirect('home_candidato')
+            # --- CORREÇÃO IMPORTANTE ---
+            # Redireciona para o INÍCIO da "cutscene", não para o final.
+            return redirect('home_candidato') 
+            # ---------------------------
     
     else:
-        # Se for um GET (usuário só abriu a página), mostra um form vazio [cite: 11]
         form = CandidatoCadastroForm()
         
-    # Renderiza a página HTML, passando o formulário para ela
     return render(request, 'usuarios/cadastro_candidato.html', {'form': form})
 
 def login_view(request):
@@ -58,115 +64,192 @@ def login_view(request):
     Processa a página de login para Candidatos e Recrutadores (UC03).
     """
     if request.method == 'POST':
-        # No HTML, o <input> deve ter name="username"
         login_identifier = request.POST.get('username')
         password = request.POST.get('password')
 
-        # O 'authenticate' agora usa nosso EmailOrCPFBackend
         user = authenticate(request, username=login_identifier, password=password)
 
         if user is not None:
-            # Detecta se é o primeiro login
             is_first_login = (user.last_login is None)
-
-            # Loga o usuário (isso atualiza o last_login)
             login(request, user)
 
-            # Envia a "flag" se for o primeiro login de um candidato
-            if is_first_login and user.tipo_usuario == 'candidato':
-                messages.info(request, 'Bem-vindo!', extra_tags='FIRST_LOGIN')
-            
-            
-            # --- TAREFA: CONTROLE DE PERMISSÕES ---
-            # Aqui checamos o "crachá" (tipo_usuario)
             if user.tipo_usuario == 'candidato':
                 if is_first_login:
-                    return redirect('onboarding_bem_vindo')
+                    # Inicia a "cutscene"
+                    return redirect('onboarding_bem_vindo') 
                 else:
+                    # Vai direto para o painel
                     return redirect('home_candidato')
             elif user.tipo_usuario == 'recrutador':
-                return redirect('home_recrutador') # Redireciona para o painel da empresa
+                return redirect('home_recrutador')
             
-            return redirect('pagina_padrao') # Uma página genérica
+            return redirect('home_candidato')
         else:
-            # Login falhou, conforme UC03
             messages.error(request, 'Credenciais inválidas. Por favor, tente novamente.')
             
-    # Se for um GET ou se o login falhar, mostra a página de login
     return render(request, 'usuarios/login.html')
 
 def logout_view(request):
-    """
-    Faz o logout do usuário e o redireciona para a tela de login.
-    """
     logout(request)
-    return redirect('login') # Redireciona para a URL da página de login
+    return redirect('login')
+
+# ---
+# AQUI COMEÇA A "CUTSCENE" DE ONBOARDING
+# ---
+
+
+
+
+
+
 
 @login_required
-def onboarding_bem_vindo(request):
+def onboarding_formacao(request):
     """
-    Mostra a Página 1 (Passo 1) da "cutscene" de onboarding.
-    """
-    # Apenas renderiza o HTML. O botão "Vamos Começar" vai linkar para 'onboarding_resumo'
-    return render(request, 'usuarios/onboarding_bem_vindo.html')
-
-
-@login_required
-def onboarding_resumo(request):
-    """
-    Mostra e Processa a Página 2 (Resumo Profissional).
+    Passo 4: Adiciona Formação Acadêmica (70% progresso).
     """
     candidato = request.user.candidato
+    progresso = 70
 
     if request.method == 'POST':
-        # Pega o texto do <textarea name="resumo">
+        form = FormacaoForm(request.POST)
+        if form.is_valid():
+            formacao = form.save(commit=False)
+            formacao.candidato = candidato
+            formacao.save()
+            
+            if 'continuar' in request.POST:
+                return redirect('onboarding_skills') # Próximo passo
+            else:
+                return redirect('onboarding_formacao')
+    else:
+        form = FormacaoForm()
+
+    formacoes_salvas = Formacao_Academica.objects.filter(candidato=candidato).order_by('-data_inicio')
+    
+    return render(request, 'usuarios/onboarding_formacao.html', {
+        'form': form,
+        'formacoes': formacoes_salvas,
+        'progress': progresso
+    })
+
+@login_required
+def onboarding_skills(request):
+    """
+    Passo 5: Adiciona Skills (85% progresso).
+    """
+    candidato = request.user.candidato
+    progresso = 85
+
+    if request.method == 'POST':
+        form = SkillForm(request.POST)
+        if form.is_valid():
+            skill = form.save(commit=False)
+            skill.candidato = candidato
+            skill.save()
+            
+            if 'continuar' in request.POST:
+                return redirect('onboarding_curriculo') # Próximo passo
+            else:
+                return redirect('onboarding_skills')
+    else:
+        form = SkillForm()
+
+    skills_salvas = Skill.objects.filter(candidato=candidato)
+    
+    return render(request, 'usuarios/onboarding_skills.html', {
+        'form': form,
+        'skills': skills_salvas,
+        'progress': progresso
+    })
+
+@login_required
+def onboarding_curriculo(request):
+    """
+    Passo 6: Upload do Currículo PDF (100% progresso).
+    """
+    candidato = request.user.candidato
+    progresso = 100
+
+    if request.method == 'POST':
+        # IMPORTANTE: request.FILES é necessário para uploads
+        form = CurriculoForm(request.POST, request.FILES, instance=candidato)
+        if form.is_valid():
+            form.save()
+            # Fim da "cutscene"! Redireciona para o painel principal.
+            return redirect('home_candidato')
+    else:
+        form = CurriculoForm(instance=candidato)
+
+    return render(request, 'usuarios/onboarding_curriculo.html', {
+        'form': form,
+        'progress': progresso
+    })
+
+@login_required
+def ajax_salvar_resumo(request):
+    if request.method == 'POST':
+        candidato = request.user.candidato
         texto_resumo = request.POST.get('resumo', '')
         
-        # Salva no banco de dados
-        # update_or_create: cria um novo ou atualiza um existente
         Resumo_Profissional.objects.update_or_create(
             candidato=candidato,
             defaults={'texto': texto_resumo}
         )
         
-        # Redireciona para o próximo passo
-        return redirect('onboarding_experiencia')
-
-    # Se for um GET, apenas mostra a página
-    return render(request, 'usuarios/onboarding_resumo.html')
-
-
-@login_required
-def onboarding_experiencia(request):
-    """
-    Mostra a Página 3 (Experiências), como você pediu.
-    """
-    # Esta é a sua próxima página
-    return HttpResponse("<h1>Experiências Profissionais</h1><p>Liste seus empregos anteriores e suas responsabilidades.</p>")
+        # Responde com JSON para o JavaScript
+        return JsonResponse({
+            'status': 'success',
+            'action': 'next_step' # Diz ao JS para avançar
+        })
+    return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})
 
 @login_required
-def salvar_resumo(request):
-    """
-    Esta view recebe o POST do formulário de resumo (Bloco 2)
-    e o salva no banco de dados.
-    """
+def ajax_salvar_experiencia(request):
     if request.method == 'POST':
-        texto_resumo = request.POST.get('resumo', '')
-        try:
-            candidato = request.user.candidato
+        form = ExperienciaForm(request.POST)
+        if form.is_valid():
+            exp = form.save(commit=False)
+            exp.candidato = request.user.candidato
+            exp.save()
+            
+            # Checa qual botão o JS enviou
+            if 'continuar' in request.POST:
+                return JsonResponse({
+                    'status': 'success',
+                    'action': 'next_step'
+                })
+            else:
+                # "Salvar e Adicionar Outro"
+                return JsonResponse({
+                    'status': 'success',
+                    'action': 'add_another',
+                    'list_id': 'lista-experiencias',
+                    # Envia um mini-HTML para o JS adicionar na lista
+                    'saved_item_html': f'<p><strong>{exp.cargo}</strong> em {exp.empresa}</p>' 
+                })
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
+    return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})
 
-            # Salva no banco de dados
-            Resumo_Profissional.objects.update_or_create(
-                candidato=candidato,
-                defaults={'texto': texto_resumo}
-            )
-
-            # Redireciona de volta para o home_candidato
-            # Onde o JS (que vamos corrigir) vai mostrar o próximo passo
-            return redirect('home_candidato') 
-
-        except Candidato.DoesNotExist:
-            messages.error(request, 'Erro: Perfil de candidato não encontrado.')
-            return redirect('home_candidato')
-
-    return redirect('home_candidato')
+@login_required
+def ajax_salvar_formacao(request):
+    if request.method == 'POST':
+        form = FormacaoForm(request.POST)
+        if form.is_valid():
+            formacao = form.save(commit=False)
+            formacao.candidato = request.user.candidato
+            formacao.save()
+            
+            if 'continuar' in request.POST:
+                return JsonResponse({'status': 'success', 'action': 'next_step'})
+            else:
+                return JsonResponse({
+                    'status': 'success',
+                    'action': 'add_another',
+                    'list_id': 'lista-formacoes',
+                    'saved_item_html': f'<p><strong>{formacao.nome_formacao}</strong> em {formacao.nome_instituicao}</p>'
+                })
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
+    return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})

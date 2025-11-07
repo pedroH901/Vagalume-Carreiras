@@ -6,7 +6,26 @@ from .forms import VagaForm
 from apps.usuarios.models import Recrutador, Candidato
 from django.http import HttpResponse, Http404
 from django.db import IntegrityError
+from apps.usuarios.forms import ExperienciaForm, FormacaoForm
 
+
+
+def landing_page(request):
+    """
+    Renderiza a Home Page (Landing Page) do site.
+    
+    Se o usuário já estiver logado, redireciona ele para
+    o painel correto (candidato ou recrutador).
+    """
+    if request.user.is_authenticated:
+        # Usuário está logado
+        if request.user.tipo_usuario == 'candidato':
+            return redirect('home_candidato')
+        elif request.user.tipo_usuario == 'recrutador':
+            return redirect('home_recrutador')
+    
+    # Se não estiver logado, apenas mostra a landing page
+    return render(request, 'vagas/landing_page.html')
 
 @login_required 
 def criar_vaga(request):
@@ -41,23 +60,24 @@ def criar_vaga(request):
 @login_required
 def home_candidato(request):
     """
-    Painel do Candidato, lista TODAS as vagas abertas. (R do CRUD)
+    Painel do Candidato.
+    Agora também é a central de Onboarding.
     """
-    # Controle de Permissão
     if request.user.tipo_usuario != 'candidato':
         messages.error(request, 'Acesso negado.')
-        # Se um recrutador tentar acessar, joga ele de volta para o painel dele
         return redirect('home_recrutador')
 
-    # Busca no banco:
-    # 1. Filtra apenas vagas com status=True (Abertas)
-    # 2. Ordena pela data de publicação, da mais nova para a mais antiga
+    # Busca as vagas (para o painel real)
     lista_de_vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
     
+    # Prepara os formulários vazios para o onboarding
     contexto = {
-        'vagas': lista_de_vagas
+        'vagas': lista_de_vagas,
+        'experiencia_form': ExperienciaForm(),
+        'formacao_form': FormacaoForm(),
+        # (adicione os outros forms aqui quando criá-los)
     }
-    # Renderiza o novo template que vamos criar
+    
     return render(request, 'vagas/home_candidato.html', contexto)
 
 @login_required
