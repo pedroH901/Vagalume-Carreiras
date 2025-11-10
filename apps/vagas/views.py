@@ -1,16 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Vaga, Candidatura
-from .forms import VagaForm
-from apps.usuarios.models import Recrutador, Candidato
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.db import IntegrityError
-from apps.usuarios.forms import ExperienciaForm, FormacaoForm
-from apps.usuarios.models import Candidato, Empresa
-from .models import Vaga
-from apps.matching.engine import calcular_similaridade 
-from apps.usuarios.forms import ExperienciaForm, FormacaoForm
+from .models import Vaga, Candidatura
+from apps.usuarios.models import Recrutador, Candidato
+from .forms import VagaForm
+from apps.usuarios.forms import (
+    ExperienciaForm, FormacaoForm, SkillForm, CurriculoForm
+)
+from apps.matching.engine import get_tags_candidato, calcular_similaridade_tags
 
 
 def landing_page(request):
@@ -76,48 +75,23 @@ def criar_vaga(request):
 def home_candidato(request):
     """
     Painel do Candidato.
-    Agora também é a central de Onboarding e calcula o Matching.
+    (Versão LIMPA, sem o "radar" de score para corrigir o crash).
     """
-    # Controle de Permissão
     if request.user.tipo_usuario != 'candidato':
         messages.error(request, 'Acesso negado.')
         return redirect('home_recrutador')
 
-    # Pega o perfil de candidato logado
-    candidato = request.user.candidato
-
-    # Busca TODAS as vagas que estão abertas (status=True)
-    lista_de_vagas = Vaga.objects.filter(status=True)
-
-    # --- AQUI COMEÇA A MÁGICA DA SEMANA 7 ---
-    vagas_com_match = []
-
-    for vaga in lista_de_vagas:
-        # 1. Calcula o score usando a engine
-        score = calcular_similaridade(vaga, candidato)
-
-        # 2. Adiciona a vaga e seu score na lista
-        vagas_com_match.append({
-            'vaga': vaga,
-            'match_score': score
-        })
-
-    # 3. ORDENA a lista: vagas com maior score primeiro!
-    vagas_ordenadas = sorted(
-        vagas_com_match, 
-        key=lambda item: item['match_score'], 
-        reverse=True
-    )
-    # --- FIM DA MÁGICA ---
-
-    # Prepara os formulários vazios para o onboarding (como antes)
+    # --- VOLTAMOS AO CÓDIGO SIMPLES ---
+    lista_de_vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
+    
     contexto = {
-        'vagas_com_match': vagas_ordenadas, # Manda a lista ordenada!
+        'vagas': lista_de_vagas, # <--- MUDAMOS DE VOLTA PARA 'vagas'
         'experiencia_form': ExperienciaForm(),
         'formacao_form': FormacaoForm(),
-        # (adicione os outros forms aqui quando criá-los)
+        'skill_form': SkillForm(),
+        'curriculo_form': CurriculoForm(),
     }
-
+    
     return render(request, 'vagas/home_candidato.html', contexto)
 
 @login_required
@@ -253,3 +227,109 @@ def aplicar_vaga(request, vaga_id):
             
     # 6. Redireciona de volta para a lista de vagas
     return redirect('home_candidato')
+
+@login_required
+def ver_candidatos_vaga(request, vaga_id):
+    """
+    View para o Recrutador ver os candidatos que aplicaram
+    para uma vaga específica, ordenados por score de matching.
+    """
+    # 1. Checa se é um recrutador
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+
+    # 2. Pega a vaga
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+
+    # 3. VERIFICAÇÃO DE PERMISSÃO (CRUCIAL!)
+    # Garante que o recrutador só possa ver os candidatos das SUAS vagas.
+    if vaga.recrutador.usuario != request.user:
+        messages.error(request, 'Você não tem permissão para ver esta página.')
+        return redirect('home_recrutador')
+
+    # 4. Pega todas as candidaturas para esta vaga
+    candidaturas = Candidatura.objects.filter(vaga=vaga)
+
+    # 5. RODA O "RADAR" (O "Grande Pã")
+    candidatos_com_score = []
+    for candidatura in candidaturas:
+        candidato = candidatura.candidato
+        # Reutiliza a engine de matching!
+        score = calcular_similaridade(vaga, candidato)
+
+        candidatos_com_score.append({
+            'candidato': candidato,
+            'score': score,
+            'data_aplicacao': candidatura.data_candidatura,
+            'status': candidatura.status
+        })
+
+    # 6. Ordena a lista pelo score, do maior para o menor
+    candidatos_ordenados = sorted(
+        candidatos_com_score, 
+        key=lambda item: item['score'], 
+        reverse=True
+    )
+
+    contexto = {
+        'vaga': vaga,
+        'candidatos_ordenados': candidatos_ordenados
+    }
+
+    return render(request, 'vagas/ver_candidatos_vaga.html', contexto)
+
+@login_required
+def radar_de_talentos(request):
+    """
+    A nova tela de "Radar de Talentos" com a "Engine de Tags".
+    """
+    if request.user.tipo_usuario != 'recrutador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('home_candidato')
+
+    try:
+        recrutador = request.user.recrutador
+    except Recrutador.DoesNotExist:
+        messages.error(request, 'Você não possui um perfil de recrutador associado.')
+        return redirect('home_candidato')
+
+    minhas_vagas = Vaga.objects.filter(recrutador=recrutador, status=True)
+    candidatos_ordenados = []
+    total_encontrados = 0
+    vaga_selecionada_id = None
+
+    if request.method == 'POST':
+        vaga_selecionada_id = request.POST.get('vaga_id')
+        if vaga_selecionada_id:
+            vaga = get_object_or_404(Vaga, id=vaga_selecionada_id, recrutador=recrutador)
+            todos_os_candidatos = Candidato.objects.all()
+
+            candidatos_com_score = []
+            for candidato in todos_os_candidatos:
+                
+                # A engine de "Tags" recebe os OBJETOS
+                score = calcular_similaridade_tags(vaga, candidato)
+                
+                if score > 20: 
+                    candidatos_com_score.append({
+                        'candidato': candidato,
+                        'score': score
+                    })
+
+            candidatos_ordenados = sorted(
+                candidatos_com_score, 
+                key=lambda item: item['score'], 
+                reverse=True
+            )
+            total_encontrados = len(candidatos_ordenados)
+            vaga_selecionada_id = int(vaga_selecionada_id)
+
+    contexto = {
+        'minhas_vagas': minhas_vagas,
+        'candidatos_ordenados': candidatos_ordenados,
+        'total_encontrados': total_encontrados,
+        'vaga_selecionada_id': vaga_selecionada_id
+    }
+    
+    return render(request, 'vagas/radar_de_talentos.html', contexto)

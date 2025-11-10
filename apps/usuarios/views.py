@@ -253,3 +253,40 @@ def ajax_salvar_formacao(request):
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
     return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})
+
+@login_required
+def ajax_salvar_skill(request):
+    if request.method == 'POST':
+        form = SkillForm(request.POST)
+        if form.is_valid():
+            skill = form.save(commit=False)
+            skill.candidato = request.user.candidato
+            skill.save()
+
+            if 'continuar' in request.POST:
+                return JsonResponse({'status': 'success', 'action': 'next_step'})
+            else: # "Salvar e Adicionar Outro"
+                return JsonResponse({
+                    'status': 'success',
+                    'action': 'add_another',
+                    'list_id': 'lista-skills',
+                    # get_tipo_display pega o "Hard Skill" em vez de "hard"
+                    'saved_item_html': f'<p><strong>{skill.nome}</strong> ({skill.get_tipo_display()})</p>'
+                })
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
+    return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})
+
+@login_required
+def ajax_salvar_curriculo(request):
+    if request.method == 'POST':
+        candidato = request.user.candidato
+        # IMPORTANTE: Usamos request.FILES para arquivos
+        form = CurriculoForm(request.POST, request.FILES, instance=candidato) 
+
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success', 'action': 'next_step'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
+    return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})

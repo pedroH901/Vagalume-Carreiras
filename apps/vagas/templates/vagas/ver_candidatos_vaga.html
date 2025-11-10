@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Candidatos para {{ vaga.titulo }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Vamos reutilizar o CSS do home_candidato */
+    .container-header { text-align: center; margin-bottom: 30px; }
+    .container-header h1 { font-size: 2.5rem; }
+    .container-header p { font-size: 1.1rem; color: #8b949e; }
+
+    .candidatos-container {
+        max-width: 900px;
+        margin: auto;
+    }
+    
+    .candidato-card {
+        background: #161B22;
+        border: 1px solid #30363d;
+        padding: 25px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .candidato-info h3 { color: #fff; margin: 0 0 5px 0; font-size: 1.25rem; }
+    .candidato-info p { color: #8b949e; margin: 0; font-size: 0.95rem; }
+    
+    .candidato-match-score { text-align: right; flex-shrink: 0; margin-left: 20px; }
+    .candidato-match-score h2 {
+        color: #BEF264;
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 800;
+    }
+    .candidato-match-score p { color: #8b949e; margin: 0; font-size: 0.9rem; }
+</style>
+
+<div class="candidatos-container">
+    <div class="container-header">
+        <h1>Candidatos para a vaga</h1>
+        <p>"{{ vaga.titulo }}"</p>
+    </div>
+
+    {% for item in candidatos_ordenados %}
+        <div class="candidato-card">
+            <div class="candidato-info">
+                <h3>{{ item.candidato.usuario.get_full_name }}</h3>
+                <p>{{ item.candidato.headline|default:"Sem headline" }}</p>
+                <p style="font-size: 0.8rem; margin-top: 5px;">
+                    Aplicou em: {{ item.data_aplicacao }} | Status: {{ item.status }}
+                </p>
+            </div>
+            <div class="candidato-match-score">
+                <h2>{{ item.score|floatformat:0 }}%</h2>
+                <p>Compatível</p>
+            </div>
+        </div>
+    {% empty %}
+        <p style="text-align: center; color: #8b949e; padding: 20px;">
+            Nenhum candidato se aplicou para esta vaga ainda.
+        </p>
+    {% endfor %}
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'home_recrutador' %}" style="color: #8b949e;">&larr; Voltar ao painel</a>
+    </div>
+</div>
+{% endblock %}

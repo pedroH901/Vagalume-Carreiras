@@ -1,41 +1,114 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Meu Painel - Vagas</title>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Meu Painel - Vagas{% endblock %}
 
-</head>
-<body>
-    <div class="container">
+{% block content %}
+
+<style>
+    .recrutador-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+    }
+    .recrutador-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .recrutador-header h1 {
+        font-size: 2.5rem;
+        margin: 0;
+    }
+    .btn-criar {
+        background-color: #AFEB83;
+        color: #0D1B2A;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .vaga-item {
+        background: #161B22;
+        border: 1px solid #30363d;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+    .vaga-item h3 {
+        margin: 0 0 10px 0;
+        color: #fff;
+    }
+    .vaga-item p {
+        margin: 0 0 15px 0;
+        color: #8b949e;
+    }
+    .vaga-item .status-aberta {
+        color: #3fb950;
+        font-weight: bold;
+    }
+    .vaga-item .status-fechada {
+        color: #f85149;
+        font-weight: bold;
+    }
+    .vaga-item .links a {
+        color: #58a6ff;
+        margin-right: 15px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .btn-radar {
+    background-color: #111111;
+    color: #BEF264;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-left: 15px; /* Espaço do botão de criar */
+    border: 1px solid #30363d;
+}
+.btn-radar i { /* O ícone */
+    margin-right: 8px;
+}
+</style>
+
+<div class="recrutador-container">
+<div class="recrutador-header">
+    <h1>Painel do Recrutador</h1>
+    <div>
         <a href="{% url 'criar_vaga' %}" class="btn-criar">Criar Nova Vaga</a>
-        <h1>Painel do Recrutador</h1>
-        <p>Aqui estão as vagas que você publicou.</p>
-
-        <hr>
-
-        {% if vagas %}
-            {% for vaga in vagas %}
-                <div class="vaga">
-                    <h3>{{ vaga.titulo }}</h3>
-                    <p>Localidade: {{ vaga.localidade }} | Contrato: {{ vaga.tipo_contrato }}</p>
-                    <p>Status: 
-                        {% if vaga.status %}
-                            <span class="status-aberta">Aberta</span>
-                        {% else %}
-                            <span class="status-fechada">Fechada</span>
-                        {% endif %}
-                    </p>
-                    <div class="links">
-                        <a href="#">(Ver Candidatos)</a>
-                        <a href="{% url 'editar_vaga' vaga.id %}">(Editar)</a>
-                        <a href="{% url 'deletar_vaga' vaga.id %}">(Apagar)</a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Você ainda não criou nenhuma vaga.</p>
-        {% endif %}
-
+        <a href="{% url 'radar_de_talentos' %}" class="btn-radar">
+            <i class="fa-solid fa-satellite-dish"></i> Radar de Talentos
+        </a>
     </div>
-</body>
-</html>
+</div>
+    <p>Aqui estão as vagas que você publicou.</p>
+
+    <hr style="border-color: #30363d; margin: 20px 0;">
+
+    {% if vagas %}
+        {% for vaga in vagas %}
+            <div class="vaga-item">
+                <h3>{{ vaga.titulo }}</h3>
+                <p>Localidade: {{ vaga.localidade }} | Contrato: {{ vaga.tipo_contrato }}</p>
+                <p>Status: 
+                    {% if vaga.status %}
+                        <span class="status-aberta">Aberta</span>
+                    {% else %}
+                        <span class="status-fechada">Fechada</span>
+                    {% endif %}
+                </p>
+                <div class="links">
+                    <a href="{% url 'ver_candidatos_vaga' vaga.id %}">(Ver Candidatos)</a>
+                    <a href="{% url 'editar_vaga' vaga.id %}">(Editar)</a>
+                    <a href="{% url 'deletar_vaga' vaga.id %}">(Apagar)</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Você ainda não criou nenhuma vaga.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -11,4 +11,6 @@ urlpatterns = [
     path('vagas/aplicar/<int:vaga_id>/', views.aplicar_vaga, name='aplicar_vaga'),
     path('dashboard/candidato/', views.home_candidato, name='home_candidato'),
     path('dashboard/recrutador/', views.home_recrutador, name='home_recrutador'),
+    path('vagas/<int:vaga_id>/candidatos/', views.ver_candidatos_vaga, name='ver_candidatos_vaga'),
+    path('radar-de-talentos/', views.radar_de_talentos, name='radar_de_talentos'),
 ]

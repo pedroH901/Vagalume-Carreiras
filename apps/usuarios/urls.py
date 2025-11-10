@@ -14,4 +14,6 @@ urlpatterns = [
     path('ajax/salvar-resumo/', views.ajax_salvar_resumo, name='ajax_salvar_resumo'),
     path('ajax/salvar-experiencia/', views.ajax_salvar_experiencia, name='ajax_salvar_experiencia'),
     path('ajax/salvar-formacao/', views.ajax_salvar_formacao, name='ajax_salvar_formacao'),
+    path('ajax/salvar-skill/', views.ajax_salvar_skill, name='ajax_salvar_skill'),
+    path('ajax/salvar-curriculo/', views.ajax_salvar_curriculo, name='ajax_salvar_curriculo'),
 ]
