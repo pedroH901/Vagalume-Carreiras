@@ -4,12 +4,13 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.db import IntegrityError
 from .models import Vaga, Candidatura
-from apps.usuarios.models import Recrutador, Candidato
+from apps.usuarios.models import Recrutador, Candidato, Empresa
 from .forms import VagaForm
 from apps.usuarios.forms import (
     ExperienciaForm, FormacaoForm, SkillForm, CurriculoForm
 )
 from apps.matching.engine import get_tags_candidato, calcular_similaridade_tags
+
 
 
 def landing_page(request):
@@ -85,7 +86,7 @@ def home_candidato(request):
     lista_de_vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
     
     contexto = {
-        'vagas': lista_de_vagas, # <--- MUDAMOS DE VOLTA PARA 'vagas'
+        'vagas': lista_de_vagas,
         'experiencia_form': ExperienciaForm(),
         'formacao_form': FormacaoForm(),
         'skill_form': SkillForm(),
@@ -256,7 +257,7 @@ def ver_candidatos_vaga(request, vaga_id):
     for candidatura in candidaturas:
         candidato = candidatura.candidato
         # Reutiliza a engine de matching!
-        score = calcular_similaridade(vaga, candidato)
+        score = calcular_similaridade_tags(vaga, candidato)
 
         candidatos_com_score.append({
             'candidato': candidato,
@@ -307,8 +308,6 @@ def radar_de_talentos(request):
 
             candidatos_com_score = []
             for candidato in todos_os_candidatos:
-                
-                # A engine de "Tags" recebe os OBJETOS
                 score = calcular_similaridade_tags(vaga, candidato)
                 
                 if score > 20: 

@@ -150,24 +150,20 @@
     {% endif %}
 
 {% for vaga in vagas %}
-
-    <div class="vaga-card"> <div class="vaga-info">
+    <div class="vaga-card"> 
+        <div class="vaga-info">
             <h3>{{ vaga.titulo }}</h3>
             <p>
-                {% if vaga.empresa %}
-                    {{ vaga.empresa.nome }} | 
-                {% endif %}
+                {% if vaga.empresa %} {{ vaga.empresa.nome }} | {% endif %}
                 {{ vaga.localidade }}
             </p>
         </div>
-
         <div class="vaga-actions" style="text-align: center;">
             <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST">
                 {% csrf_token %}
                 <button type="submit" class="btn-aplicar">Aplicar Agora</button>
             </form>
         </div>
-
     </div>
 {% empty %}
     <p style="text-align: center; color: #8b949e; padding: 20px;">
