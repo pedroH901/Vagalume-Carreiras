@@ -11,6 +11,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <title>{% block title %}Vagalume Carreiras{% endblock %}</title>
+
+<style>
+.navbar {
+    position: relative;
+    background-color: #0D1B2A;
+    z-index: 10;
+}
+
+/* Linha verde degradê com animação indo e voltando */
+.navbar::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4A7856, #BEF264, #4A7856);
+    background-size: 200% 100%;
+    animation: brilhoVerde 2s ease-in-out infinite alternate;
+}
+
+/* Animação: vai e volta */
+@keyframes brilhoVerde {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+</style>
+
+
 </head>
 <body>
 

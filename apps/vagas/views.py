@@ -213,3 +213,5 @@ def aplicar_vaga(request, vaga_id):
             
     # 6. Redireciona de volta para a lista de vagas
     return redirect('home_candidato')
+def perfil_empresa(request):
+    return render(request, 'vagas/perfil_empresa.html')

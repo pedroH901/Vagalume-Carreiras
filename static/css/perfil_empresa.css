@@ -1,0 +1,113 @@
+/* ================================
+   PERFIL EMPRESA - ESTILO PRINCIPAL
+   Paleta:
+   Azul Meia-Noite (#0D1B2A)
+   Verde Vagalume (#BEF264)
+   Ardósia (#1B263B)
+   Platina (#E2E8F0)
+   Verde Floresta (#4A7856)
+================================= */
+
+/* Fundo geral da página */
+body {
+    background-color: #0D1B2A;
+    color: #E2E8F0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Container principal */
+.perfil-empresa-container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 40px;
+    background-color: #1B263B;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Título da página */
+.titulo-pagina {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #E2E8F0;
+}
+
+/* Formulário */
+.perfil-empresa-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Campos */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #E2E8F0;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #0D1B2A;
+    color: #E2E8F0;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* Foco dos campos */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: 2px solid #BEF264;
+    background-color: #162337;
+}
+
+/* Botão principal */
+.btn-area {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-salvar {
+    background-color: #BEF264;
+    color: #0D1B2A;
+    font-weight: 700;
+    padding: 14px 40px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-salvar:hover {
+    background-color: #a7e052;
+    transform: translateY(-2px);
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .perfil-empresa-container {
+        padding: 25px;
+        margin: 30px 15px;
+    }
+
+    .titulo-pagina {
+        font-size: 1.4rem;
+    }
+}
