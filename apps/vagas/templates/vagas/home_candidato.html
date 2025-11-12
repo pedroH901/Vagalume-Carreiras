@@ -58,7 +58,7 @@
     </form>
     
     <div class="saved-items" id="lista-experiencias">
-        </div>
+    </div>
 
     <div class="progress-bar-wrapper">
         <div class="progress-bar-fill" style="width: 50%;"></div>
@@ -76,12 +76,12 @@
         
         <div class="form-buttons">
             <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
-            <button type="submit" name="continuar" class.="btn-submit-green">Continuar</button>
+            <button type="submit" name="continuar" class="btn-submit-green">Continuar</button> 
         </div>
     </form>
     
     <div class="saved-items" id="lista-formacoes">
-        </div>
+    </div>
 
     <div class="progress-bar-wrapper">
         <div class="progress-bar-fill" style="width: 70%;"></div>
@@ -89,11 +89,56 @@
     <p class="progress-text">70%</p>
 </div>
 
-<div class="vagas-container" id="vagas-container">
+<div class="onboarding-container" id="onboarding-step-5">
+    <h1 class="onboarding-title">Habilidades</h1>
+    <p class="onboarding-subtitle">Adicione as habilidades que você domina (ex: Python, Oratória, SEO).</p>
+
+    <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="onboarding-form" novalidate>
+        {% csrf_token %}
+        {{ skill_form.as_p }}
+
+        <div class="form-buttons">
+            <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
+            <button type="submit" name="continuar" class="btn-submit-green">Continuar</button>
+        </div>
+    </form>
+
+    <div class="saved-items" id="lista-skills">
+    </div>
+
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" style="width: 85%;"></div>
+    </div>
+    <p class="progress-text">85%</p>
+</div>
+
+<div class="onboarding-container" id="onboarding-step-6">
+    <h1 class="onboarding-title">Quase lá!</h1>
+    <p class="onboarding-subtitle">Anexe seu currículo em PDF para candidaturas mais completas.</p>
+
+    <form id="form-step-6" action="{% url 'ajax_salvar_curriculo' %}" method="POST" class="onboarding-form" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ curriculo_form.as_p }}
+
+        <div class="form-buttons">
+            <button type="submit" name="continuar" class="btn-submit-green">Finalizar e ver vagas</button>
+        </div>
+    </form>
+
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" style="width: 100%;"></div>
+    </div>
+    <p class="progress-text">100%</p>
+</div>
+
+
+<div class="vagas-container" id="vagas-container"> 
+    
     <div class="container-header">
         <h1>Vagas Abertas</h1>
         <p>Encontre sua próxima oportunidade.</p>
     </div>
+    
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -103,8 +148,29 @@
             {% endfor %}
         </ul>
     {% endif %}
-    
-    <p>... (lista de vagas) ...</p>
+
+{% for vaga in vagas %}
+    <div class="vaga-card"> 
+        <div class="vaga-info">
+            <h3>{{ vaga.titulo }}</h3>
+            <p>
+                {% if vaga.empresa %} {{ vaga.empresa.nome }} | {% endif %}
+                {{ vaga.localidade }}
+            </p>
+        </div>
+        <div class="vaga-actions" style="text-align: center;">
+            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-aplicar">Aplicar Agora</button>
+            </form>
+        </div>
+    </div>
+{% empty %}
+    <p style="text-align: center; color: #8b949e; padding: 20px;">
+        Nenhuma vaga encontrada no momento.
+    </p>
+{% endfor %}
+
 </div>
 
 
@@ -160,6 +226,45 @@
     .onboarding-textarea { width: 100%; min-height: 150px; background-color: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: 12px 15px; border-radius: 5px; font-size: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 20px; }
     .vagas-container { max-width: 900px; margin: auto; }
 
+    /* --- ESTILOS DOS CARDS DE VAGA --- */
+.vaga-card {
+    background: #161B22; /* Cor de fundo do card */
+    border: 1px solid #30363d;
+    padding: 25px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    display: flex; /* Para alinhar o score */
+    justify-content: space-between;
+    align-items: center;
+}
+.vaga-info h3 { 
+    color: #fff; 
+    margin: 0 0 5px 0; 
+    font-size: 1.25rem;
+}
+.vaga-info p { 
+    color: #8b949e; 
+    margin: 0; 
+    font-size: 0.95rem;
+}
+.vaga-match-score { 
+    text-align: right; 
+    flex-shrink: 0; /* Impede que o score encolha */
+    margin-left: 20px;
+}
+.vaga-match-score h2 {
+    color: #BEF264; /* Verde Vagalume */
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+.vaga-match-score p { 
+    color: #8b949e; 
+    margin: 0; 
+    font-size: 0.9rem; 
+    font-weight: 500;
+}
+
     /*
  * ESTILOS PARA OS FORMS .as_p
  */
@@ -192,6 +297,24 @@
     margin-right: 10px;
     vertical-align: middle; /* Alinha melhor com o texto */
 }
+
+.vaga-card form {
+    margin: 0; /* Remove margem do form */
+}
+.btn-aplicar {
+    background-color: #AFEB83;
+    color: #0D1B2A;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.btn-aplicar:hover {
+    background-color: #c4f09c;
+}
+
 </style>
 
 <script>
@@ -202,13 +325,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const step2 = document.getElementById('onboarding-step-2');
     const step3 = document.getElementById('onboarding-step-3');
     const step4 = document.getElementById('onboarding-step-4');
-    // (mapeie os outros passos aqui)
+    const step5 = document.getElementById('onboarding-step-5');
+    const step6 = document.getElementById('onboarding-step-6');
     const vagasContainer = document.getElementById('vagas-container');
 
     // Mapeia os formulários
     const formStep2 = document.getElementById('form-step-2');
     const formStep3 = document.getElementById('form-step-3');
     const formStep4 = document.getElementById('form-step-4');
+    const formStep5 = document.getElementById('form-step-5');
+    const formStep6 = document.getElementById('form-step-6');
     
     // Mapeia os botões
     const btnIniciar = document.getElementById('btn-iniciar-onboarding');
@@ -291,7 +417,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json(); // Espera uma resposta JSON
 
             if (data.status === 'success') {
-                // Sucesso! Vamos ver o que fazer...
                 if (data.action === 'next_step') {
                     // Python mandou ir para o próximo passo
                     return true;
@@ -373,8 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Se o usuário clicou "Continuar" E o campo "nome_formacao" está VAZIO...
         if (botaoClicado.name === 'continuar' && formacaoInput.value.trim() === '') {
             // ...ele quer PULAR a etapa.
-            // (Mude 'vagasContainer' para 'step5' quando ele existir)
-            transicao(step4, vagasContainer); 
+            transicao(step4, step5); 
             return; 
         }
 
@@ -382,10 +506,47 @@ document.addEventListener('DOMContentLoaded', function() {
         const avancar = await enviarFormulario(formStep4, botaoClicado);
         
         if (avancar) {
-            // (Mude 'vagasContainer' para 'step5' quando ele existir)
-            transicao(step4, vagasContainer);
+            transicao(step4, step5);
         }
     });
+
+    // Formulário "Skills" (Passo 5 -> 6)
+formStep5.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const botaoClicado = e.submitter;
+    const skillInput = formStep5.querySelector('[name=nome]'); // Checa o campo 'nome'
+
+    // Se clicou "Continuar" e o campo está VAZIO, pula
+    if (botaoClicado.name === 'continuar' && skillInput.value.trim() === '') {
+        transicao(step5, step6); // Vai para o passo 6 (Currículo)
+        return; 
+    }
+
+    // Se clicou "Salvar" OU "Continuar" com dados, envia o form
+    const avancar = await enviarFormulario(formStep5, botaoClicado);
+
+    if (avancar) { // 'avancar' é true se o action foi 'next_step'
+        transicao(step5, step6); // Vai para o passo 6 (Currículo)
+    }
+});
+
+// Formulário "Currículo" (Passo 6 -> Vagas!)
+formStep6.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Este é o último passo, não precisa checar se está vazio, 
+    // o usuário pode pular se quiser (o campo já é opcional no model).
+
+    // Apenas envia o formulário. O 'enviarFormulario' já trata o request.FILES
+    const avancar = await enviarFormulario(formStep6, e.submitter);
+
+    if (avancar) {
+        // FIM DA CUTSCENE!
+        // ** CORREÇÃO FINAL DO JAVASCRIPT **
+        transicao(step6, vagasContainer); // Vai para o painel de vagas
+    }
+    // Se a validação do form falhar (ex: não é um PDF), ele não avança
+});
 
 });
 </script>
