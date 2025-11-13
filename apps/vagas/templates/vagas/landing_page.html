@@ -1,3 +1,9 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Vagalume Carreiras - Landing page{% endblock %}
+
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -696,8 +702,8 @@
                 Deixe-nos ajudá-lo a encontrar um emprego que seja ideal para você!
             </p>
             <div class="hero-buttons">
-                <a href="#" class="btn-cta-green">Vamos começar</a>
-                <a href="#" class="btn-cta-outline">Sou Empresa</a>
+                <a href="{% url 'cadastro_candidato' %}" class="btn-cta-green">Vamos começar</a>
+                <a href="{% url 'cadastro_recrutador' %}" class="btn-cta-outline">Sou Empresa</a>
             </div>
         </section>
 
@@ -934,3 +940,5 @@
     </div>
 </body>
 </html>
+
+{% endblock %}
