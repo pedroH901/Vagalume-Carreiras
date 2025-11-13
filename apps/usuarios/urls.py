@@ -11,10 +11,17 @@ urlpatterns = [
 
     # ATENÇÃO: Removemos as URLs de /onboarding/ aqui
     
-    # --- NOVAS URLs (Endpoints de AJAX) ---
+    # --- URLs de AJAX ---
     path('ajax/salvar-resumo/', views.ajax_salvar_resumo, name='ajax_salvar_resumo'),
     path('ajax/salvar-experiencia/', views.ajax_salvar_experiencia, name='ajax_salvar_experiencia'),
     path('ajax/salvar-formacao/', views.ajax_salvar_formacao, name='ajax_salvar_formacao'),
     path('ajax/salvar-skill/', views.ajax_salvar_skill, name='ajax_salvar_skill'),
     path('ajax/salvar-curriculo/', views.ajax_salvar_curriculo, name='ajax_salvar_curriculo'),
+
+    # --- URLs DA API (DRF/JWT) ---
+    path('api/resumo/', views.ResumoProfissionalAPIView.as_view(), name='api_salvar_resumo'), 
+    path('api/experiencia/', views.ExperienciaProfissionalAPIView.as_view(), name='api_salvar_experiencia'),
+    path('api/formacao/', views.FormacaoAPIView.as_view(), name='api_salvar_formacao'),
+    path('api/skill/', views.SkillAPIView.as_view(), name='api_salvar_skill'),
+    path('api/curriculo/', views.CurriculoAPIView.as_view(), name='api_salvar_curriculo'),
 ]
