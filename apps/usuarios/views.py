@@ -7,16 +7,18 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-
-# 1. IMPORTE OS MODELS E FORMS QUE CRIAMOS
 from .models import (
     Usuario, Candidato, Resumo_Profissional, 
-    Experiencia, Formacao_Academica, Skill
+    Experiencia, Formacao_Academica, Skill,
+    Empresa, Recrutador
 )
 from .forms import (
     CandidatoCadastroForm, ExperienciaForm, 
-    FormacaoForm, SkillForm, CurriculoForm
+    FormacaoForm, SkillForm, CurriculoForm,
+    RecrutadorCadastroForm
 )
+from django import forms
+import re
 
 
 @transaction.atomic
@@ -290,3 +292,54 @@ def ajax_salvar_curriculo(request):
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors.as_json()})
     return JsonResponse({'status': 'error', 'message': 'Método GET não permitido'})
+
+@transaction.atomic
+def cadastrar_recrutador(request):
+    """
+    Processa o formulário de cadastro do Recrutador/Empresa.
+    """
+    if request.method == 'POST':
+        form = RecrutadorCadastroForm(request.POST)
+        
+        if form.is_valid():
+            data = form.cleaned_data
+            
+            try:
+                # 1. Criar a Empresa primeiro
+                empresa = Empresa.objects.create(
+                    nome=data['nome_empresa'],
+                    cnpj=data['cnpj'],
+                    setor=data['setor'],
+                    telefone=data['telefone'] 
+                )
+                
+                # 2. Criar o Usuário (Recrutador)
+                user = Usuario.objects.create_user(
+                    username=data['email'], # Usa email como username
+                    email=data['email'],
+                    password=data['password'],
+                    first_name=data['first_name'],
+                    last_name=data['last_name'],
+                    telefone=data['telefone'],
+                    tipo_usuario='recrutador' # IMPORTANTE
+                )
+                
+                # 3. Criar o Perfil Recrutador (ligando os dois)
+                recrutador = Recrutador.objects.create(
+                    usuario=user,
+                    empresa=empresa
+                )
+                
+                # 4. Logar o usuário e redirecionar
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.success(request, f'Bem-vindo, {user.first_name}! Perfil da empresa criado.')
+                return redirect('home_recrutador')
+
+            except IntegrityError as e:
+                messages.error(request, f"Ocorreu um erro ao criar seu perfil: {e}")
+            
+    else:
+        form = RecrutadorCadastroForm()
+        
+    return render(request, 'usuarios/cadastro_recrutador.html', {'form': form})
+

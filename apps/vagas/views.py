@@ -230,8 +230,8 @@ def aplicar_vaga(request, vaga_id):
     return redirect('home_candidato')
   
   
-    def perfil_empresa(request):
-      return render(request, 'vagas/perfil_empresa.html')
+def perfil_empresa(request):
+    return render(request, 'vagas/perfil_empresa.html')
 
 @login_required
 def ver_candidatos_vaga(request, vaga_id):

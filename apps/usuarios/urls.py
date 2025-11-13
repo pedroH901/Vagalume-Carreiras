@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('cadastro/candidato/', views.cadastrar_candidato, name='cadastro_candidato'),
+    path('cadastro/recrutador/', views.cadastrar_recrutador, name='cadastro_recrutador'),
 
     # ATENÇÃO: Removemos as URLs de /onboarding/ aqui
     

@@ -1,343 +1,491 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Painel de Vagas{% endblock %}
+
+{% block title %}Meu Dashboard{% endblock %}
 
 {% block content %}
 
-<div class="onboarding-container" id="onboarding-step-1">
-    <h1 class="onboarding-title">
-        Bem-vindo(a), {{ user.first_name|default:user.username }}!
-    </h1>
-    <p class="onboarding-subtitle">
-        Vamos preparar seu perfil para que as melhores oportunidades encontrem você.
-    </p>
-    
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" id="progress-bar-1" style="width: 0%;"></div>
-    </div>
-    <p class="progress-text" id="progress-text-1">10%</p>
-    
-    <button type="button" class="btn-submit-green" id="btn-iniciar-onboarding">
-        Vamos começar
-    </button>
-</div>
-
-<div class="onboarding-container" id="onboarding-step-2">
-    <h1 class="onboarding-title">Resumo Profissional</h1>
-    <p class="onboarding-subtitle">
-        Adicione um resumo sobre sua carreira para que os recrutadores te conheçam melhor.
-    </p>
-
-    <form id="form-step-2" action="{% url 'ajax_salvar_resumo' %}" method="POST" class="onboarding-form">
-        {% csrf_token %}
-        <textarea name="resumo" class="onboarding-textarea" placeholder="Escreva sobre suas experiências, habilidades e objetivos..."></textarea>
-        
-        <div class="form-buttons">
-            <button type="submit" class="btn-submit-green">Continuar</button>
-        </div>
-    </form>
-
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" style="width: 30%;"></div>
-    </div>
-    <p class="progress-text">30%</p>
-</div>
-
-<div class="onboarding-container" id="onboarding-step-3">
-    <h1 class="onboarding-title">Experiência Profissional</h1>
-    <p class="onboarding-subtitle">Adicione suas experiências mais relevantes.</p>
-
-    <form id="form-step-3" action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="onboarding-form" novalidate>
-        {% csrf_token %}
-        {{ experiencia_form.as_p }} 
-        
-        <div class="form-buttons">
-            <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
-            <button type="submit" name="continuar" class="btn-submit-green">Continuar</button>
-        </div>
-    </form>
-    
-    <div class="saved-items" id="lista-experiencias">
-    </div>
-
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" style="width: 50%;"></div>
-    </div>
-    <p class="progress-text">50%</p>
-</div>
-
-<div class="onboarding-container" id="onboarding-step-4">
-    <h1 class="onboarding-title">Formação Acadêmica</h1>
-    <p class="onboarding-subtitle">Onde você estudou?</p>
-
-    <form id="form-step-4" action="{% url 'ajax_salvar_formacao' %}" method="POST" class="onboarding-form" novalidate>
-        {% csrf_token %}
-        {{ formacao_form.as_p }}
-        
-        <div class="form-buttons">
-            <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
-            <button type="submit" name="continuar" class="btn-submit-green">Continuar</button> 
-        </div>
-    </form>
-    
-    <div class="saved-items" id="lista-formacoes">
-    </div>
-
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" style="width: 70%;"></div>
-    </div>
-    <p class="progress-text">70%</p>
-</div>
-
-<div class="onboarding-container" id="onboarding-step-5">
-    <h1 class="onboarding-title">Habilidades</h1>
-    <p class="onboarding-subtitle">Adicione as habilidades que você domina (ex: Python, Oratória, SEO).</p>
-
-    <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="onboarding-form" novalidate>
-        {% csrf_token %}
-        {{ skill_form.as_p }}
-
-        <div class="form-buttons">
-            <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
-            <button type="submit" name="continuar" class="btn-submit-green">Continuar</button>
-        </div>
-    </form>
-
-    <div class="saved-items" id="lista-skills">
-    </div>
-
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" style="width: 85%;"></div>
-    </div>
-    <p class="progress-text">85%</p>
-</div>
-
-<div class="onboarding-container" id="onboarding-step-6">
-    <h1 class="onboarding-title">Quase lá!</h1>
-    <p class="onboarding-subtitle">Anexe seu currículo em PDF para candidaturas mais completas.</p>
-
-    <form id="form-step-6" action="{% url 'ajax_salvar_curriculo' %}" method="POST" class="onboarding-form" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-        {{ curriculo_form.as_p }}
-
-        <div class="form-buttons">
-            <button type="submit" name="continuar" class="btn-submit-green">Finalizar e ver vagas</button>
-        </div>
-    </form>
-
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-fill" style="width: 100%;"></div>
-    </div>
-    <p class="progress-text">100%</p>
-</div>
-
-
-<div class="vagas-container" id="vagas-container"> 
-    
-    <div class="container-header">
-        <h1>Vagas Abertas</h1>
-        <p>Encontre sua próxima oportunidade.</p>
-    </div>
-    
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                {% if 'FIRST_LOGIN' not in message.tags %}
-                    <li class="{{ message.tags }}">{{ message }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-{% for vaga in vagas %}
-    <div class="vaga-card"> 
-        <div class="vaga-info">
-            <h3>{{ vaga.titulo }}</h3>
-            <p>
-                {% if vaga.empresa %} {{ vaga.empresa.nome }} | {% endif %}
-                {{ vaga.localidade }}
-            </p>
-        </div>
-        <div class="vaga-actions" style="text-align: center;">
-            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn-aplicar">Aplicar Agora</button>
-            </form>
-        </div>
-    </div>
-{% empty %}
-    <p style="text-align: center; color: #8b949e; padding: 20px;">
-        Nenhuma vaga encontrada no momento.
-    </p>
-{% endfor %}
-
-</div>
-
-
 <style>
-    /* Esconde todos os passos E o container de vagas por padrão */
-    .onboarding-container,
-    .vagas-container {
-        display: none;
+    /* Reset do main-container para esta página */
+    main.main-container {
+        display: block;
+        padding: 20px 20px 40px 20px;
+        /* Garante que ele ocupe o espaço */
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* --- Hero Section --- */
+    .hero {
+        text-align: center;
+        padding: 40px 20px 40px;
+    }
+    .hero h1 {
+        font-size: 42px;
+        margin-bottom: 15px;
+    }
+    .hero h1 .username {
+        color: #BEF264; /* Cor verde do base.html */
+    }
+    .hero p {
+        color: #94a3b8;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .popup-info {
+        color: #64748b;
+        font-size: 14px;
+        text-align: right;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* --- Tabs --- */
+    .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin: 40px 0;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 0;
+    }
+    .tab {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 16px;
+        padding: 15px 0;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.3s;
+    }
+    .tab:hover { color: #fff; }
+    .tab.active {
+        color: #fff;
+        font-weight: 600;
+    }
+    .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #BEF264; /* Cor verde do base.html */
+    }
+
+    /* --- Jobs Grid --- */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0; /* Removido padding para não duplicar */
+    }
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+.job-card {
+        background: #111111;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s, border-color 0.3s;
+        /* Adicionando a imagem de background aqui */
+        background-image: url("{% static 'vagas/img/vagalume_icon.png' %}"); /* Caminho para sua imagem */
+        background-repeat: no-repeat;
+        background-position: right 0px bottom -5px; /* Ajuste a posição para cortar e estilizar */
+        background-size: 500px; /* Ajuste o tamanho da imagem conforme desejar */
+    }
+
+    .job-card:hover {
+        transform: translateY(-5px);
+        border-color: #2d3f52;
+    }
+
+    /* O pseudo-elemento ::before pode ser mantido ou removido se a nova imagem for suficiente */
+    /* Se você quiser apenas a imagem, pode remover o ::before, pois ele também adiciona um efeito */
+    .job-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(190, 242, 100, 0.03) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .tags {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .tag {
+        padding: 6px 16px;
+        background-color: transparent;
+        border: 1px solid #2d3f52;
+        border-radius: 20px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+    .job-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #fff; /* Garantindo a cor */
+    }
+    .company {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+    .job-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .apply-btn {
+        padding: 10px 24px;
+        background-color: #AFEB83; /* Cor verde do base.html */
+        color: #0a1929;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .apply-btn:hover {
+        background-color: #c4f09c;
+        transform: scale(1.05);
+    }
+    .candidates {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 14px;
+    }
+    .candidates-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* --- CSS DO ONBOARDING --- */
+
+    .onboarding-container {
+        display: none; /* Começa escondido */
         opacity: 0;
         visibility: hidden;
+        text-align: center; 
+        max-width: 600px; 
+        margin: 40px auto; 
+        padding: 30px; 
+        background-color: #1a2332; /* Cor de fundo do seu novo dashboard */
+        border: 1px solid #1e293b; 
+        border-radius: 8px;
     }
-
-    /* Classe que o JS usa para mostrar o bloco ativo */
     .container-ativo {
         display: block;
-        opacity: 1; /* Começa visível */
+        opacity: 1;
         visibility: visible;
     }
-    
-    /* Animação de entrada (Fade In / Sobe) */
     .fade-in {
         animation: fadeInUp 0.5s ease-out forwards;
     }
-
-    /* Animação de saída (Fade Out / Desce) */
     .fade-out {
         animation: fadeOutDown 0.5s ease-in forwards;
     }
-
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
     @keyframes fadeOutDown {
         from { opacity: 1; transform: translateY(0); }
         to { opacity: 0; transform: translateY(20px); visibility: hidden; }
     }
 
-    /* (Cole aqui o resto do seu CSS de .onboarding-title, .progress-bar, etc.) */
-    .onboarding-container { text-align: center; max-width: 600px; margin: 40px auto; padding: 30px; background-color: #161B22; border: 1px solid #30363d; border-radius: 8px; }
-    .onboarding-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 2.2rem; color: #FFFFFF; margin-bottom: 10px; }
-    .onboarding-subtitle { font-size: 1.1rem; color: #8b949e; margin-bottom: 30px; }
-    .progress-bar-wrapper { width: 100%; height: 10px; background-color: #0D1B2A; border: 1px solid #30363d; border-radius: 5px; overflow: hidden; }
-    .progress-bar-fill { width: 0%; height: 100%; background-color: #BEF264; border-radius: 5px; transition: width 1.5s ease-out; }
-    .progress-text { color: #8b949e; font-size: 0.9rem; margin-top: 5px; margin-bottom: 30px; }
-    .btn-submit-green { display: inline-block; text-decoration: none; width: auto; padding: 12px 30px; }
-    .btn-secondary { /* Botão novo */
-        display: inline-block; text-decoration: none; width: auto; padding: 12px 20px; background-color: #30363d; color: #c9d1d9; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-right: 10px;
+    /* Estilo da Barra (Corrigido) */
+    #progress-bar-fixed-wrapper {
+        max-width: 600px; 
+        margin: 20px auto 10px auto;
+        background-color: transparent; 
+        border: none;
+        padding: 0;
+    }
+    #progresso-texto {
+        margin-bottom: 10px; 
+        font-size: 1.1rem; 
+        color: #fff; 
+        font-weight: 700;
+        text-align: left;
+    }
+    .progress-bar-wrapper { 
+        width: 100%; 
+        height: 10px; 
+        background-color: #0a1929; /* Fundo do seu novo body */
+        border: 1px solid #1e293b; 
+        border-radius: 5px; 
+        overflow: hidden; 
+    }
+    .progress-bar-fill { 
+        width: 0%; 
+        height: 100%; 
+        background-color: #AFEB83; /* Verde Vagalume */
+        border-radius: 5px; 
+        transition: width 1.5s ease-out; 
+    }
+
+    /* Estilos dos Títulos e Botões do Onboarding */
+    .onboarding-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; font-weight: 800; font-size: 2.2rem; color: #FFFFFF; margin-bottom: 10px; }
+    .onboarding-subtitle { font-size: 1.1rem; color: #94a3b8; margin-bottom: 30px; }
+    
+    /* Botão Verde (reaproveita o .apply-btn) */
+    .btn-submit-green {
+        padding: 12px 30px;
+        background-color: #AFEB83;
+        color: #0a1929;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-submit-green:hover {
+        background-color: #c4f09c;
+    }
+    
+    .btn-secondary {
+        display: inline-block; text-decoration: none; width: auto; padding: 12px 20px; background-color: #2d3f52; color: #c9d1d9; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-right: 10px;
     }
     .form-buttons { text-align: right; }
     .onboarding-form { width: 100%; margin-bottom: 20px; text-align: left; }
-    .onboarding-textarea { width: 100%; min-height: 150px; background-color: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: 12px 15px; border-radius: 5px; font-size: 1rem; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 20px; }
-    .vagas-container { max-width: 900px; margin: auto; }
+    .onboarding-textarea { width: 100%; min-height: 150px; background-color: #0a1929; border: 1px solid #1e293b; color: #c9d1d9; padding: 12px 15px; border-radius: 5px; font-size: 1rem; font-family: -apple-system, sans-serif; margin-bottom: 20px; }
+    
+    /* Estilos dos Forms .as_p do Onboarding */
+    .onboarding-form p {
+        margin-bottom: 15px;
+    }
+    .onboarding-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #c9d1d9;
+    }
+    .onboarding-form input[type="text"],
+    .onboarding-form input[type="date"],
+    .onboarding-form select,
+    .onboarding-form textarea {
+        width: 100%;
+        background-color: #0a1929; 
+        border: 1px solid #1e293b; 
+        color: #c9d1d9; 
+        padding: 12px 15px;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-family: -apple-system, sans-serif;
+    }
+    .onboarding-form input[type="checkbox"] {
+        width: auto; 
+        margin-right: 10px;
+        vertical-align: middle;
+    }
 
-    /* --- ESTILOS DOS CARDS DE VAGA --- */
-.vaga-card {
-    background: #161B22; /* Cor de fundo do card */
-    border: 1px solid #30363d;
-    padding: 25px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    display: flex; /* Para alinhar o score */
-    justify-content: space-between;
-    align-items: center;
-}
-.vaga-info h3 { 
-    color: #fff; 
-    margin: 0 0 5px 0; 
-    font-size: 1.25rem;
-}
-.vaga-info p { 
-    color: #8b949e; 
-    margin: 0; 
-    font-size: 0.95rem;
-}
-.vaga-match-score { 
-    text-align: right; 
-    flex-shrink: 0; /* Impede que o score encolha */
-    margin-left: 20px;
-}
-.vaga-match-score h2 {
-    color: #BEF264; /* Verde Vagalume */
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 800;
-}
-.vaga-match-score p { 
-    color: #8b949e; 
-    margin: 0; 
-    font-size: 0.9rem; 
-    font-weight: 500;
-}
-
-    /*
- * ESTILOS PARA OS FORMS .as_p
- */
-.onboarding-form p { /* Alvo: os <p> gerados pelo Django */
-    margin-bottom: 15px;
-}
-.onboarding-form label {
-    display: block; /* Faz o <label> ficar em cima do <input> */
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #c9d1d9; /* Cor do texto claro */
-}
-.onboarding-form input[type="text"],
-.onboarding-form input[type="date"],
-.onboarding-form select,
-.onboarding-form textarea {
-    /* Pega emprestado o estilo dos inputs de login */
-    width: 100%;
-    background-color: #0d1117; 
-    border: 1px solid #30363d; 
-    color: #c9d1d9; 
-    padding: 12px 15px;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-.onboarding-form input[type="checkbox"] {
-    /* Checkbox não deve ter 100% de largura */
-    width: auto; 
-    margin-right: 10px;
-    vertical-align: middle; /* Alinha melhor com o texto */
-}
-
-.vaga-card form {
-    margin: 0; /* Remove margem do form */
-}
-.btn-aplicar {
-    background-color: #AFEB83;
-    color: #0D1B2A;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-.btn-aplicar:hover {
-    background-color: #c4f09c;
-}
+    /* Responsividade */
+    @media (max-width: 1024px) {
+        .jobs-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 768px) {
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+        .tabs {
+            gap: 20px;
+        }
+    }
 
 </style>
 
-<script>
+
+<div id="progress-bar-fixed-wrapper" style="display: none;">
+    <p id="progresso-texto">Progresso: 0%</p>
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progresso-barra" style="width: 0%;"></div>
+    </div>
+</div>
+
+<div id="onboarding-wrapper" style="display: none;">
+    <div class="onboarding-container" id="onboarding-step-1">
+        <h1 class="onboarding-title">
+            Bem-vindo(a), {{ user.first_name|default:user.username }}!
+        </h1>
+        <p class="onboarding-subtitle">
+            Vamos preparar seu perfil para que as melhores oportunidades encontrem você.
+        </p>
+        <button type="button" class="btn-submit-green" id="btn-iniciar-onboarding">
+            Vamos começar
+        </button>
+    </div>
+
+    <div class="onboarding-container" id="onboarding-step-2">
+        <h1 class="onboarding-title">Resumo Profissional</h1>
+        <p class="onboarding-subtitle">
+            Adicione um resumo sobre sua carreira para que os recrutadores te conheçam melhor.
+        </p>
+        <form id="form-step-2" action="{% url 'ajax_salvar_resumo' %}" method="POST" class="onboarding-form">
+            {% csrf_token %}
+            <textarea name="resumo" class="onboarding-textarea" placeholder="Escreva sobre suas experiências, habilidades e objetivos..."></textarea>
+            <div class="form-buttons">
+                <button type="submit" class="btn-submit-green">Continuar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="onboarding-container" id="onboarding-step-3">
+        <h1 class="onboarding-title">Experiência Profissional</h1>
+        <p class="onboarding-subtitle">Adicione suas experiências mais relevantes.</p>
+        <form id="form-step-3" action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="onboarding-form" novalidate>
+            {% csrf_token %}
+            {{ experiencia_form.as_p }} 
+            <div class="form-buttons">
+                <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
+                <button type="submit" name="continuar" class="btn-submit-green">Continuar</button>
+            </div>
+        </form>
+        <div class="saved-items" id="lista-experiencias"></div>
+    </div>
+
+    <div class="onboarding-container" id="onboarding-step-4">
+        <h1 class="onboarding-title">Formação Acadêmica</h1>
+        <p class="onboarding-subtitle">Onde você estudou?</p>
+        <form id="form-step-4" action="{% url 'ajax_salvar_formacao' %}" method="POST" class="onboarding-form" novalidate>
+            {% csrf_token %}
+            {{ formacao_form.as_p }}
+            <div class="form-buttons">
+                <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
+                <button type="submit" name="continuar" class="btn-submit-green">Continuar</button> 
+            </div>
+        </form>
+        <div class="saved-items" id="lista-formacoes"></div>
+    </div>
+
+    <div class="onboarding-container" id="onboarding-step-5">
+        <h1 class="onboarding-title">Habilidades</h1>
+        <p class="onboarding-subtitle">Adicione as habilidades que você domina (ex: Python, Oratória, SEO).</p>
+        <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="onboarding-form" novalidate>
+            {% csrf_token %}
+            {{ skill_form.as_p }}
+            <div class="form-buttons">
+                <button type="submit" name="salvar_outro" class="btn-secondary">Salvar e Adicionar Outra</button>
+                <button type="submit" name="continuar" class="btn-submit-green">Continuar</button>
+            </div>
+        </form>
+        <div class="saved-items" id="lista-skills"></div>
+    </div>
+
+    <div class="onboarding-container" id="onboarding-step-6">
+        <h1 class="onboarding-title">Quase lá!</h1>
+        <p class="onboarding-subtitle">Anexe seu currículo em PDF para candidaturas mais completas.</p>
+        <form id="form-step-6" action="{% url 'ajax_salvar_curriculo' %}" method="POST" class="onboarding-form" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {{ curriculo_form.as_p }}
+            <div class="form-buttons">
+                <button type="submit" name="continuar" class="btn-submit-green">Finalizar e ver vagas</button>
+            </div>
+        </form>
+    </div>
+</div> <div id="vagas-container" style="display: none;">
+    <section class="hero">
+        <h1>Olá, <span class="username">{{ user.first_name|default:user.username }}</span></h1>
+        <p>Separamos algumas vagas pra você, baseado no seu perfil.</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                {% if 'FIRST_LOGIN' not in message.tags %}
+                    <p class="popup-info" style="color: #AFEB83; text-align: center; font-size: 1.1rem;">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </section>
+
+    <div class="tabs">
+        <button class="tab active">Recomendados</button>
+        <button class="tab">Finança</button>
+        <button class="tab">Perfil</button>
+        <button class="tab">Configurações</button>
+    </div>
+
+    <div class="container">
+        <div class="jobs-grid">
+            
+            {% for vaga in vagas %}
+                <div class="job-card">
+                    <div class="tags">
+                        <span class="tag">{{ vaga.tipo_contrato }}</span>
+                        <span class="tag">{{ vaga.localidade }}</span>
+                        {% if vaga.faixa_salarial %}
+                        <span class="tag">{{ vaga.faixa_salarial }}</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="job-title">{{ vaga.titulo }}</h3>
+                    <p class="company">{{ vaga.empresa.nome }}</p>
+                    <div class="job-footer">
+                        <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="apply-btn">Candidatar-Se</button>
+                        </form>
+                        <div class="candidates">
+                            <svg class="candidates-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span>+10 Candidatos</span> 
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color: #94a3b8; font-size: 1.2rem; text-align: center; grid-column: 1 / -1;">
+                    Nenhuma vaga encontrada no momento.
+                </p>
+            {% endfor %}
+            </div>
+    </div>
+</div> <script>
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. MAPEAMENTO DOS ELEMENTOS ---
+    
+    const progressBarFixedWrapper = document.getElementById('progress-bar-fixed-wrapper');
+    const onboardingWrapper = document.getElementById('onboarding-wrapper');
+    const vagasContainer = document.getElementById('vagas-container');
+
+    const progressBar = document.getElementById('progresso-barra');
+    const progressText = document.getElementById('progresso-texto');
+
     const step1 = document.getElementById('onboarding-step-1');
     const step2 = document.getElementById('onboarding-step-2');
     const step3 = document.getElementById('onboarding-step-3');
     const step4 = document.getElementById('onboarding-step-4');
     const step5 = document.getElementById('onboarding-step-5');
     const step6 = document.getElementById('onboarding-step-6');
-    const vagasContainer = document.getElementById('vagas-container');
 
-    // Mapeia os formulários
     const formStep2 = document.getElementById('form-step-2');
     const formStep3 = document.getElementById('form-step-3');
     const formStep4 = document.getElementById('form-step-4');
     const formStep5 = document.getElementById('form-step-5');
     const formStep6 = document.getElementById('form-step-6');
     
-    // Mapeia os botões
     const btnIniciar = document.getElementById('btn-iniciar-onboarding');
+
+    let currentProgress = 0;
+    let counterInterval = null;
 
     // --- 2. LÓGICA DE EXIBIÇÃO INICIAL ---
     let isFirstLogin = false;
@@ -350,87 +498,100 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
 
     if (isFirstLogin) {
-        // Se for o primeiro login, mostra o Passo 1
-        mostrarPasso(step1, true); // O 'true' anima a barra
+        // 1. Mostra a barra de progresso
+        progressBarFixedWrapper.style.display = 'block';
+        progressBarFixedWrapper.classList.add('fade-in');
+        
+        // 2. Mostra o wrapper dos steps
+        onboardingWrapper.style.display = 'block';
+        
+        // 3. Mostra o PRIMEIRO step
+        mostrarPasso(step1);
+        
+        // 4. Define o progresso inicial (e já anima de 0 a 10)
+        atualizarProgresso(10); 
     } else {
-        // Se NÃO for o primeiro login, mostra a lista de vagas
-        mostrarPasso(vagasContainer);
+        // Se NÃO for o primeiro login, mostra o dashboard de vagas
+        vagasContainer.style.display = 'block';
+        vagasContainer.classList.add('fade-in');
     }
 
     // --- 3. FUNÇÕES DE TRANSIÇÃO ---
     
-    // Função para mostrar um passo (e esconder os outros)
-    function mostrarPasso(passoAtivo, animarBarra = false) {
-        // Esconde todos os containers
-        document.querySelectorAll('.onboarding-container, .vagas-container').forEach(el => {
-            el.classList.remove('container-ativo', 'fade-in');
-        });
+    function animateCounter(start, end, duration) {
+        if (counterInterval) {
+            clearInterval(counterInterval);
+        }
+        if (start === end) {
+            progressText.innerText = 'Progresso: ' + end + '%';
+            return;
+        }
+        let current = start;
+        let increment = end > start ? 1 : -1;
+        let stepTime = Math.abs(Math.floor(duration / (end - start)));
+        stepTime = Math.max(Math.min(stepTime, 50), 15); 
         
-        // Mostra o container ativo com a animação
-        passoAtivo.classList.add('container-ativo', 'fade-in');
-        
-        if (animarBarra) {
-            // Anima a barra de progresso do passo ativo (ex: #progress-bar-1)
-            const progressBar = passoAtivo.querySelector('.progress-bar-fill');
-            const progressText = passoAtivo.querySelector('.progress-text').innerText; // "10%"
-            if(progressBar) {
-                setTimeout(() => { progressBar.style.width = progressText; }, 500);
+        counterInterval = setInterval(function() {
+            current += increment;
+            progressText.innerText = 'Progresso: ' + current + '%';
+            if (current == end) {
+                clearInterval(counterInterval);
+                counterInterval = null;
             }
+        }, stepTime);
+    }
+
+    function atualizarProgresso(percentualAlvo) {
+        if (progressBar && progressText) {
+            progressBar.style.width = percentualAlvo + '%';
+            animateCounter(currentProgress, percentualAlvo, 1500); // 1.5s
+            currentProgress = percentualAlvo;
         }
     }
     
-    // Função para trocar de um passo para o outro com animação
-    function transicao(passoAtual, proximoPasso) {
-        // 1. Aplica a animação "fade-out" no Bloco atual
-        passoAtual.classList.add('fade-out');
-
-        // 2. Espera a animação de saída terminar (500ms)
-        setTimeout(() => {
-            passoAtual.classList.remove('container-ativo', 'fade-out');
-            
-            // 3. Mostra o próximo passo
-            mostrarPasso(proximoPasso, true);
-            
-        }, 500); // Tempo da animação fade-out
+    function mostrarPasso(passoAtivo) {
+        document.querySelectorAll('#onboarding-wrapper .onboarding-container').forEach(el => {
+            el.classList.remove('container-ativo');
+        });
+        passoAtivo.classList.add('container-ativo', 'fade-in');
     }
     
-    // --- 4. AJAX "HELPER" (Onde a mágica acontece) ---
+    function transicao(passoAtual, proximoPasso, percentualAlvo) {
+        atualizarProgresso(percentualAlvo);
+        passoAtual.classList.add('fade-out');
+        setTimeout(() => {
+            passoAtual.classList.remove('container-ativo', 'fade-out');
+            mostrarPasso(proximoPasso);
+        }, 500); 
+    }
+    
+    // --- 4. AJAX "HELPER" (Não muda) ---
     async function enviarFormulario(form, botaoPressionado) {
         const url = form.action;
         const formData = new FormData(form);
-        
-        // Adiciona qual botão foi pressionado (para o Python saber)
         if (botaoPressionado) {
             formData.append(botaoPressionado.name, botaoPressionado.value);
         }
-
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    // O 'X-CSRFToken' é pego do <input> no formulário
                     'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
                 }
             });
-
-            const data = await response.json(); // Espera uma resposta JSON
-
+            const data = await response.json(); 
             if (data.status === 'success') {
                 if (data.action === 'next_step') {
-                    // Python mandou ir para o próximo passo
                     return true;
                 } else {
-                    // Python mandou "salvar e adicionar outro"
-                    // Vamos atualizar a lista de itens salvos (Ex: lista-experiencias)
                     atualizarLista(data.saved_item_html, data.list_id);
-                    form.reset(); // Limpa o formulário
-                    return false; // Não avança
+                    form.reset(); 
+                    return false; 
                 }
             } else {
-                // Falha na validação (Ex: campo obrigatório)
                 alert('Erro: ' + data.errors);
-                return false; // Não avança
+                return false; 
             }
         } catch (error) {
             console.error('Erro no AJAX:', error);
@@ -441,113 +602,103 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function atualizarLista(html, listId) {
         const listaContainer = document.getElementById(listId);
-        listaContainer.innerHTML += html; // Adiciona o novo item
+        if(listaContainer) {
+            listaContainer.innerHTML += html;
+        }
     }
 
     // --- 5. EVENT LISTENERS (Ligando os botões) ---
 
-    // Botão "Vamos Começar" (Passo 1 -> 2)
-    btnIniciar.addEventListener('click', function(e) {
-        e.preventDefault();
-        transicao(step1, step2);
-    });
+    if(btnIniciar) {
+        btnIniciar.addEventListener('click', function(e) {
+            e.preventDefault();
+            transicao(step1, step2, 30); // Alvo: 30%
+        });
+    }
 
-    // Formulário "Resumo" (Passo 2 -> 3)
-    formStep2.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Impede o recarregamento
-        const sucesso = await enviarFormulario(formStep2, e.submitter);
-        if (sucesso) {
-            transicao(step2, step3);
-        }
-    });
+    if(formStep2) {
+        formStep2.addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            const sucesso = await enviarFormulario(formStep2, e.submitter);
+            if (sucesso) {
+                transicao(step2, step3, 50); // Alvo: 50%
+            }
+        });
+    }
     
- // Formulário "Experiência" (Passo 3 -> 4) - LÓGICA CORRIGIDA
-    formStep3.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const botaoClicado = e.submitter; // Pega o botão que foi clicado
-        
-        // Pega o campo "principal" do form (ex: cargo)
-        const cargoInput = formStep3.querySelector('[name=cargo]'); 
-
-        // Se o usuário clicou "Continuar" E o campo "cargo" está VAZIO...
-        if (botaoClicado.name === 'continuar' && cargoInput.value.trim() === '') {
-            // ...ele quer PULAR a etapa. Não validamos nada.
-            transicao(step3, step4);
-            return; // Encerra a função aqui
-        }
-
-        // Se clicou "Salvar" OU clicou "Continuar" COM dados:
-        // Roda a validação e o AJAX
-        const avancar = await enviarFormulario(formStep3, botaoClicado);
-        
-        // O 'avancar' só será 'true' se o AJAX retornar 'action: "next_step"'
-        if (avancar) { 
-            transicao(step3, step4);
-        }
-        // Se for "add_another", 'avancar' será falso e ele fica na mesma página.
-    });
+    if(formStep3) {
+        formStep3.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const botaoClicado = e.submitter; 
+            const cargoInput = formStep3.querySelector('[name=cargo]'); 
+            if (botaoClicado.name === 'continuar' && cargoInput.value.trim() === '') {
+                transicao(step3, step4, 70); // Alvo: 70%
+                return; 
+            }
+            const avancar = await enviarFormulario(formStep3, botaoClicado);
+            if (avancar) { 
+                transicao(step3, step4, 70); // Alvo: 70%
+            }
+        });
+    }
     
-    // Formulário "Formação" (Passo 4 -> 5) - LÓGICA CORRIGIDA
-    formStep4.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const botaoClicado = e.submitter;
-        
-        // Pega o campo "principal" (ex: nome_formacao)
-        const formacaoInput = formStep4.querySelector('[name=nome_formacao]');
-
-        // Se o usuário clicou "Continuar" E o campo "nome_formacao" está VAZIO...
-        if (botaoClicado.name === 'continuar' && formacaoInput.value.trim() === '') {
-            // ...ele quer PULAR a etapa.
-            transicao(step4, step5); 
-            return; 
-        }
-
-        // Se clicou "Salvar" OU clicou "Continuar" COM dados:
-        const avancar = await enviarFormulario(formStep4, botaoClicado);
-        
-        if (avancar) {
-            transicao(step4, step5);
-        }
-    });
-
-    // Formulário "Skills" (Passo 5 -> 6)
-formStep5.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const botaoClicado = e.submitter;
-    const skillInput = formStep5.querySelector('[name=nome]'); // Checa o campo 'nome'
-
-    // Se clicou "Continuar" e o campo está VAZIO, pula
-    if (botaoClicado.name === 'continuar' && skillInput.value.trim() === '') {
-        transicao(step5, step6); // Vai para o passo 6 (Currículo)
-        return; 
+    if(formStep4) {
+        formStep4.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const botaoClicado = e.submitter;
+            const formacaoInput = formStep4.querySelector('[name=nome_formacao]');
+            if (botaoClicado.name === 'continuar' && formacaoInput.value.trim() === '') {
+                transicao(step4, step5, 85); // Alvo: 85%
+                return; 
+            }
+            const avancar = await enviarFormulario(formStep4, botaoClicado);
+            if (avancar) {
+                transicao(step4, step5, 85); // Alvo: 85%
+            }
+        });
     }
 
-    // Se clicou "Salvar" OU "Continuar" com dados, envia o form
-    const avancar = await enviarFormulario(formStep5, botaoClicado);
-
-    if (avancar) { // 'avancar' é true se o action foi 'next_step'
-        transicao(step5, step6); // Vai para o passo 6 (Currículo)
+    if(formStep5) {
+        formStep5.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const botaoClicado = e.submitter;
+            const skillInput = formStep5.querySelector('[name=nome]'); 
+            if (botaoClicado.name === 'continuar' && skillInput.value.trim() === '') {
+                transicao(step5, step6, 100); // Alvo: 100%
+                return; 
+            }
+            const avancar = await enviarFormulario(formStep5, botaoClicado);
+            if (avancar) { 
+                transicao(step5, step6, 100); // Alvo: 100%
+            }
+        });
     }
-});
 
-// Formulário "Currículo" (Passo 6 -> Vagas!)
-formStep6.addEventListener('submit', async function(e) {
-    e.preventDefault();
+    if(formStep6) {
+        formStep6.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            atualizarProgresso(100);
+            const avancar = await enviarFormulario(formStep6, e.submitter);
 
-    // Este é o último passo, não precisa checar se está vazio, 
-    // o usuário pode pular se quiser (o campo já é opcional no model).
+            if (avancar) {
+                // Anima a saída do wrapper de onboarding
+                progressBarFixedWrapper.classList.add('fade-out');
+                onboardingWrapper.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    // Esconde eles de vez
+                    progressBarFixedWrapper.style.display = 'none';
+                    onboardingWrapper.style.display = 'none';
 
-    // Apenas envia o formulário. O 'enviarFormulario' já trata o request.FILES
-    const avancar = await enviarFormulario(formStep6, e.submitter);
-
-    if (avancar) {
-        // FIM DA CUTSCENE!
-        // ** CORREÇÃO FINAL DO JAVASCRIPT **
-        transicao(step6, vagasContainer); // Vai para o painel de vagas
+                    // Mostra o container de vagas
+                    vagasContainer.style.display = 'block';
+                    vagasContainer.classList.add('fade-in');
+                }, 500);
+            }
+        });
     }
-    // Se a validação do form falhar (ex: não é um PDF), ele não avança
-});
 
 });
 </script>
+
 {% endblock %}
