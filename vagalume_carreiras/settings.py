@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'apps.usuarios',
     'apps.vagas',
     'apps.matching',
@@ -146,3 +148,30 @@ AUTHENTICATION_BACKENDS = [
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LOGIN_URL = 'login'
+
+# Configuração do Django REST Framework (DRF)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # Esta linha define o JWT como padrão para autenticar APIs
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # Recomendado: Proíbe o acesso a todas as APIs por padrão, exigindo login.
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+# Configuração do Simple JWT
+SIMPLE_JWT = {
+    # Tempo de vida do token de acesso (o que é usado nas requisições)
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Exemplo: 60 minutos
+
+    # Tempo de vida do token de refresh (usado para obter um novo token de acesso)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),   # Exemplo: 7 dias
+
+    # Se TRUE, o token de refresh é trocado a cada renovação (mais seguro)
+    'ROTATE_REFRESH_TOKENS': True, 
+
+    # Adiciona o ID do usuário ao payload do token
+    'USER_ID_FIELD': 'id',
+}
