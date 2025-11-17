@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Cadastro - Vagalume Carreiras{% endblock %}
+{% block title %}Cadastro de Empresa - Vagalume Carreiras{% endblock %}
 
 {% block content %}
 <div class="cadastro-wrapper">
     
     <div class="cadastro-info">
-        <h1>Deixe sua carreira brilhar.</h1>
-        <p>Junte-se a milhares de profissionais e empresas.</p>
+        <h1>Encontre os melhores talentos.</h1>
+        <p>Anuncie suas vagas e use nossa IA para achar o candidato ideal.</p>
     </div>
     
     <div class="auth-form-container">
         
         <div class="form-toggle">
-            <a href="{% url 'cadastro_candidato' %}" class="toggle-btn active">Sou Candidato</a>
-            <a href="{% url 'cadastro_recrutador' %}" class="toggle-btn">Sou Empresa</a>
+            <a href="{% url 'cadastro_candidato' %}" class="toggle-btn">Sou Candidato</a>
+            <a href="{% url 'cadastro_recrutador' %}" class="toggle-btn active">Sou Empresa</a> 
         </div>
         
         <form method="POST" class="auth-form">
@@ -33,7 +33,7 @@
                 <label for="terms">Li e Aceito os <a href="#">Termos de Serviço</a> e a <a href="#">Política de Privacidade</a>.</label>
             </div>
             
-            <button type="submit" class="btn-submit-green">Criar Conta</button>
+            <button type="submit" class="btn-submit-green">Criar Conta Empresarial</button>
             
             <p class="form-footer-link">
                 Já possui uma conta? <a href="{% url 'login' %}">Faça login aqui.</a>

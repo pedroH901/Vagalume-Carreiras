@@ -1,7 +1,6 @@
 from django import forms
-from .models import Usuario, Candidato
-from .models import Usuario, Candidato, Experiencia, Formacao_Academica, Skill
-import re # Para limpar o CPF
+from .models import Usuario, Candidato, Experiencia, Formacao_Academica, Skill, Empresa
+import re
 
 class CandidatoCadastroForm(forms.Form):
     """
@@ -107,3 +106,47 @@ class CurriculoForm(forms.ModelForm):
     class Meta:
         model = Candidato
         fields = ['curriculo_pdf'] # Pega só aquele campo que criamos
+
+class RecrutadorCadastroForm(forms.Form):
+    """
+    Formulário para o fluxo de cadastro de Recrutador (Empresa).
+    Coleta dados para os models Usuario, Empresa e Recrutador.
+    """
+    
+    # --- Dados do Usuário (Recrutador) ---
+    first_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Seu Nome'}))
+    last_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Seu Sobrenome'}))
+    email = forms.EmailField(label='', widget=forms.EmailInput(attrs={'placeholder': 'Email Corporativo'}))
+    telefone = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Telefone Comercial'}))
+    password = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Senha'}))
+    password_confirm = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Confirmar Senha'}))
+    
+    # --- Dados da Empresa ---
+    nome_empresa = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Nome da Empresa'}))
+    cnpj = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'CNPJ (apenas números)'}))
+    setor = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Setor (Ex: Tecnologia)'}))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email').lower()
+        if Usuario.objects.filter(email=email).exists():
+            raise forms.ValidationError("Este email corporativo já está cadastrado.")
+        return email
+
+    def clean_cnpj(self):
+        cnpj = self.cleaned_data.get('cnpj')
+        cnpj_digits = re.sub(r'[^0-9]', '', cnpj)
+        if len(cnpj_digits) != 14:
+            raise forms.ValidationError("CNPJ deve conter 14 dígitos.")
+        if Empresa.objects.filter(cnpj=cnpj_digits).exists():
+            raise forms.ValidationError("Este CNPJ já está cadastrado em nossa plataforma.")
+        return cnpj_digits
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
+
+        if password and password_confirm and password != password_confirm:
+            self.add_error('password_confirm', "As senhas não coincidem.")
+        
+        return cleaned_data
