@@ -7,11 +7,10 @@ from .models import Vaga, Candidatura
 from apps.usuarios.models import Recrutador, Candidato, Empresa
 from .forms import VagaForm
 from apps.usuarios.forms import (
-    ExperienciaForm, FormacaoForm, SkillForm, CurriculoForm
+    ExperienciaForm, FormacaoForm, SkillForm, CurriculoForm, PerfilUsuarioForm, PerfilCandidatoForm
 )
 from apps.matching.engine import calcular_similaridade_tags
-
-# Imports para o painel_admin (que estavam faltando)
+from apps.usuarios.models import Resumo_Profissional
 from django.db.models.functions import TruncMonth
 from django.db.models import Count
 from django.utils import timezone
@@ -71,6 +70,17 @@ def home_candidato(request):
     if request.user.tipo_usuario != 'candidato':
         messages.error(request, 'Acesso negado.')
         return redirect('home_recrutador')
+    
+    candidato = request.user.candidato
+    
+    if request.method == 'POST':
+        # (Aqui virá a lógica para SALVAR os forms de perfil,
+        # mas faremos isso depois. Primeiro vamos exibir.)
+        pass
+
+    # --- Instancia os formulários de perfil com dados existentes ---
+    perfil_usuario_form = PerfilUsuarioForm(instance=request.user)
+    perfil_candidato_form = PerfilCandidatoForm(instance=candidato)
 
     lista_de_vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
     
@@ -80,6 +90,8 @@ def home_candidato(request):
         'formacao_form': FormacaoForm(),
         'skill_form': SkillForm(),
         'curriculo_form': CurriculoForm(),
+        'perfil_usuario_form': perfil_usuario_form,
+        'perfil_candidato_form': perfil_candidato_form,
     }
     
     return render(request, 'vagas/home_candidato.html', contexto)

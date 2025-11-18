@@ -150,3 +150,27 @@ class RecrutadorCadastroForm(forms.Form):
             self.add_error('password_confirm', "As senhas não coincidem.")
         
         return cleaned_data
+
+class PerfilUsuarioForm(forms.ModelForm):
+    """
+    Formulário para editar os dados do 'Usuario' (nome, sobrenome, telefone).
+    """
+    class Meta:
+        model = Usuario
+        fields = ['first_name', 'last_name', 'telefone']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'placeholder': 'Seu primeiro nome'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Seu sobrenome'}),
+            'telefone': forms.TextInput(attrs={'placeholder': '(XX) XXXXX-XXXX'}),
+        }
+
+class PerfilCandidatoForm(forms.ModelForm):
+    """
+    Formulário para editar os dados do 'Candidato' (genero, bairro).
+    """
+    class Meta:
+        model = Candidato
+        fields = ['genero', 'bairro']
+        widgets = {
+            'bairro': forms.TextInput(attrs={'placeholder': 'Ex: Centro'}),
+        }
