@@ -24,6 +24,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCandidato
+from django.views.decorators.http import require_http_methods
 
 
 
@@ -483,3 +484,34 @@ class CurriculoAPIView(APIView):
             return Response({'status': 'success', 'action': 'next_step'}, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@login_required
+@require_http_methods(["DELETE"])
+def ajax_deletar_skill(request, skill_id):
+    try:
+        skill = Skill.objects.get(id=skill_id, candidato=request.user.candidato)
+        skill.delete()
+        return JsonResponse({'status': 'success'})
+    except Skill.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Skill não encontrada'}, status=404)
+
+@login_required
+@require_http_methods(["DELETE"])
+def ajax_deletar_experiencia(request, xp_id):
+    try:
+        exp = Experiencia.objects.get(id=xp_id, candidato=request.user.candidato)
+        exp.delete()
+        return JsonResponse({'status': 'success'})
+    except Experiencia.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Experiência não encontrada'}, status=404)
+
+@login_required
+@require_http_methods(["DELETE"])
+def ajax_deletar_formacao(request, edu_id):
+    try:
+        formacao = Formacao_Academica.objects.get(id=edu_id, candidato=request.user.candidato)
+        formacao.delete()
+        return JsonResponse({'status': 'success'})
+    except Formacao_Academica.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Formação não encontrada'}, status=404)

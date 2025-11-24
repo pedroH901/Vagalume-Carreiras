@@ -9,7 +9,7 @@ urlpatterns = [
     path('cadastro/candidato/', views.cadastrar_candidato, name='cadastro_candidato'),
     path('cadastro/recrutador/', views.cadastrar_recrutador, name='cadastro_recrutador'),
 
-    # ATENÇÃO: Removemos as URLs de /onboarding/ aqui
+    
     
     # --- URLs de AJAX ---
     path('ajax/salvar-resumo/', views.ajax_salvar_resumo, name='ajax_salvar_resumo'),
@@ -17,6 +17,9 @@ urlpatterns = [
     path('ajax/salvar-formacao/', views.ajax_salvar_formacao, name='ajax_salvar_formacao'),
     path('ajax/salvar-skill/', views.ajax_salvar_skill, name='ajax_salvar_skill'),
     path('ajax/salvar-curriculo/', views.ajax_salvar_curriculo, name='ajax_salvar_curriculo'),
+    path('ajax/deletar-skill/<int:skill_id>/', views.ajax_deletar_skill, name='ajax_deletar_skill'),
+    path('ajax/deletar-experiencia/<int:xp_id>/', views.ajax_deletar_experiencia, name='ajax_deletar_experiencia'),
+    path('ajax/deletar-formacao/<int:edu_id>/', views.ajax_deletar_formacao, name='ajax_deletar_formacao'),
 
     # --- URLs DA API (DRF/JWT) ---
     path('api/resumo/', views.ResumoProfissionalAPIView.as_view(), name='api_salvar_resumo'), 
