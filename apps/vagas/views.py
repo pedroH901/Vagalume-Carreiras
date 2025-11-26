@@ -29,24 +29,65 @@ from apps.usuarios.models import (
 )
 from django.db.models import Avg
 from apps.usuarios.models import AvaliacaoEmpresa
+from django.db.models import Count
 
 
 def landing_page(request):
     """
-    Renderiza a Home Page (Landing Page) do site.
+    Renderiza a Home Page com dados reais e categorias dinâmicas.
     """
-
+    # Estatísticas Gerais
     total_candidatos = Candidato.objects.count()
     total_vagas = Vaga.objects.filter(status=True).count()
     total_empresas = Empresa.objects.count()
 
-    contexto = {
-        "total_candidatos": total_candidatos,
-        "total_vagas": total_vagas,
-        "total_empresas": total_empresas,
-    }
-    return render(request, "vagas/landing_page.html", contexto)
+    # Vagas Recentes (para os cards)
+    vagas_recentes = Vaga.objects.filter(status=True).order_by('-data_publicacao')[:6]
 
+    top_cargos = Vaga.objects.filter(status=True).values('titulo').annotate(total=Count('id')).order_by('-total')[:5]
+
+    top_setores = Vaga.objects.filter(status=True).values('empresa__setor').annotate(total=Count('id')).order_by('-total')[:8]
+
+    context = {
+        'total_candidatos': total_candidatos,
+        'total_vagas': total_vagas,
+        'total_empresas': total_empresas,
+        'vagas_recentes': vagas_recentes,
+        
+        # Novos dados para o template
+        'top_cargos': top_cargos,
+        'top_setores': top_setores,
+    }
+    
+    return render(request, 'vagas/landing_page.html', context)
+
+@login_required
+def deletar_comentario(request, comentario_id):
+    """
+    Permite que Admins ou a própria Empresa dona do perfil apaguem comentários.
+    """
+    comentario = get_object_or_404(AvaliacaoEmpresa, id=comentario_id)
+    empresa_dona = comentario.empresa
+    
+    # Verifica Permissões
+    is_admin = request.user.is_staff or request.user.is_superuser
+    is_dono = False
+    
+    if request.user.tipo_usuario == 'recrutador':
+        try:
+            # Verifica se o recrutador logado pertence à empresa do comentário
+            if request.user.recrutador.empresa == empresa_dona:
+                is_dono = True
+        except:
+            pass
+
+    if is_admin or is_dono:
+        comentario.delete()
+        messages.success(request, 'Comentário removido com sucesso.')
+    else:
+        messages.error(request, 'Você não tem permissão para apagar este comentário.')
+    
+    return redirect('ver_empresa', empresa_id=empresa_dona.id)
 
 @login_required
 def criar_vaga(request):
