@@ -19,4 +19,5 @@ urlpatterns = [
     path('politica-de-privacidade/', views.politica_privacidade, name='politica_de_privacidade'),
     path('explorar/', views.explorar_vagas, name='explorar_vagas'),
     path('empresa/<int:empresa_id>/', views.ver_empresa, name='ver_empresa'),
+    path('comentario/deletar/<int:comentario_id>/', views.deletar_comentario, name='deletar_comentario'),
 ]
