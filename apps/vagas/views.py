@@ -27,24 +27,67 @@ from apps.usuarios.models import (
     Formacao_Academica,
     Redes_Sociais,
 )
+from django.db.models import Avg
+from apps.usuarios.models import AvaliacaoEmpresa
+from django.db.models import Count
 
 
 def landing_page(request):
     """
-    Renderiza a Home Page (Landing Page) do site.
+    Renderiza a Home Page com dados reais e categorias dinâmicas.
     """
-
+    # Estatísticas Gerais
     total_candidatos = Candidato.objects.count()
     total_vagas = Vaga.objects.filter(status=True).count()
     total_empresas = Empresa.objects.count()
 
-    contexto = {
-        "total_candidatos": total_candidatos,
-        "total_vagas": total_vagas,
-        "total_empresas": total_empresas,
-    }
-    return render(request, "vagas/landing_page.html", contexto)
+    # Vagas Recentes (para os cards)
+    vagas_recentes = Vaga.objects.filter(status=True).order_by('-data_publicacao')[:6]
 
+    top_cargos = Vaga.objects.filter(status=True).values('titulo').annotate(total=Count('id')).order_by('-total')[:5]
+
+    top_setores = Vaga.objects.filter(status=True).values('empresa__setor').annotate(total=Count('id')).order_by('-total')[:8]
+
+    context = {
+        'total_candidatos': total_candidatos,
+        'total_vagas': total_vagas,
+        'total_empresas': total_empresas,
+        'vagas_recentes': vagas_recentes,
+        
+        # Novos dados para o template
+        'top_cargos': top_cargos,
+        'top_setores': top_setores,
+    }
+    
+    return render(request, 'vagas/landing_page.html', context)
+
+@login_required
+def deletar_comentario(request, comentario_id):
+    """
+    Permite que Admins ou a própria Empresa dona do perfil apaguem comentários.
+    """
+    comentario = get_object_or_404(AvaliacaoEmpresa, id=comentario_id)
+    empresa_dona = comentario.empresa
+    
+    # Verifica Permissões
+    is_admin = request.user.is_staff or request.user.is_superuser
+    is_dono = False
+    
+    if request.user.tipo_usuario == 'recrutador':
+        try:
+            # Verifica se o recrutador logado pertence à empresa do comentário
+            if request.user.recrutador.empresa == empresa_dona:
+                is_dono = True
+        except:
+            pass
+
+    if is_admin or is_dono:
+        comentario.delete()
+        messages.success(request, 'Comentário removido com sucesso.')
+    else:
+        messages.error(request, 'Você não tem permissão para apagar este comentário.')
+    
+    return redirect('ver_empresa', empresa_id=empresa_dona.id)
 
 @login_required
 def criar_vaga(request):
@@ -438,3 +481,69 @@ def politica_privacidade(request):
     Renderiza a página de Política de Privacidade.
     """
     return render(request, "vagas/politica_de_privacidade.html")
+
+@login_required
+def explorar_vagas(request):
+    """
+    Lista TODAS as vagas abertas no sistema.
+    """
+    vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
+    return render(request, 'vagas/explorar_vagas.html', {'vagas': vagas})
+
+@login_required
+def ver_empresa(request, empresa_id):
+    """
+    Perfil público da empresa com sistema de avaliações.
+    """
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+    
+    # Processar Avaliação (POST) - SÓ PARA CANDIDATOS
+    if request.method == 'POST':
+        if request.user.tipo_usuario == 'candidato':
+            try:
+                nota = int(request.POST.get('nota'))
+                comentario = request.POST.get('comentario')
+                
+                AvaliacaoEmpresa.objects.update_or_create(
+                    empresa=empresa,
+                    candidato=request.user.candidato,
+                    defaults={'nota': nota, 'comentario': comentario}
+                )
+                messages.success(request, 'Avaliação enviada com sucesso!')
+            except Exception as e:
+                messages.error(request, f'Erro ao avaliar: {e}')
+        else:
+            messages.error(request, 'Apenas candidatos podem avaliar empresas.')
+            
+        return redirect('ver_empresa', empresa_id=empresa.id)
+
+    # Dados para exibição
+    avaliacoes = empresa.avaliacoes.all().order_by('-data')
+    media = avaliacoes.aggregate(Avg('nota'))['nota__avg']
+    
+    # Verifica se o usuário JÁ avaliou (SE FOR CANDIDATO)
+    minha_avaliacao = None
+    if request.user.tipo_usuario == 'candidato':
+        try:
+            minha_avaliacao = avaliacoes.filter(candidato=request.user.candidato).first()
+        except:
+            pass # Se der erro de perfil, ignora
+
+    contexto = {
+        'empresa': empresa,
+        'vagas_abertas': Vaga.objects.filter(empresa=empresa, status=True),
+        'avaliacoes': avaliacoes,
+        'media_nota': round(media, 1) if media else "N/A",
+        'minha_avaliacao': minha_avaliacao,
+        'is_dono': False # Flag para mostrar botões de edição no futuro
+    }
+    
+    # Verifica se o usuário é o DONO da empresa
+    if request.user.tipo_usuario == 'recrutador':
+        try:
+            if request.user.recrutador.empresa == empresa:
+                contexto['is_dono'] = True
+        except:
+            pass
+
+    return render(request, 'vagas/ver_empresa.html', contexto)
