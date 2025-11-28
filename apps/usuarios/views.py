@@ -40,6 +40,9 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
+# SMS (Twilio)
+from twilio.rest import Client 
+from twilio.base.exceptions import TwilioRestException
 
 @transaction.atomic
 def cadastrar_candidato(request):
@@ -863,15 +866,6 @@ def enviar_codigo_email(usuario, codigo):
         print(f"Erro ao enviar email: {e}")
         return False
 
-def enviar_codigo_sms(usuario, codigo):
-    """
-    Função Placeholder para Envio de SMS (Requer Twilio, Zenvia, etc.)
-    Apenas simula o envio e retorna True.
-    """
-    # Lógica de integração com serviços de SMS aqui
-    print(f"SIMULANDO ENVIO SMS para {usuario.telefone}: Código {codigo}")
-    return True
-
 @login_required
 def deletar_conta(request):
     """
@@ -949,12 +943,46 @@ Equipe Vagalume Carreiras
 
 def enviar_codigo_sms(usuario, codigo):
     """
-    Placeholder para envio de SMS
-    Em produção, integrar com Twilio, Zenvia, etc.
+    Envia o código de recuperação via Twilio SMS.
     """
-    print(f"[SIMULAÇÃO SMS] Enviando para {usuario.telefone}: Código {codigo}")
-    # TODO: Implementar integração real com serviço de SMS
-    return True
+    account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', None)
+    auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', None)
+    remetente = getattr(settings, 'TWILIO_PHONE_NUMBER', None)
+
+    if not all([account_sid, auth_token, remetente]):
+        print("ERRO: Credenciais do Twilio não configuradas no settings.py")
+        return False
+
+    try:
+        client = Client(account_sid, auth_token)
+        
+        # Formatação básica do número para E.164 (Ex: +5511999999999)
+        # Assumindo que o usuário cadastrou apenas números (ex: 11999999999)
+        numero_destino = usuario.telefone
+        
+        # Se não tiver o código do país (+55), adicionamos (ajuste conforme seu público)
+        if not numero_destino.startswith('+'):
+            # Remove caracteres não numéricos para garantir
+            nums = ''.join(filter(str.isdigit, numero_destino))
+            numero_destino = f"+55{nums}" 
+
+        mensagem = f"Vagalume Carreiras: Seu codigo de recuperacao e {codigo}. Valido por 10 minutos."
+
+        message = client.messages.create(
+            body=mensagem,
+            from_=remetente,
+            to=numero_destino
+        )
+        
+        print(f"SMS enviado com sucesso! SID: {message.sid}")
+        return True
+
+    except TwilioRestException as e:
+        print(f"Erro ao enviar SMS (Twilio): {e}")
+        return False
+    except Exception as e:
+        print(f"Erro genérico no envio de SMS: {e}")
+        return False
 
 # ===== VIEWS =====
 

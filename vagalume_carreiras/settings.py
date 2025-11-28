@@ -130,6 +130,14 @@ EMAIL_TIMEOUT = 90
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 
+# ============================================
+# CONFIGURAÇÃO DE SMS (TWILIO)
+# ============================================
+TWILIO_ACCOUNT_SID = 'AC23f29abf397e670e8eceedbf82fd8c9f'
+TWILIO_AUTH_TOKEN = '0aacda74e29d0d603ce62ca26b97653c'
+TWILIO_PHONE_NUMBER = '+18574205717' # Seu número Twilio
+
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
