@@ -543,13 +543,9 @@ def planos_empresa(request):
         messages.error(request, "Acesso negado.")
         return redirect("home_candidato")
 
-    # --- CORREÇÃO ---
-    # O caminho do template precisa do prefixo da pasta 'vagas/'
     return render(request, "vagas/planos_empresa.html")
 
 
-# --- CORREÇÃO ---
-# Adicionando de volta a view 'painel_admin' que estava faltando
 @login_required
 def painel_admin(request):
     """
