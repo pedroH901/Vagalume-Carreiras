@@ -30,6 +30,36 @@ from apps.usuarios.models import (
 from django.db.models import Avg
 from apps.usuarios.models import AvaliacaoEmpresa
 from django.db.models import Count
+from django.http import JsonResponse
+from .ai_advisor import gerar_dicas_perfil
+
+
+def get_texto_candidato(candidato):
+    """
+    Extrai todo o texto relevante do perfil do candidato:
+    Resumo profissional + Experiências + Skills.
+    """
+    textos = []
+    
+    # Resumo Profissional
+    resumo = getattr(candidato, 'resumo_profissional', None)
+    if resumo and resumo.texto:
+        textos.append(resumo.texto)
+    
+    # Experiências
+    experiencias = Experiencia.objects.filter(candidato=candidato)
+    for exp in experiencias:
+        textos.append(f"{exp.cargo} em {exp.empresa}")
+        if exp.descricao:
+            textos.append(exp.descricao)
+    
+    # Skills
+    skills = Skill.objects.filter(candidato=candidato)
+    skill_names = [skill.nome for skill in skills]
+    if skill_names:
+        textos.append(", ".join(skill_names))
+    
+    return " ".join(textos)
 
 
 def landing_page(request):
@@ -737,4 +767,31 @@ def confirmar_plano(request):
 
     return redirect("home_recrutador")
 
+@login_required
+def ajax_analise_ia_perfil(request):
+    """
+    Endpoint que recebe o pedido do Candidato e chama o Gemini.
+    """
+    if request.method == "POST":
+        try:
+            candidato = request.user.candidato
+            
+            # 1. Pega todo o texto do perfil (Resumo + XP + Skills)
+            texto_completo = get_texto_candidato(candidato)
+            
+            # 2. Validação simples para não gastar IA à toa
+            if len(texto_completo) < 50:
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': 'Seu perfil está muito vazio! Preencha Resumo e Experiências antes de pedir ajuda à IA.'
+                })
 
+            # 3. Chama o Gemini
+            dicas_html = gerar_dicas_perfil(texto_completo)
+            
+            return JsonResponse({'status': 'success', 'dicas': dicas_html})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+            
+    return JsonResponse({'status': 'error', 'message': 'Método inválido'})

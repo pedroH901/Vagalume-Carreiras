@@ -24,5 +24,6 @@ urlpatterns = [
     path('explorar/', views.explorar_vagas, name='explorar_vagas'),
     path('empresa/<int:empresa_id>/', views.ver_empresa, name='ver_empresa'),
     path('comentario/deletar/<int:comentario_id>/', views.deletar_comentario, name='deletar_comentario'),
+    path('ajax/analise-ia-perfil/', views.ajax_analise_ia_perfil, name='ajax_analise_ia_perfil'),
 
 ]
