@@ -71,8 +71,8 @@ class ExperienciaForm(forms.ModelForm):
         ]
         # Opcional: Deixar os campos de data mais bonitos
         widgets = {
-            'data_inicio': forms.DateInput(attrs={'type': 'date'}),
-            'data_fim': forms.DateInput(attrs={'type': 'date'}),
+            'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_fim': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'rows': 3}),
         }
 

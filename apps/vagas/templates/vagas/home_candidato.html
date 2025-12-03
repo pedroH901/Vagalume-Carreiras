@@ -226,6 +226,73 @@
     margin-bottom: 5px;
     font-size: 1.1rem;
 }
+
+/* =========================
+   ESTILO DOS FORMS DE ONBOARDING
+   ========================= */
+
+/* Estiliza inputs dentro dos modais e containers de onboarding */
+.onboarding-container input[type="text"],
+.onboarding-container input[type="date"],
+.onboarding-container input[type="file"],
+.onboarding-container select, 
+.onboarding-container textarea,
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px; /* Espaço entre os campos */
+    background-color: #0D1B2A; /* Fundo escuro */
+    border: 1px solid #30363d; /* Borda cinza sutil */
+    border-radius: 8px;
+    color: #c9d1d9; /* Texto claro */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Garante que padding não estoure */
+}
+
+/* Efeito de foco (brilho verde) */
+.onboarding-container input:focus,
+.onboarding-container select:focus, 
+.onboarding-container textarea:focus,
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+    outline: none;
+    border-color: #BEF264;
+    box-shadow: 0 0 0 3px rgba(190, 242, 100, 0.15);
+    background-color: #161B22;
+}
+
+/* Remove a label padrão feia do Django ou ajusta */
+.onboarding-container label,
+.modal-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #8b949e;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: left; /* Garante alinhamento à esquerda */
+}
+
+/* Botões "secundários" (como + Outra) */
+.btn-outline {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-outline:hover {
+    border-color: #BEF264;
+    color: #BEF264;
+}
 </style>
 
 <div id="progress-bar-fixed-wrapper" style="display: none;">
