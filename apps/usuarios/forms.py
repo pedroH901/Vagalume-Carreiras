@@ -16,7 +16,7 @@ class CandidatoCadastroForm(forms.Form):
     password = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Senha'}))
     password_confirm = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Confirmar Senha'}))
 
-def clean_cpf(self):
+    def clean_cpf(self):
         # Validação do CPF 
         cpf = self.cleaned_data.get('cpf')
         cpf_digits = re.sub(r'[^0-9]', '', cpf) # Remove pontos e traços
@@ -30,14 +30,14 @@ def clean_cpf(self):
         
         return cpf_digits # Retorna o CPF limpo
 
-def clean_email(self):
+    def clean_email(self):
         # Validação de unicidade do Email
         email = self.cleaned_data.get('email').lower()
         if Usuario.objects.filter(email=email).exists():
             raise forms.ValidationError("Este email já está cadastrado. Tente fazer login.") 
         return email
 
-def clean(self):
+    def clean(self):
         # Validação para checar se as senhas coincidem
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
@@ -48,15 +48,15 @@ def clean(self):
         
         return cleaned_data
 
-def clean_telefone(self):
+    def clean_telefone(self):
     # Validação de unicidade do Telefone
-    telefone = self.cleaned_data.get('telefone')
+        telefone = self.cleaned_data.get('telefone')
     # (Opcional: limpar o telefone de máscaras, similar ao CPF)
     # telefone_digits = re.sub(r'[^0-9]', '', telefone) 
 
-    if Usuario.objects.filter(telefone=telefone).exists():
-        raise forms.ValidationError("Este telefone já está cadastrado.")
-    return telefone
+        if Usuario.objects.filter(telefone=telefone).exists():
+            raise forms.ValidationError("Este telefone já está cadastrado.")
+        return telefone
 
 class ExperienciaForm(forms.ModelForm):
     """
