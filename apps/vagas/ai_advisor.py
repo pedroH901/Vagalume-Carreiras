@@ -3,14 +3,19 @@ import os
 from django.conf import settings
 from google.api_core import exceptions
 
-API_KEY = "AIzaSyDRCM04_8yh5VcTTqTt3-wopvgkYiUyA-Q" 
-
 def configurar_ia():
     try:
-        genai.configure(api_key=API_KEY)
+        # PEGA A CHAVE DO SETTINGS (Que vem do Railway)
+        api_key = settings.GOOGLE_API_KEY
+        
+        if not api_key:
+            print("❌ ERRO CRÍTICO: GOOGLE_API_KEY não encontrada no settings.")
+            return False
+            
+        genai.configure(api_key=api_key)
         return True
     except Exception as e:
-        print(f"Erro ao configurar IA: {e}")
+        print(f"❌ Erro ao configurar IA: {e}")
         return False
 
 def gerar_dicas_perfil(perfil_texto):
@@ -19,13 +24,13 @@ def gerar_dicas_perfil(perfil_texto):
     Tenta vários modelos disponíveis para evitar erros de cota ou indisponibilidade.
     """
     if not configurar_ia():
-        return "<ul><li>Erro de conexão com a IA. Verifique a API Key.</li></ul>"
+        return "<ul><li>Erro de configuração da IA (Chave não encontrada). Verifique o painel do sistema.</li></ul>"
 
-
+    # Lista de modelos baseada na sua lista disponível
     modelos_para_tentar = [
-        'gemini-2.0-flash',          
-        'gemini-2.0-flash-lite',     
-        'gemini-2.0-pro-exp-02-05', 
+        'gemini-2.0-flash',          # 1. Tentativa Principal
+        'gemini-2.0-flash-lite',     # 2. Fallback Leve
+        'gemini-1.5-flash',          # 3. Fallback Clássico
     ]
 
     prompt = f"""
@@ -41,12 +46,12 @@ def gerar_dicas_perfil(perfil_texto):
     IMPORTANTE:
     1. Sua resposta deve ser APENAS uma lista HTML (<ul> com <li>).
     2. Não use tags <html>, <head> ou blocos de código markdown.
-    3. Em cada dica, coloque o título da ação em negrito usando a tag <strong>. Exemplo: <li><strong>Melhore o Resumo:</strong> texto da dica...</li>
+    3. Em cada dica, coloque o título da ação em negrito usando a tag <strong>.
     """
 
     for nome_modelo in modelos_para_tentar:
         try:
-            print(f"Tentando usar modelo: {nome_modelo}...") 
+            print(f"🤖 Tentando usar modelo: {nome_modelo}...") 
             model = genai.GenerativeModel(nome_modelo)
             
             response = model.generate_content(
@@ -60,13 +65,13 @@ def gerar_dicas_perfil(perfil_texto):
             return response.text 
             
         except exceptions.ResourceExhausted:
-            print(f"Cota excedida para {nome_modelo}. Tentando próximo...")
-            continue
+            print(f"⚠️ Cota excedida para {nome_modelo}. Tentando próximo...")
+            continue 
             
         except Exception as e:
-            print(f"Erro no modelo {nome_modelo}: {e}")
+            print(f"❌ Erro no modelo {nome_modelo}: {e}")
             if "404" in str(e) or "not found" in str(e).lower():
                 continue
             continue
-        
-    return "<ul><li>O Vagalume AI está temporariamente sobrecarregado. Por favor, tente novamente em alguns instantes.</li></ul>"
+
+    return "<ul><li>O Vagalume AI está temporariamente indisponível. Por favor, tente novamente em 1 minuto.</li></ul>"
