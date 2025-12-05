@@ -319,9 +319,18 @@
     // Funções de Navegação
     function showStep(index){
         steps.forEach((s,i)=>{
-            s.style.display = i===index ? 'flex' : 'none'; // Flex para centralizar
-            if(i===index) s.classList.add('container-ativo');
+            // 1. Define quem aparece e quem some
+            s.style.display = i===index ? 'flex' : 'none';
+            
+            // 2. CORREÇÃO CRÍTICA: Adiciona a classe no ativo E REMOVE dos outros
+            if(i===index) {
+                s.classList.add('container-ativo');
+            } else {
+                s.classList.remove('container-ativo'); // <--- ISSO FALTAVA!
+            }
         });
+
+        // Atualiza a barra de progresso
         const progress=document.getElementById('progresso-barra'), progressTxt=document.getElementById('progresso-texto');
         const pct=Math.round(((index+1)/steps.length)*100);
         if(progress) progress.style.width=pct+'%';
