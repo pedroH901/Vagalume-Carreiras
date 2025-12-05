@@ -5,7 +5,7 @@ from google.api_core import exceptions
 
 def configurar_ia():
     try:
-        # CORREÇÃO CRÍTICA: Pega a chave do settings (que vem do Railway)
+        # Pega a chave que configuramos no settings.py
         api_key = settings.GOOGLE_API_KEY
         
         if not api_key:
@@ -20,52 +20,23 @@ def configurar_ia():
 
 def gerar_dicas_perfil(perfil_texto):
     if not configurar_ia():
-        return "<ul><li>Erro de configuração da IA (Chave API não detectada).</li></ul>"
+        return "<ul><li>Erro de configuração da IA (Chave não detectada). Verifique as variáveis do Railway.</li></ul>"
 
-    # Lista de modelos (Prioridade: Flash 2.0 > Flash 1.5 > Pro)
-    modelos_para_tentar = [
-        'gemini-2.0-flash',
-        'gemini-2.0-flash-lite',
-        'gemini-1.5-flash',
-    ]
+    modelos = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']
 
     prompt = f"""
-    Aja como um recrutador sênior de tecnologia e 'Career Coach'.
-    Analise o seguinte perfil de candidato e me dê 3 dicas práticas, diretas e construtivas.
-    
-    Foque em: Palavras-chave, clareza, impacto e tecnologias faltantes.
-    
-    Perfil do Candidato:
-    "{perfil_texto}"
-    
-    IMPORTANTE:
-    1. Sua resposta deve ser APENAS uma lista HTML (<ul> com <li>).
-    2. Não use tags <html>, <head> ou markdown.
-    3. Destaque o ponto principal de cada dica em negrito (<strong>).
+    Aja como um recrutador sênior de tecnologia.
+    Analise o perfil abaixo e dê 3 dicas práticas (HTML <li> com <strong> no título) para melhorar o currículo.
+    Perfil: "{perfil_texto}"
     """
 
-    for nome_modelo in modelos_para_tentar:
+    for modelo in modelos:
         try:
-            print(f"🤖 Tentando modelo: {nome_modelo}...")
-            model = genai.GenerativeModel(nome_modelo)
+            print(f"Tentando modelo: {modelo}...")
+            model = genai.GenerativeModel(modelo)
+            response = model.generate_content(prompt)
+            return response.text
+        except:
+            continue # Tenta o próximo se der erro
             
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
-                    candidate_count=1,
-                    max_output_tokens=500,
-                    temperature=0.7
-                )
-            )
-            return response.text 
-            
-        except exceptions.ResourceExhausted:
-            print(f"⚠️ Cota excedida para {nome_modelo}. Tentando próximo...")
-            continue 
-        except Exception as e:
-            print(f"❌ Erro no modelo {nome_modelo}: {e}")
-            if "404" in str(e) or "not found" in str(e).lower():
-                continue
-            continue
-            
-    return "<ul><li>O Vagalume AI está temporariamente indisponível. Tente novamente em 1 minuto.</li></ul>"
+    return "<ul><li>O Vagalume AI está temporariamente indisponível. Tente novamente em instantes.</li></ul>"

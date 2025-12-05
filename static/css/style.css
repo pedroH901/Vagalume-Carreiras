@@ -749,3 +749,37 @@ a:hover {
     .admin-actions { grid-template-columns: 1fr; }
     .btn-candidates { grid-column: span 1; }
 }
+
+/* CUSTOM FORM STYLE (Inputs bonitos) */
+.custom-form-style input[type="text"],
+.custom-form-style input[type="date"],
+.custom-form-style input[type="file"],
+.custom-form-style select, 
+.custom-form-style textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: #0D1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+}
+.custom-form-style input:focus,
+.custom-form-style textarea:focus {
+    outline: none;
+    border-color: #BEF264;
+    box-shadow: 0 0 0 3px rgba(190, 242, 100, 0.1);
+}
+
+/* Radio Buttons (Sim/Não) */
+.radio-custom { display:flex; gap:10px; list-style:none; padding:0; margin-bottom:15px; }
+.radio-custom li { flex:1; }
+.radio-custom label {
+    display:block; text-align:center; padding:10px;
+    background:#161B22; border:1px solid #30363d; border-radius:6px;
+    cursor:pointer; transition:0.2s; color:#94a3b8;
+}
+.radio-custom label:hover { border-color:#BEF264; color:#fff; }
+.radio-custom input[type="radio"] { margin-right:5px; accent-color:#BEF264; }

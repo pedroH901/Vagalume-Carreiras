@@ -37,14 +37,13 @@
         <form id="form-step-3" action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %} {{ experiencia_form.as_p }}
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button type="button" class="btn-outline" onclick="avancarSemSalvar(3)" style="border:none; color:#64748b;">Pular etapa</button>
+                <button type="button" class="btn-outline" onclick="avancarSemSalvar(3)">Pular etapa</button>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" name="salvar_outro" class="btn-outline">+ Outra</button>
                     <button type="submit" name="continuar" class="btn-save" style="width: auto;">Salvar e Continuar</button>
                 </div>
             </div>
         </form>
-        <div id="lista-experiencias" style="text-align: left; margin-top: 20px;"></div>
     </div>
 
     <div class="onboarding-container" id="onboarding-step-4">
@@ -54,14 +53,13 @@
         <form id="form-step-4" action="{% url 'ajax_salvar_formacao' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %} {{ formacao_form.as_p }}
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button type="button" class="btn-outline" onclick="avancarSemSalvar(4)" style="border:none; color:#64748b;">Pular etapa</button>
+                <button type="button" class="btn-outline" onclick="avancarSemSalvar(4)">Pular etapa</button>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" name="salvar_outro" class="btn-outline">+ Outra</button>
                     <button type="submit" name="continuar" class="btn-save" style="width: auto;">Salvar e Continuar</button>
                 </div>
             </div>
         </form>
-        <div id="lista-formacoes" style="text-align: left; margin-top: 20px;"></div>
     </div>
 
     <div class="onboarding-container" id="onboarding-step-5">
@@ -70,23 +68,21 @@
         <p class="onboarding-subtitle">Clique para adicionar rapidamente.</p>
         
         <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="custom-form-style" novalidate>
-            {% csrf_token %} {{ skill_form.as_p }}
+            {% csrf_token %} 
+            {{ skill_form.as_p }}
             
             <label class="sugestao-titulo">Sugestões Rápidas:</label>
             <div class="tag-cloud-box">
                 <div class="skill-tag-btn" onclick="preencherSkill('Python', 'hard', this)">Python</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Java', 'hard', this)">Java</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('JavaScript', 'hard', this)">JavaScript</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('SQL', 'hard', this)">SQL</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('React', 'hard', this)">React</div>
+                <div class="skill-tag-btn" onclick="preencherSkill('SQL', 'hard', this)">SQL</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Django', 'hard', this)">Django</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Git', 'hard', this)">Git</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Inglês', 'hard', this)">Inglês</div>
                 <div class="tag-separator"></div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Liderança', 'soft', this)">Liderança</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Comunicação', 'soft', this)">Comunicação</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Proatividade', 'soft', this)">Proatividade</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Trabalho em Equipe', 'soft', this)">Trabalho em Equipe</div>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
@@ -114,7 +110,6 @@
     <section class="hero" id="dynamic-hero">
         <h1 id="hero-title">Olá, <span class="username">{{ user.first_name|default:user.username }}</span></h1>
         <p id="hero-subtitle">Confira as vagas recomendadas para você.</p>
-        
         {% if messages %}
             {% for message in messages %}
                 {% if 'FIRST_LOGIN' not in message.tags %}
@@ -157,8 +152,8 @@
                     <h2>Editar Dados</h2>
                     <form method="POST" class="perfil-form dashboard-ajax-form">
                         {% csrf_token %}
-                        {% if perfil_user_form %}{{ perfil_user_form.as_p }}{% else %}<label>Nome</label><input type="text" name="first_name" value="{{ user.first_name }}"><label>Sobrenome</label><input type="text" name="last_name" value="{{ user.last_name }}">{% endif %}
-                        {% if perfil_candidato_form %}{{ perfil_candidato_form.as_p }}{% else %}<label>Headline</label><input type="text" name="headline" value="{{ user.candidato.headline }}">{% endif %}
+                        {{ perfil_user_form.as_p }}
+                        {{ perfil_candidato_form.as_p }}
                         <button type="submit" class="btn-save">Salvar Alterações</button>
                     </form>
                 </div>
@@ -186,7 +181,6 @@
                                 <span class="skill-tag" id="skill-{{ skill.id }}">{{ skill.nome }} <span class="remove-skill" onclick="removeSkill({{ skill.id }})">×</span></span>
                             {% endfor %}
                         </div>
-                        <div class="add-skill-trigger" onclick="abrirModalSkillManual()">+ Adicionar Manualmente</div>
                     </div>
 
                     <div class="cv-section">
@@ -206,12 +200,12 @@
                                     <div style="float:right;"><button class="action-btn delete" onclick="deleteItem('experiencia', {{ exp.id }})">Excluir</button></div>
                                     <strong>{{ exp.cargo }}</strong>
                                     <span>{{ exp.empresa }} | {{ exp.data_inicio|date:"Y" }}</span>
-                                    <p>{{ exp.descricao|default:"" }}</p>
                                 </div>
-                            {% empty %}<span class="cv-content" style="font-size:0.9rem;">Nenhuma experiência registrada.</span>{% endfor %}
+                            {% empty %}<span class="cv-content">Nenhuma experiência registrada.</span>{% endfor %}
                         </div>
                         <button class="add-new-btn" onclick="abrirModal('modal-experiencia')"><span>+</span> Adicionar experiência</button>
                     </div>
+
                     <div class="cv-section">
                         <h3>Formação Acadêmica</h3>
                         <div id="formacoes-container">
@@ -219,9 +213,9 @@
                                 <div class="edu-item" id="edu-{{ edu.id }}">
                                     <div style="float:right;"><button class="action-btn delete" onclick="deleteItem('formacao', {{ edu.id }})">Excluir</button></div>
                                     <strong>{{ edu.nome_formacao }}</strong>
-                                    <span>{{ edu.nome_instituicao }} ({{ edu.nivel }})</span>
+                                    <span>{{ edu.nome_instituicao }}</span>
                                 </div>
-                            {% empty %}<span class="cv-content" style="font-size:0.9rem;">Nenhuma formação registrada.</span>{% endfor %}
+                            {% empty %}<span class="cv-content">Nenhuma formação registrada.</span>{% endfor %}
                         </div>
                         <button class="add-new-btn" onclick="abrirModal('modal-formacao')"><span>+</span> Adicionar formação</button>
                     </div>
@@ -245,75 +239,32 @@
     </div>
 </div>
 
-<div id="modal-experiencia" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header"><h3>Nova Experiência</h3><button class="btn-close-modal" onclick="fecharModal('modal-experiencia')">&times;</button></div>
-        <form action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="modal-form dashboard-ajax-form">
-            {% csrf_token %} {{ experiencia_form.as_p }}
-            <div style="text-align: right; margin-top: 20px;"><button type="submit" class="btn-save">Salvar</button></div>
-        </form>
-    </div>
-</div>
-<div id="modal-formacao" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header"><h3>Nova Formação</h3><button class="btn-close-modal" onclick="fecharModal('modal-formacao')">&times;</button></div>
-        <form action="{% url 'ajax_salvar_formacao' %}" method="POST" class="modal-form dashboard-ajax-form">
-            {% csrf_token %} {{ formacao_form.as_p }}
-            <div style="text-align: right; margin-top: 20px;"><button type="submit" class="btn-save">Salvar</button></div>
-        </form>
-    </div>
-</div>
-<div id="modal-ia-result" class="modal-overlay">
-    <div class="modal-box" style="border: 2px solid #BEF264; max-width: 600px;">
-        <div class="modal-header">
-            <h3 style="color:#BEF264">✨ Análise Vagalume AI</h3>
-            <button class="btn-close-modal" onclick="fecharModal('modal-ia-result')">&times;</button>
-        </div>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <i class="fas fa-robot" style="font-size: 3rem; color: #BEF264;"></i>
-        </div>
-        <div id="ia-content" style="color: #c9d1d9; line-height: 1.8; font-size: 1.05rem; text-align: left;"></div>
-        <div style="margin-top: 25px; text-align: right;">
-            <button onclick="fecharModal('modal-ia-result')" class="btn-save" style="width: auto;">Entendi</button>
-        </div>
-    </div>
-</div>
-<div id="modal-calculadora" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header"><h3>Calculadora Salário Líquido</h3><button class="btn-close-modal" onclick="fecharModal('modal-calculadora')">&times;</button></div>
-        <div class="modal-form">
-            <label>Salário Bruto</label><input type="number" id="calc-bruto"><label>Dependentes</label><input type="number" id="calc-dep">
-            <button class="btn-save" onclick="calcularSalario()" style="margin-top:20px; width:100%;">Calcular</button>
-            <div id="calc-resultado" class="calc-result" style="display:none; margin-top:15px;">Líquido: <span id="valor-liquido"></span></div>
-        </div>
-    </div>
-</div>
-<div id="modal-info-financa" class="modal-overlay">
-    <div class="modal-box"><div class="modal-header"><h3 id="info-title"></h3><button class="btn-close-modal" onclick="fecharModal('modal-info-financa')">&times;</button></div><div id="info-content" style="color:#c9d1d9; line-height:1.6;"></div></div>
-</div>
+<div id="modal-experiencia" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>Nova Experiência</h3><button class="btn-close-modal" onclick="fecharModal('modal-experiencia')">&times;</button></div><form action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="modal-form dashboard-ajax-form">{% csrf_token %} {{ experiencia_form.as_p }}<div style="text-align: right;"><button type="submit" class="btn-save">Salvar</button></div></form></div></div>
+<div id="modal-formacao" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>Nova Formação</h3><button class="btn-close-modal" onclick="fecharModal('modal-formacao')">&times;</button></div><form action="{% url 'ajax_salvar_formacao' %}" method="POST" class="modal-form dashboard-ajax-form">{% csrf_token %} {{ formacao_form.as_p }}<div style="text-align: right;"><button type="submit" class="btn-save">Salvar</button></div></form></div></div>
+<div id="modal-ia-result" class="modal-overlay"><div class="modal-box" style="border: 2px solid #BEF264;"><div class="modal-header"><h3 style="color:#BEF264">✨ Análise Vagalume AI</h3><button class="btn-close-modal" onclick="fecharModal('modal-ia-result')">&times;</button></div><div id="ia-content" style="color: #c9d1d9; line-height: 1.8; text-align: left;"></div><div style="margin-top: 25px; text-align: right;"><button onclick="fecharModal('modal-ia-result')" class="btn-save" style="width: auto;">Entendi</button></div></div></div>
+<div id="modal-calculadora" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3>Calculadora</h3><button class="btn-close-modal" onclick="fecharModal('modal-calculadora')">&times;</button></div><div class="modal-form"><label>Salário Bruto</label><input type="number" id="calc-bruto"><label>Dependentes</label><input type="number" id="calc-dep"><button class="btn-save" onclick="calcularSalario()" style="margin-top:20px; width:100%;">Calcular</button><div id="calc-resultado" class="calc-result" style="display:none; margin-top:15px;">Líquido: <span id="valor-liquido"></span></div></div></div></div>
+<div id="modal-info-financa" class="modal-overlay"><div class="modal-box"><div class="modal-header"><h3 id="info-title"></h3><button class="btn-close-modal" onclick="fecharModal('modal-info-financa')">&times;</button></div><div id="info-content" style="color:#c9d1d9; line-height:1.6;"></div></div></div>
 
 <script>
-    // --- NAVEGAÇÃO E ONBOARDING ---
-    const mainInterface=document.getElementById('main-interface'), onboardingWrapper=document.getElementById('onboarding-wrapper');
-    const steps=[
-        document.getElementById('onboarding-step-1'),
-        document.getElementById('onboarding-step-2'),
-        document.getElementById('onboarding-step-3'),
-        document.getElementById('onboarding-step-4'),
-        document.getElementById('onboarding-step-5'),
-        document.getElementById('onboarding-step-6')
-    ];
+    // --- VARIÁVEIS GLOBAIS ---
+    const mainInterface = document.getElementById('main-interface');
+    const onboardingWrapper = document.getElementById('onboarding-wrapper');
+    const steps = Array.from(document.querySelectorAll('.onboarding-container'));
     
+    function getCookie(name){let cookieValue=null;if(document.cookie&&document.cookie!==''){const cookies=document.cookie.split(';');for(let i=0;i<cookies.length;i++){const cookie=cookies[i].trim();if(cookie.substring(0,name.length+1)===(name+'=')){cookieValue=decodeURIComponent(cookie.substring(name.length+1));break}}}return cookieValue}
+    const csrftoken = getCookie('csrftoken');
+
+    // --- LÓGICA DE ONBOARDING ---
     function showStep(index){
         steps.forEach((s,i)=>{
             s.style.display = i===index ? 'flex' : 'none';
-            if(i===index) s.classList.add('container-ativo');
-            else s.classList.remove('container-ativo');
+            if(i===index) s.classList.add('container-ativo'); else s.classList.remove('container-ativo');
         });
-        const progress=document.getElementById('progresso-barra'), progressTxt=document.getElementById('progresso-texto');
         const pct=Math.round(((index+1)/steps.length)*100);
-        if(progress) progress.style.width=pct+'%';
-        if(progressTxt) progressTxt.innerText=pct+'%';
+        const bar=document.getElementById('progresso-barra');
+        if(bar) bar.style.width=pct+'%';
+        const txt=document.getElementById('progresso-texto');
+        if(txt) txt.innerText=pct+'%';
     }
 
     function finalizarOnboarding() {
@@ -322,43 +273,38 @@
         mainInterface.style.display = 'block';
         const notif = document.createElement('div');
         notif.className = 'popup-info';
-        notif.innerText = "Perfil configurado! Veja a aba 'Perfil' abaixo.";
+        notif.innerText = "Perfil configurado!";
         document.body.appendChild(notif);
-        setTimeout(() => notif.remove(), 6000);
+        setTimeout(() => notif.remove(), 4000);
         goToTab(0);
     }
 
-    function pularTudo() {
-        if(confirm("Deseja pular o onboarding? Você pode editar tudo depois.")) finalizarOnboarding();
-    }
+    function pularTudo() { if(confirm("Pular configuração inicial?")) finalizarOnboarding(); }
+    function avancarSemSalvar(curr) { if(curr < 5) showStep(curr); else finalizarOnboarding(); }
 
-    function avancarSemSalvar(currentStepIndex) {
-        if (currentStepIndex < 5) showStep(currentStepIndex); else finalizarOnboarding();
-    }
-
-    async function enviarFormulario(form, botaoPressionado){
-        const url=form.action;
-        const formData=new FormData(form);
-        if(botaoPressionado) formData.append(botaoPressionado.name, botaoPressionado.value);
+    // Lógica de Envio (Onboarding)
+    async function enviarFormulario(form, btn){
+        const formData = new FormData(form);
+        if(btn) formData.append(btn.name, btn.value);
         
         try{
-            const response=await fetch(url,{method:'POST', body:formData, headers:{'X-CSRFToken':form.querySelector('[name=csrfmiddlewaretoken]').value}});
-            const data=await response.json();
-            
+            const res = await fetch(form.action, {method:'POST', body:formData, headers:{'X-CSRFToken':csrftoken}});
+            const data = await res.json();
             if(data.status==='success'){
-                if(data.action==='next_step') return true; 
-                const lista=document.getElementById(data.list_id);
+                if(data.action==='next_step') return true;
+                // Adicionar outro
+                const lista = document.getElementById(data.list_id);
                 if(lista && data.saved_item_html) lista.innerHTML += data.saved_item_html;
                 form.reset();
-                return false; 
-            } else {
-                if (botaoPressionado && botaoPressionado.name === 'continuar') return true;
-                alert("Preencha os campos ou clique em Pular.");
                 return false;
+            } else {
+                if(btn && btn.name==='continuar') return true; // Permite pular se der erro de validação
+                alert("Preencha os campos."); return false;
             }
-        } catch(e){ console.error(e); return false; }
+        } catch(e){ return false; }
     }
 
+    // Inicialização
     let isFirstLogin=false;
     {% if messages %}{% for message in messages %}{% if 'FIRST_LOGIN' in message.tags %}isFirstLogin=true;{% endif %}{% endfor %}{% endif %}
     
@@ -367,144 +313,98 @@
         document.getElementById('progress-bar-fixed-wrapper').style.display='block';
         onboardingWrapper.style.display='block';
         showStep(0);
-        
-        document.getElementById('btn-iniciar-onboarding').onclick = () => showStep(1);
-        document.getElementById('form-step-2').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(2); };
-        document.getElementById('form-step-3').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(3); };
-        document.getElementById('form-step-4').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(4); };
-        document.getElementById('form-step-5').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(5); };
-        document.getElementById('form-step-6').onsubmit = async(e) => { e.preventDefault(); await enviarFormulario(e.target, e.submitter); finalizarOnboarding(); };
+        document.getElementById('btn-iniciar-onboarding').onclick=()=>showStep(1);
+        // Atrela submits
+        steps.forEach((step, idx) => {
+            const form = step.querySelector('form');
+            if(form) form.onsubmit = async(e) => {
+                e.preventDefault();
+                if(await enviarFormulario(e.target, e.submitter)) {
+                    if(idx+1 < steps.length) showStep(idx+1); else finalizarOnboarding();
+                }
+            };
+        });
     } else {
         onboardingWrapper.style.display='none';
         mainInterface.style.display='block';
     }
 
-    // --- SKILLS (Lógica de clique) ---
-    async function preencherSkill(nome, tipo, elementoBotao) {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        // Preenche inputs visuais só pra garantir
-        const inputNome = document.getElementById('id_nome');
-        const selectTipo = document.getElementById('id_tipo');
-        if(inputNome) inputNome.value = nome;
-        if(selectTipo) selectTipo.value = tipo;
+    // --- SKILLS CLICÁVEIS ---
+    async function preencherSkill(nome, tipo, el) {
+        const inNome = document.getElementById('id_nome');
+        const selTipo = document.getElementById('id_tipo');
+        if(inNome) inNome.value = nome;
+        if(selTipo) selTipo.value = tipo;
 
-        const formData = new FormData();
-        formData.append('nome', nome);
-        formData.append('tipo', tipo);
+        const fd = new FormData(); fd.append('nome', nome); fd.append('tipo', tipo);
 
         try {
-            const response = await fetch("{% url 'ajax_salvar_skill' %}", {
-                method: 'POST', headers: {'X-CSRFToken': csrfToken}, body: formData
-            });
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                // Adiciona nas listas visuais (Onboarding E Painel)
-                adicionarNaListaVisual('lista-skills', data.skill_id, nome, tipo);
-                const containerId = tipo === 'hard' ? 'hard-skills-container' : 'soft-skills-container';
-                adicionarNaListaPerfil(containerId, data.skill_id, nome, tipo);
+            const res = await fetch("{% url 'ajax_salvar_skill' %}", {method:'POST', headers:{'X-CSRFToken':csrftoken}, body:fd});
+            const data = await res.json();
+            if(data.status==='success'){
+                // Adiciona na lista do onboarding
+                const listaOn = document.getElementById('lista-skills');
+                if(listaOn) listaOn.innerHTML += `<div style="background:#161B22; border-left:3px solid #BEF264; padding:8px; margin-bottom:5px;"><strong>${nome}</strong> <small>(${tipo})</small> <span style="color:#4ade80;float:right;">✓</span></div>`;
                 
-                if(elementoBotao) elementoBotao.style.display = 'none'; // Some com a sugestão
-                if(inputNome) inputNome.value = ""; // Limpa input
-            } else if (data.message) {
-                alert(data.message);
-            }
-        } catch (error) { console.error('Erro:', error); }
+                // Adiciona na lista do perfil (background)
+                const cId = tipo==='hard'?'hard-skills-container':'soft-skills-container';
+                const c = document.getElementById(cId);
+                if(c) {
+                     const tag = document.createElement('span'); tag.className='skill-tag'; tag.id=`skill-${data.skill_id}`;
+                     tag.innerHTML=`${nome} <span class="remove-skill" onclick="removeSkill(${data.skill_id})">×</span>`;
+                     c.appendChild(tag);
+                }
+                
+                if(el) el.style.display='none';
+                if(inNome) inNome.value='';
+            } else if(data.message) alert(data.message);
+        } catch(e){console.error(e);}
     }
 
-    function adicionarNaListaVisual(containerId, id, nome, tipo) {
-        const lista = document.getElementById(containerId);
-        if (!lista) return;
-        const novoItem = document.createElement('div');
-        novoItem.style.cssText = "background: #161B22; border-left: 3px solid #BEF264; padding: 10px; margin-bottom: 5px; border-radius: 4px; color: #fff; display:flex; justify-content:space-between;";
-        novoItem.innerHTML = `<div><strong>${nome}</strong> <span style='color:#8b949e;'>(${tipo})</span></div><span style='color:#4ade80;'>✓ Salvo</span>`;
-        lista.prepend(novoItem);
-    }
-
-    function adicionarNaListaPerfil(containerId, id, nome, tipo) {
-        const lista = document.getElementById(containerId);
-        if (!lista) return;
-        
-        const novaTag = document.createElement('span');
-        novaTag.className = 'skill-tag';
-        novaTag.id = `skill-${id}`;
-        novaTag.innerHTML = `${nome} <span class="remove-skill" onclick="removeSkill(${id})">×</span>`;
-        
-        // Remove mensagem de "Nenhuma habilidade"
-        const p = lista.querySelector('p');
-        if (p && p.innerText.includes('Nenhuma')) p.remove();
-
-        lista.appendChild(novaTag);
-    }
-    
-    function abrirModalSkillManual() {
-        // Gambiarra simples: foca no input de skill do modal existente ou abre um novo (aqui só focamos no onboarding se estiver aberto, ou alertamos)
-        alert("Use a área de Skills no topo para adicionar novas habilidades.");
-    }
-
-    // --- TABS/SLIDER ---
-    const slider=document.getElementById('slider'),tabs=document.querySelectorAll('.tab'),indicator=document.getElementById('tab-indicator'),heroTitle=document.getElementById('hero-title'),heroSubtitle=document.getElementById('hero-subtitle'),panels=document.querySelectorAll('.panel');
+    // --- TABS ---
     let currentTab=0;
-
-    function updateIndicator(tab){
-        const rect=tab.getBoundingClientRect();
-        const containerRect=tab.parentElement.getBoundingClientRect();
-        indicator.style.width=rect.width+'px';
-        indicator.style.left=(rect.left-containerRect.left)+'px';
-    }
     function goToTab(index){
         if(index===currentTab)return;
-        tabs.forEach(t=>t.classList.remove('active')); tabs[index].classList.add('active');
-        updateIndicator(tabs[index]);
-        slider.style.transform=`translateX(-${index*33.33}%)`;
-        panels.forEach((p,i)=>{if(i===index)p.classList.add('active-panel');else p.classList.remove('active-panel')});
-        heroTitle.innerHTML=panelData[index].title; heroSubtitle.textContent=panelData[index].subtitle;
-        localStorage.setItem('candidateTab', index); currentTab=index;
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab')[index].classList.add('active');
+        document.getElementById('tab-indicator').style.left = (index * 33.33) + '%';
+        document.getElementById('slider').style.transform = `translateX(-${index*33.33}%)`;
+        document.querySelectorAll('.panel').forEach((p,i)=> i===index ? p.classList.add('active-panel') : p.classList.remove('active-panel'));
+        currentTab=index;
     }
-    tabs.forEach((tab,i)=>tab.addEventListener('click',()=>goToTab(i)));
-    window.addEventListener('resize',()=>updateIndicator(tabs[currentTab]));
-    window.addEventListener('load',()=>{
-        const saved=localStorage.getItem('candidateTab');
-        slider.classList.add('no-transition');
-        if(saved && parseInt(saved)<3){ goToTab(parseInt(saved)); } else { updateIndicator(tabs[0]); }
-        setTimeout(()=>slider.classList.remove('no-transition'),100);
-    });
 
-    // --- OUTROS (MODAIS/IA) ---
-    function getCookie(name){let cookieValue=null;if(document.cookie&&document.cookie!==''){const cookies=document.cookie.split(';');for(let i=0;i<cookies.length;i++){const cookie=cookies[i].trim();if(cookie.substring(0,name.length+1)===(name+'=')){cookieValue=decodeURIComponent(cookie.substring(name.length+1));break}}}return cookieValue}
-    const csrftoken=getCookie('csrftoken');
+    // --- MODAIS ---
+    function abrirModal(id){document.getElementById(id).style.display='flex'; setTimeout(()=>document.getElementById(id).classList.add('active'),10);}
+    function fecharModal(id){document.getElementById(id).classList.remove('active'); setTimeout(()=>document.getElementById(id).style.display='none',300);}
+    window.onclick=e=>{if(e.target.classList.contains('modal-overlay')) fecharModal(e.target.id);}
 
-    function abrirModal(id) { const m=document.getElementById(id); m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
-    function fecharModal(id) { const m=document.getElementById(id); m.classList.remove('active'); setTimeout(()=>m.style.display='none',300); }
-    window.onclick=function(e){ if(e.target.classList.contains('modal-overlay')) fecharModal(e.target.id); }
-    
-    async function saveResumo(){const val=document.getElementById('resumo-textarea').value;const fd=new FormData();fd.append('resumo',val);try{const r=await fetch("{% url 'ajax_salvar_resumo' %}",{method:'POST',headers:{'X-CSRFToken':csrftoken},body:fd});if(r.ok){document.getElementById('resumo-content').innerText=val;cancelEdit('resumo')}}catch(e){}}
-    function makeEditable(f){const c=document.getElementById(f+'-content'),a=document.getElementById(f+'-actions');if(c.style.display==='none')return;const t=document.createElement('textarea');t.id=f+'-textarea';t.className='editable-textarea';t.value=c.innerText.trim();c.style.display='none';c.parentNode.insertBefore(t,c.nextSibling);a.style.display='flex';t.focus()}
-    function cancelEdit(f){const t=document.getElementById(f+'-textarea'),c=document.getElementById(f+'-content'),a=document.getElementById(f+'-actions');if(t)t.remove();c.style.display='block';a.style.display='none'}
-    if(document.getElementById('resumo-content')) document.getElementById('resumo-content').addEventListener('click',()=>makeEditable('resumo'));
-    
-    async function removeSkill(id){if(!confirm("Remover?"))return;try{await fetch(`/contas/ajax/deletar-skill/${id}/`,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}});document.getElementById('skill-'+id).remove()}catch(e){}}
-    async function deleteItem(type,id){if(!confirm("Excluir?"))return;const url=type==='experiencia'?`/contas/ajax/deletar-experiencia/${id}/`:`/contas/ajax/deletar-formacao/${id}/`;try{const r=await fetch(url,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}});if(r.ok)document.getElementById((type==='experiencia'?'xp-':'edu-')+id).remove()}catch(e){}}
+    // --- IA ---
+    async function pedirAnaliseIA(){
+        const btn=document.querySelector('.btn-ia-glow'); const txt=btn.innerHTML;
+        btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Analisando...'; btn.disabled=true;
+        try{
+            const res=await fetch("{% url 'ajax_analise_ia_perfil' %}",{method:'POST',headers:{'X-CSRFToken':csrftoken}});
+            const data=await res.json();
+            if(data.status==='success'){ document.getElementById('ia-content').innerHTML=data.dicas; abrirModal('modal-ia-result'); }
+            else alert("Ops: "+data.message);
+        } catch(e){alert("Erro IA.");}
+        finally{btn.innerHTML=txt; btn.disabled=false;}
+    }
 
-    const infoData = {'Orçamento': '<p>Regra 50-30-20: 50% Essencial, 30% Desejos, 20% Poupança.</p>','Primeiro Salário': '<p>Priorize pagar dívidas.</p>','Emergência': '<p>3 a 6 meses de custo de vida.</p>','Contracheque': '<p>INSS, IRRF, VT.</p>','FGTS': '<p>8% do salário.</p>'};
-    function abrirModalInfo(k){document.getElementById('info-title').textContent=k;document.getElementById('info-content').innerHTML=infoData[k]||"Indisponível.";abrirModal('modal-info-financa');}
-    function calcularSalario(){const b=parseFloat(document.getElementById('calc-bruto').value),d=parseInt(document.getElementById('calc-dep').value)||0;if(!b)return;let i=0;if(b<=1412)i=b*0.075;else if(b<=2666)i=b*0.09-21.18;else if(b<=4000)i=b*0.12-101.18;else if(b<=7786)i=b*0.14-181.18;else i=908.85;let bi=b-i-(d*189.59),ir=0;if(bi>2259){if(bi<=2826)ir=bi*0.075-169.44;else if(bi<=3751)ir=bi*0.15-381.44;else if(bi<=4664)ir=bi*0.225-662.77;else ir=bi*0.275-896.00}if(ir<0)ir=0;document.getElementById('valor-liquido').innerText=(b-i-ir).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});document.getElementById('calc-resultado').style.display='block';}
+    // --- FINANÇAS ---
+    const infoData={'Orçamento':'<p>Regra 50-30-20...</p>','Benefícios':'<p>VT, VR...</p>','Primeiro Salário':'<p>Priorize dívidas...</p>','Emergência':'<p>3 a 6 meses...</p>','Contracheque':'<p>INSS, IRRF...</p>','FGTS':'<p>8% salário...</p>'};
+    function abrirModalInfo(k){document.getElementById('info-title').innerText=k; document.getElementById('info-content').innerHTML=infoData[k]||"Indisponível"; abrirModal('modal-info-financa');}
     
-    // Modais AJAX Genericos
-    document.querySelectorAll('.dashboard-ajax-form').forEach(form => {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const btn = this.querySelector('button[type="submit"]');
-            btn.innerText = "Salvando..."; btn.disabled = true;
-            try {
-                const response = await fetch(this.action, { method: 'POST', body: formData, headers: {'X-CSRFToken': getCookie('csrftoken')} });
-                if (response.ok) window.location.reload();
-                else { alert('Erro ao salvar.'); btn.disabled = false; btn.innerText="Salvar"; }
-            } catch (e) { btn.disabled = false; btn.innerText="Salvar"; }
+    // --- DELETE/EDIT ---
+    async function removeSkill(id){if(confirm("Remover?")) await fetch(`/contas/ajax/deletar-skill/${id}/`,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}}).then(r=>{if(r.ok)document.getElementById('skill-'+id).remove()});}
+    async function deleteItem(t,id){if(confirm("Excluir?")) await fetch(`/contas/ajax/deletar-${t}/${id}/`,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}}).then(r=>{if(r.ok)document.getElementById((t==='experiencia'?'xp-':'edu-')+id).remove()});}
+    
+    // Form AJAX Generico
+    document.querySelectorAll('.dashboard-ajax-form').forEach(f=>{
+        f.addEventListener('submit',async(e)=>{
+            e.preventDefault(); const fd=new FormData(f);
+            await fetch(f.action,{method:'POST',body:fd,headers:{'X-CSRFToken':csrftoken}}).then(r=>{if(r.ok)window.location.reload()});
         });
     });
 </script>
-
 {% endblock %}

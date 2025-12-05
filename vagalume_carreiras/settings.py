@@ -130,5 +130,7 @@ SIMPLE_JWT = {
 }
 
 # API KEYs (Lê do Railway)
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+
+# Configuração de Email (Se for usar)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
