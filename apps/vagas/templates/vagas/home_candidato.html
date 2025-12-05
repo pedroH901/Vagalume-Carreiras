@@ -24,7 +24,7 @@
         <h1 class="onboarding-title">Resumo Profissional</h1>
         <p class="onboarding-subtitle">Conte um pouco sobre sua trajetória profissional, objetivos e o que busca.</p>
         
-        <form id="form-step-2" action="{% url 'ajax_salvar_resumo' %}" method="POST" class="custom-form-style">
+        <form id="form-step-2" action="{% url 'ajax_salvar_resumo' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %}
             <textarea name="resumo" style="min-height: 150px;" 
                 placeholder="Ex: Desenvolvedor com 3 anos de experiência em Python, focado em backend e apaixonado por inovação..."
@@ -41,12 +41,12 @@
         <h1 class="onboarding-title">Experiência</h1>
         <p class="onboarding-subtitle">Adicione suas experiências mais relevantes.</p>
         
-        <form id="form-step-3" action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="custom-form-style">
+        <form id="form-step-3" action="{% url 'ajax_salvar_experiencia' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %} 
             {{ experiencia_form.as_p }}
             
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button type="button" class="btn-cancel" onclick="avancarSemSalvar(3)">Pular esta etapa</button>
+                <button type="button" class="btn-outline" onclick="avancarSemSalvar(3)" style="border: none; color: #64748b;">Pular etapa</button>
                 
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" name="salvar_outro" class="btn-outline">+ Outra</button>
@@ -62,12 +62,12 @@
         <h1 class="onboarding-title">Formação Acadêmica</h1>
         <p class="onboarding-subtitle">Cursos, graduações e certificações.</p>
         
-        <form id="form-step-4" action="{% url 'ajax_salvar_formacao' %}" method="POST" class="custom-form-style">
+        <form id="form-step-4" action="{% url 'ajax_salvar_formacao' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %} 
             {{ formacao_form.as_p }}
             
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button type="button" class="btn-cancel" onclick="avancarSemSalvar(4)">Pular esta etapa</button>
+                <button type="button" class="btn-outline" onclick="avancarSemSalvar(4)" style="border: none; color: #64748b;">Pular etapa</button>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" name="salvar_outro" class="btn-outline">+ Outra</button>
                     <button type="submit" name="continuar" class="btn-save" style="width: auto;">Salvar e Continuar</button>
@@ -82,7 +82,7 @@
         <h1 class="onboarding-title">Suas Skills</h1>
         <p class="onboarding-subtitle">Clique para adicionar rapidamente.</p>
         
-        <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="custom-form-style">
+        <form id="form-step-5" action="{% url 'ajax_salvar_skill' %}" method="POST" class="custom-form-style" novalidate>
             {% csrf_token %} 
             
             {{ skill_form.as_p }}
@@ -100,15 +100,14 @@
                 <div class="skill-tag-btn" onclick="preencherSkill('AWS', 'hard', this)">AWS</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Excel', 'hard', this)">Excel</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Inglês', 'hard', this)">Inglês</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Espanhol', 'hard', this)">Espanhol</div>
                 
                 <div class="tag-separator"></div>
                 
                 <div class="skill-tag-btn" onclick="preencherSkill('Liderança', 'soft', this)">Liderança</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Comunicação', 'soft', this)">Comunicação</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Proatividade', 'soft', this)">Proatividade</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Resolução de Problemas', 'soft', this)">Resolução de Problemas</div>
-                <div class="skill-tag-btn" onclick="preencherSkill('Gestão de Tempo', 'soft', this)">Gestão de Tempo</div>
+                <div class="skill-tag-btn" onclick="preencherSkill('Resolução', 'soft', this)">Resolução de Problemas</div>
+                <div class="skill-tag-btn" onclick="preencherSkill('Gestão', 'soft', this)">Gestão de Tempo</div>
                 <div class="skill-tag-btn" onclick="preencherSkill('Criatividade', 'soft', this)">Criatividade</div>
             </div>
 
@@ -125,7 +124,7 @@
         <h1 class="onboarding-title">Currículo PDF</h1>
         <p class="onboarding-subtitle">Opcional: Anexe seu currículo em PDF.</p>
         
-        <form id="form-step-6" action="{% url 'ajax_salvar_curriculo' %}" method="POST" enctype="multipart/form-data" class="custom-form-style">
+        <form id="form-step-6" action="{% url 'ajax_salvar_curriculo' %}" method="POST" enctype="multipart/form-data" class="custom-form-style" novalidate>
             {% csrf_token %} {{ curriculo_form.as_p }}
             <div style="text-align: right; margin-top: 20px;">
                 <button type="submit" class="btn-save" style="width: auto;">Finalizar</button>
@@ -135,6 +134,7 @@
 </div>
 
 <div id="main-interface" class="dashboard-window">
+    
     <section class="hero" id="dynamic-hero">
         <h1 id="hero-title">Olá, <span class="username">{{ user.first_name|default:user.username }}</span></h1>
         <p id="hero-subtitle">Confira as vagas recomendadas para você.</p>
@@ -149,13 +149,14 @@
     </section>
 
     <div class="tabs" id="tabs-container">
-        <button class="tab active" data-index="0">Recomendados</button>
-        <button class="tab" data-index="1">Perfil</button>
-        <button class="tab" data-index="2">Finança</button>
+        <button class="tab active" onclick="goToTab(0)">Recomendados</button>
+        <button class="tab" onclick="goToTab(1)">Perfil</button>
+        <button class="tab" onclick="goToTab(2)">Finança</button>
         <div class="tab-indicator" id="tab-indicator"></div>
     </div>
 
     <div class="dashboard-slider show-tab-0" id="slider">
+        
         <div class="panel active-panel">
             <div class="container">
                 <div class="jobs-grid">
@@ -165,7 +166,7 @@
                         <h3 class="job-title">{{ vaga.titulo }}</h3>
                         <span class="company">{{ vaga.empresa.nome }}</span>
                         <div class="job-footer">
-                            <div class="candidates"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>+12</div>
+                            <div class="candidates"><i class="fas fa-users" style="color:#64748b; margin-right:5px;"></i>+12</div>
                             <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">{% csrf_token %}<button class="apply-btn">Candidatar</button></form>
                         </div>
                     </div>
@@ -314,23 +315,21 @@
     // LÓGICA DO ONBOARDING
     // ----------------------------------------------------
     const mainInterface=document.getElementById('main-interface'), onboardingWrapper=document.getElementById('onboarding-wrapper');
-    const steps=[document.getElementById('onboarding-step-1'),document.getElementById('onboarding-step-2'),document.getElementById('onboarding-step-3'),document.getElementById('onboarding-step-4'),document.getElementById('onboarding-step-5'),document.getElementById('onboarding-step-6')];
+    const steps=[
+        document.getElementById('onboarding-step-1'),
+        document.getElementById('onboarding-step-2'),
+        document.getElementById('onboarding-step-3'),
+        document.getElementById('onboarding-step-4'),
+        document.getElementById('onboarding-step-5'),
+        document.getElementById('onboarding-step-6')
+    ];
     
-    // Funções de Navegação
     function showStep(index){
         steps.forEach((s,i)=>{
-            // 1. Define quem aparece e quem some
-            s.style.display = i===index ? 'flex' : 'none';
-            
-            // 2. CORREÇÃO CRÍTICA: Adiciona a classe no ativo E REMOVE dos outros
-            if(i===index) {
-                s.classList.add('container-ativo');
-            } else {
-                s.classList.remove('container-ativo'); // <--- ISSO FALTAVA!
-            }
+            s.style.display = i===index ? 'flex' : 'none'; // Flex para centralizar
+            if(i===index) s.classList.add('container-ativo');
+            else s.classList.remove('container-ativo');
         });
-
-        // Atualiza a barra de progresso
         const progress=document.getElementById('progresso-barra'), progressTxt=document.getElementById('progresso-texto');
         const pct=Math.round(((index+1)/steps.length)*100);
         if(progress) progress.style.width=pct+'%';
@@ -347,7 +346,7 @@
         notif.innerText = "Dê os últimos toques no seu perfil na aba 'Perfil' abaixo!";
         document.body.appendChild(notif);
         setTimeout(() => notif.remove(), 6000);
-        goToTab(0); // Vai pra home
+        goToTab(0);
     }
 
     function pularTudo() {
@@ -357,8 +356,6 @@
     }
 
     function avancarSemSalvar(currentStepIndex) {
-        // Simplesmente vai para o próximo passo (índice + 1)
-        // Passo 3 é indice 2 no array steps, então ir para 3 (passo 4)
         if (currentStepIndex < 5) {
             showStep(currentStepIndex); 
         } else {
@@ -366,7 +363,6 @@
         }
     }
 
-    // Lógica de Envio dos Forms do Onboarding
     async function enviarFormulario(form, botaoPressionado){
         const url=form.action;
         const formData=new FormData(form);
@@ -377,18 +373,15 @@
             const data=await response.json();
             
             if(data.status==='success'){
-                if(data.action==='next_step') return true; // Sucesso, avança
+                if(data.action==='next_step') return true; 
                 
-                // Se for "adicionar outro", limpa form e mostra item na lista
                 const lista=document.getElementById(data.list_id);
                 if(lista && data.saved_item_html) lista.innerHTML += data.saved_item_html;
                 form.reset();
-                return false; // Não avança, fica na mesma tela
+                return false; 
             } else {
-                // Se der erro de validação (ex: campos vazios)
-                // Se o botão for "Continuar", a gente DEIXA passar mesmo vazio (comportamento de Pular)
                 if (botaoPressionado && botaoPressionado.name === 'continuar') {
-                    return true; // Avança mesmo com erro (pula)
+                    return true; // Se o backend rejeitou mas o usuário clicou continuar, avança
                 }
                 alert("Preencha os campos obrigatórios ou clique em Pular.");
                 return false;
@@ -404,47 +397,61 @@
         mainInterface.style.display='none';
         document.getElementById('progress-bar-fixed-wrapper').style.display='block';
         onboardingWrapper.style.display='block';
-        showStep(0); // Passo 1
+        showStep(0); 
         
-        // Listeners dos passos
         document.getElementById('btn-iniciar-onboarding').onclick = () => showStep(1);
-        
-        document.getElementById('form-step-2').onsubmit = async(e) => {
-            e.preventDefault();
-            if(await enviarFormulario(e.target, e.submitter)) showStep(2);
-        };
-        document.getElementById('form-step-3').onsubmit = async(e) => {
-            e.preventDefault();
-            if(await enviarFormulario(e.target, e.submitter)) showStep(3);
-        };
-        document.getElementById('form-step-4').onsubmit = async(e) => {
-            e.preventDefault();
-            if(await enviarFormulario(e.target, e.submitter)) showStep(4);
-        };
-        document.getElementById('form-step-5').onsubmit = async(e) => {
-            e.preventDefault();
-            if(await enviarFormulario(e.target, e.submitter)) showStep(5);
-        };
-        document.getElementById('form-step-6').onsubmit = async(e) => {
-            e.preventDefault();
-            // Passo 6 é o último, finaliza
-            await enviarFormulario(e.target, e.submitter);
-            finalizarOnboarding();
-        };
+        document.getElementById('form-step-2').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(2); };
+        document.getElementById('form-step-3').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(3); };
+        document.getElementById('form-step-4').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(4); };
+        document.getElementById('form-step-5').onsubmit = async(e) => { e.preventDefault(); if(await enviarFormulario(e.target, e.submitter)) showStep(5); };
+        document.getElementById('form-step-6').onsubmit = async(e) => { e.preventDefault(); await enviarFormulario(e.target, e.submitter); finalizarOnboarding(); };
     } else {
         onboardingWrapper.style.display='none';
         mainInterface.style.display='block';
     }
 
-    // ----------------------------------------------------
-    // FUNÇÃO SKILLS (CLICAR NA TAG)
-    // ----------------------------------------------------
+    // --- SLIDER & TABS ---
+    const panelData = [
+        {title: 'Olá, <span class="username">{{ user.first_name|default:user.username }}</span>', subtitle: 'Confira as vagas recomendadas para você.'},
+        {title: 'Meu Perfil', subtitle: 'Gerencie seus dados e visualização do currículo.'},
+        {title: 'Finanças do candidato', subtitle: 'Organize seu dinheiro e tome decisões melhores.'}
+    ];
+    const slider=document.getElementById('slider'),tabs=document.querySelectorAll('.tab'),indicator=document.getElementById('tab-indicator'),heroTitle=document.getElementById('hero-title'),heroSubtitle=document.getElementById('hero-subtitle'),panels=document.querySelectorAll('.panel');
+    let currentTab=0;
+
+    function updateIndicator(tab){
+        const rect=tab.getBoundingClientRect();
+        const containerRect=tab.parentElement.getBoundingClientRect();
+        indicator.style.width=rect.width+'px';
+        indicator.style.left=(rect.left-containerRect.left)+'px';
+    }
+
+    function goToTab(index){
+        if(index===currentTab)return;
+        tabs.forEach(t=>t.classList.remove('active')); tabs[index].classList.add('active');
+        updateIndicator(tabs[index]);
+        slider.style.transform=`translateX(-${index*33.33}%)`;
+        panels.forEach((p,i)=>{if(i===index)p.classList.add('active-panel');else p.classList.remove('active-panel')});
+        heroTitle.innerHTML=panelData[index].title; heroSubtitle.textContent=panelData[index].subtitle;
+        localStorage.setItem('candidateTab', index); currentTab=index;
+    }
+
+    // Inicializa abas
+    window.addEventListener('load',()=>{
+        const saved=localStorage.getItem('candidateTab');
+        slider.classList.add('no-transition');
+        if(saved && parseInt(saved)<3){ goToTab(parseInt(saved)); } else { updateIndicator(tabs[0]); }
+        setTimeout(()=>slider.classList.remove('no-transition'),100);
+        setTimeout(() => { document.querySelectorAll('.popup-info').forEach(el => { el.style.opacity='0'; setTimeout(()=>el.remove(),500); }); }, 4000);
+    });
+    window.addEventListener('resize',()=>updateIndicator(tabs[currentTab]));
+
+    // --- SKILLS TAGS ---
     async function preencherSkill(nome, tipo, elementoBotao) {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const inputNome = document.getElementById('id_nome');
         const selectTipo = document.getElementById('id_tipo');
 
-        // Feedback Visual Rápido nos inputs
         if(inputNome) inputNome.value = nome;
         if(selectTipo) selectTipo.value = tipo;
 
@@ -453,21 +460,14 @@
         formData.append('tipo', tipo);
 
         try {
-            const response = await fetch("{% url 'ajax_salvar_skill' %}", {
-                method: 'POST', headers: {'X-CSRFToken': csrfToken}, body: formData
-            });
+            const response = await fetch("{% url 'ajax_salvar_skill' %}", { method: 'POST', headers: {'X-CSRFToken': csrfToken}, body: formData });
             const data = await response.json();
 
             if (data.status === 'success') {
-                // Adiciona na lista visual do Onboarding
                 adicionarNaListaVisual('lista-skills', data.skill_id, nome, tipo);
-                // Adiciona na lista do Perfil (background)
                 const containerId = tipo === 'hard' ? 'hard-skills-container' : 'soft-skills-container';
                 adicionarNaListaPerfil(containerId, data.skill_id, nome);
-                
-                // REMOVE A TAG DAS SUGESTÕES (Visual Clean)
                 if(elementoBotao) elementoBotao.remove();
-                
                 if(inputNome) inputNome.value = "";
             } else if (data.message) {
                 alert(data.message);
@@ -496,28 +496,28 @@
         lista.appendChild(novaTag);
     }
 
-    // --- OUTROS SCRIPTS (Slider, Modais, IA, etc) ---
-    // (Mantendo os scripts existentes de Tabs, Modais e IA que já funcionavam)
+    // --- OUTROS SCRIPTS ---
     function getCookie(name){let cookieValue=null;if(document.cookie&&document.cookie!==''){const cookies=document.cookie.split(';');for(let i=0;i<cookies.length;i++){const cookie=cookies[i].trim();if(cookie.substring(0,name.length+1)===(name+'=')){cookieValue=decodeURIComponent(cookie.substring(name.length+1));break}}}return cookieValue}
     const csrftoken=getCookie('csrftoken');
-
-    function goToTab(index){
-        if(index===currentTab)return;
-        tabs.forEach(t=>t.classList.remove('active')); tabs[index].classList.add('active');
-        updateIndicator(tabs[index]);
-        slider.style.transform=`translateX(-${index*33.33}%)`;
-        panels.forEach((p,i)=>{if(i===index)p.classList.add('active-panel');else p.classList.remove('active-panel')});
-        heroTitle.innerHTML=panelData[index].title; heroSubtitle.textContent=panelData[index].subtitle;
-        localStorage.setItem('candidateTab', index); currentTab=index;
-    }
-    function updateIndicator(tab){ const rect=tab.getBoundingClientRect(); const containerRect=tab.parentElement.getBoundingClientRect(); indicator.style.width=rect.width+'px'; indicator.style.left=(rect.left-containerRect.left)+'px'; }
-    tabs.forEach((tab,i)=>tab.addEventListener('click',()=>goToTab(i)));
 
     function abrirModal(id) { const m=document.getElementById(id); m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
     function fecharModal(id) { const m=document.getElementById(id); m.classList.remove('active'); setTimeout(()=>m.style.display='none',300); }
     window.onclick=function(e){ if(e.target.classList.contains('modal-overlay')) fecharModal(e.target.id); }
 
-    // AJAX Form Submit Generico
+    function makeEditable(f){const c=document.getElementById(f+'-content'),a=document.getElementById(f+'-actions');if(c.style.display==='none')return;const t=document.createElement('textarea');t.id=f+'-textarea';t.className='editable-textarea';t.value=c.innerText.trim();c.style.display='none';c.parentNode.insertBefore(t,c.nextSibling);a.style.display='flex';t.focus()}
+    function cancelEdit(f){const t=document.getElementById(f+'-textarea'),c=document.getElementById(f+'-content'),a=document.getElementById(f+'-actions');if(t)t.remove();c.style.display='block';a.style.display='none'}
+    async function saveResumo(){const val=document.getElementById('resumo-textarea').value;const fd=new FormData();fd.append('resumo',val);try{const r=await fetch("{% url 'ajax_salvar_resumo' %}",{method:'POST',headers:{'X-CSRFToken':csrftoken},body:fd});const d=await r.json();if(d.status==='success'){document.getElementById('resumo-content').innerText=val;cancelEdit('resumo')}}catch(e){console.error(e)}}
+    if(document.getElementById('resumo-content')) document.getElementById('resumo-content').addEventListener('click',()=>makeEditable('resumo'));
+
+    function toggleSkillInput(t){const w=document.getElementById(t+'-skill-input');w.style.display=w.style.display==='flex'?'none':'flex'; if(w.style.display==='flex') w.querySelector('input').focus();}
+    async function addSkill(type){const input=document.getElementById(type+'-skill-name');if(!input.value)return;const fd=new FormData();fd.append('nome',input.value);fd.append('tipo',type);try{await fetch("{% url 'ajax_salvar_skill' %}",{method:'POST',headers:{'X-CSRFToken':csrftoken},body:fd});window.location.reload()}catch(e){console.error(e)}}
+    async function removeSkill(id){if(!confirm("Remover?"))return;try{await fetch(`/contas/ajax/deletar-skill/${id}/`,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}});document.getElementById('skill-'+id).remove()}catch(e){console.error(e)}}
+    async function deleteItem(type,id){if(!confirm("Excluir?"))return;const url=type==='experiencia'?`/contas/ajax/deletar-experiencia/${id}/`:`/contas/ajax/deletar-formacao/${id}/`;try{const r=await fetch(url,{method:'DELETE',headers:{'X-CSRFToken':csrftoken}});if(r.ok)document.getElementById((type==='experiencia'?'xp-':'edu-')+id).remove()}catch(e){console.error(e)}}
+
+    const infoData = {'Orçamento': '<p>Regra 50-30-20: 50% Essencial, 30% Desejos, 20% Poupança.</p>','Primeiro Salário': '<p>Priorize pagar dívidas e criar reserva de emergência.</p>','Emergência': '<p>3 a 6 meses de custo de vida.</p>','Contracheque': '<p>Descontos comuns: INSS, IRRF, Vale Transporte.</p>','FGTS': '<p>8% do salário depositado pela empresa.</p>'};
+    function abrirModalInfo(k){document.getElementById('info-title').textContent=k;document.getElementById('info-content').innerHTML=infoData[k]||"Indisponível.";abrirModal('modal-info-financa');}
+    function calcularSalario(){const b=parseFloat(document.getElementById('calc-bruto').value),d=parseInt(document.getElementById('calc-dep').value)||0;if(!b)return;let i=0;if(b<=1412)i=b*0.075;else if(b<=2666)i=b*0.09-21.18;else if(b<=4000)i=b*0.12-101.18;else if(b<=7786)i=b*0.14-181.18;else i=908.85;let bi=b-i-(d*189.59),ir=0;if(bi>2259){if(bi<=2826)ir=bi*0.075-169.44;else if(bi<=3751)ir=bi*0.15-381.44;else if(bi<=4664)ir=bi*0.225-662.77;else ir=bi*0.275-896.00}if(ir<0)ir=0;document.getElementById('valor-liquido').innerText=(b-i-ir).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});document.getElementById('calc-resultado').style.display='block';}
+
     document.querySelectorAll('.dashboard-ajax-form').forEach(form => {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
