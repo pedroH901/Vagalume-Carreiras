@@ -377,82 +377,186 @@ a:hover {
     .tag-separator { width: 1px; background-color: #30363d; margin: 0 5px; }
     .sugestao-titulo { font-size: 0.85rem; color: #8b949e; margin-bottom: 5px; display: block; }
 
-    /* ===================================================================
-   ESTILOS DO ONBOARDING (TAGS E MODAIS)
+   /* ===================================================================
+   ESTILOS DO ONBOARDING DO CANDIDATO (Atualizado)
    =================================================================== */
 
-/* Container da Nuvem de Tags */
-.tag-cloud-box {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 20px 0 30px 0;
-    padding: 20px;
-    background-color: rgba(13, 27, 42, 0.6); /* Fundo escuro translúcido */
-    border: 1px dashed #30363d;
-    border-radius: 12px;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+/* Container Principal do Modal de Onboarding */
+.onboarding-container { 
+    display: none; /* Escondido por padrão, controlado via JS */
+    max-width: 600px; 
+    margin: 40px auto; 
+    padding: 40px; 
+    background: #161B22; /* Fundo alinhado com o tema */
+    border-radius: 12px; 
+    text-align: center; 
+    border: 1px solid #30363d; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+    min-height: 480px; 
+    flex-direction: column; 
+    justify-content: center; 
+    position: relative;
+    animation: fadeInUp 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Botão de Tag (Skill) */
-.skill-tag-btn {
-    background-color: #161B22;
-    border: 1px solid #30363d;
-    color: #94a3b8;
-    padding: 8px 18px;
-    border-radius: 50px; /* Pílula perfeita */
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.container-ativo { 
+    display: flex !important; /* Força display flex quando ativo */
 }
 
-/* Hover: Brilho Neon */
-.skill-tag-btn:hover {
-    border-color: #BEF264;
-    color: #0D1B2A;
-    background-color: #BEF264; /* Fica verde cheio no hover */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(190, 242, 100, 0.2);
+/* Tipografia do Onboarding */
+.onboarding-title { 
+    color: #fff; 
+    font-size: 2rem; 
+    margin-bottom: 10px; 
+    font-weight: 800; 
 }
 
-/* Clique */
-.skill-tag-btn:active {
-    transform: scale(0.95);
-    opacity: 0.8;
+.onboarding-subtitle { 
+    color: #8b949e; 
+    margin-bottom: 30px; 
+    font-size: 1.1rem; 
+    line-height: 1.5;
 }
 
-/* Separador Vertical */
-.tag-separator {
-    width: 2px;
-    background-color: #30363d;
-    margin: 0 10px;
-    border-radius: 2px;
-}
-
-/* Título das Sugestões */
-.sugestao-titulo {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/* Botão de Pular (Canto Superior Direito) */
+.btn-skip-onboarding {
+    position: absolute; 
+    top: 20px; 
+    right: 20px;
+    background: transparent; 
+    border: 1px solid #30363d; 
     color: #64748b;
+    padding: 6px 12px; 
+    border-radius: 4px; 
+    font-size: 0.8rem; 
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-skip-onboarding:hover { 
+    border-color: #94a3b8; 
+    color: #fff; 
+}
+
+/* Estilização dos Campos de Formulário (Inputs) */
+.custom-form-style input[type="text"], 
+.custom-form-style input[type="date"], 
+.custom-form-style input[type="file"],
+.custom-form-style select, 
+.custom-form-style textarea {
+    width: 100%; 
+    box-sizing: border-box; /* Garante que padding não estoura a largura */
+    background-color: #0D1117; 
+    border: 1px solid #30363d; 
+    color: #fff;
+    padding: 12px; 
+    border-radius: 8px; 
+    margin-bottom: 15px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.custom-form-style input:focus, 
+.custom-form-style select:focus, 
+.custom-form-style textarea:focus {
+    outline: none;
+    border-color: #BEF264; /* Verde Neon */
+    box-shadow: 0 0 0 3px rgba(190, 242, 100, 0.1);
+}
+
+/* Nuvem de Tags (Skills) - Estilo Botão */
+.tag-cloud-box { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin: 15px 0 25px 0; 
+    padding: 15px; 
+    background-color: rgba(22, 27, 34, 0.5); 
+    border: 1px dashed #30363d; 
+    border-radius: 12px; 
+    justify-content: center; /* Centraliza as tags no mobile */
+}
+
+.skill-tag-btn { 
+    background-color: #0D1117; 
+    border: 1px solid #30363d; 
+    color: #c9d1d9; 
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    font-size: 0.85rem; 
+    font-weight: 500; 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    user-select: none; 
+    display: inline-block; 
+}
+
+.skill-tag-btn:hover { 
+    border-color: #BEF264; 
+    color: #BEF264; 
+    background-color: rgba(190, 242, 100, 0.1); 
+    transform: translateY(-2px); 
+}
+
+.skill-tag-btn:active { 
+    transform: scale(0.95); 
+}
+
+/* Utilitários Visuais */
+.tag-separator { 
+    width: 1px; 
+    background-color: #30363d; 
+    margin: 0 5px; 
+    min-height: 20px;
+}
+
+.sugestao-titulo { 
+    font-size: 0.85rem; 
+    color: #8b949e; 
+    margin-bottom: 8px; 
+    display: block; 
+    text-align: left; 
     font-weight: 700;
-    margin-bottom: 8px;
-    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Ajuste na lista de skills salvas (para ficar alinhado) */
-#lista-skills div {
-    animation: slideIn 0.3s ease-out;
+/* Animações */
+@keyframes fadeInUp { 
+    from { opacity: 0; transform: translateY(20px); } 
+    to { opacity: 1; transform: translateY(0); } 
 }
 
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes slideDownFade { 
+    from { opacity:0; transform:translate(-50%, -20px); } 
+    to { opacity:1; transform:translate(-50%, 0); } 
+}
+
+/* ===================================================================
+   IA CHAT (Estilo da lista de dicas)
+   =================================================================== */
+#ia-content ul { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+}
+
+#ia-content li { 
+    background-color: rgba(255, 255, 255, 0.05); 
+    border-left: 4px solid #BEF264; 
+    margin-bottom: 15px; 
+    padding: 15px; 
+    border-radius: 0 8px 8px 0; 
+    font-size: 1rem; 
+    line-height: 1.6; 
+    color: #c9d1d9; 
+}
+
+#ia-content li strong { 
+    color: #BEF264; 
+    display: block; 
+    margin-bottom: 5px; 
+    font-size: 1.1rem; 
 }
 
 /* ===================================================================
