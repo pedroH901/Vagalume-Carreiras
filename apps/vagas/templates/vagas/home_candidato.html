@@ -141,10 +141,24 @@
                         <div class="tags"><span class="tag">{{ vaga.tipo_contrato }}</span><span class="tag">{{ vaga.localidade }}</span></div>
                         <h3 class="job-title">{{ vaga.titulo }}</h3>
                         <span class="company">{{ vaga.empresa.nome }}</span>
-                        <div class="job-footer">
-                            <div class="candidates"><i class="fas fa-users" style="margin-right:5px;"></i>+12</div>
-                            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">{% csrf_token %}<button class="apply-btn">Candidatar</button></form>
-                        </div>
+                        <div class="job-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+    
+    <a href="{% url 'ver_vaga_detalhe' vaga.id %}" style="color: #BEF264; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+        Ver Detalhes
+    </a>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="candidates" style="font-size: 0.8rem; color: #64748b;">
+            <i class="fas fa-users"></i> +12
+        </div>
+
+        <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">
+            {% csrf_token %}
+            <button class="apply-btn">Candidatar</button>
+        </form>
+    </div>
+
+</div>
                     </div>
                     {% empty %}<p style="color:#8b949e; grid-column: 1/-1; text-align: center; padding: 40px;">Nenhuma vaga encontrada.</p>{% endfor %}
                 </div>
