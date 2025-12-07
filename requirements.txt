@@ -10,7 +10,7 @@ python-decouple==3.8
 
 psycopg2-binary==2.9.10
 
-google-generativeai==0.8.3
+google-generativeai
 
 torch==2.5.1
 sentence-transformers==3.3.1

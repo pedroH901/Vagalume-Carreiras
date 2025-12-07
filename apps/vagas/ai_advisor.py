@@ -36,7 +36,9 @@ def gerar_dicas_perfil(perfil_texto):
             model = genai.GenerativeModel(modelo)
             response = model.generate_content(prompt)
             return response.text
-        except:
+        except Exception as e:
+            # AQUI ESTÁ A MUDANÇA: Vamos imprimir o erro real no log!
+            print(f"❌ FALHA no modelo {modelo}: {str(e)}")
             continue
             
-    return "<ul><li>IA temporariamente indisponível.</li></ul>"
+    return "<ul><li>IA temporariamente indisponível. Verifique os logs do servidor.</li></ul>"
