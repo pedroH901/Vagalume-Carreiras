@@ -796,3 +796,58 @@ a:hover {
 }
 .radio-custom label:hover { border-color:#BEF264; color:#fff; }
 .radio-custom input[type="radio"] { margin-right:5px; accent-color:#BEF264; }
+
+/* ==============================================
+   CORREÇÃO DE MOBILE
+   ============================================== */
+
+@media (max-width: 600px) {
+    
+    /* 1. Desgrudar o Onboarding das bordas */
+    .onboarding-container {
+        width: 90% !important; /* Força largura fluida */
+        margin: 20px auto !important; /* Margem menor em cima/baixo */
+        padding: 25px 15px !important; /* Padding interno menor */
+        min-height: auto !important; /* Altura flexível */
+    }
+
+    .onboarding-title {
+        font-size: 1.5rem !important; /* Título menor pra não quebrar */
+    }
+
+    /* 2. Ajustar os Cards de Vagas e Painéis */
+    .job-card, .perfil-box, .radar-highlight, .menu-card {
+        padding: 20px !important; /* Menos espaçamento interno */
+        margin-bottom: 15px !important;
+    }
+
+    /* 3. Arrumar o Header/Hero que estava gigante */
+    .hero {
+        padding: 30px 15px !important;
+        min-height: auto !important;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem !important;
+    }
+
+    /* 4. Botões que estouravam a largura */
+    .btn-create-big, .radar-btn {
+        width: 100% !important; /* Botão ocupa toda a largura */
+        justify-content: center;
+        padding: 12px !important;
+        font-size: 1rem !important;
+    }
+
+    /* 5. Ajuste fino na Navbar Mobile (Overlay) */
+    .navbar-mobile-menu {
+        width: 85% !important; /* Menu ocupa quase toda a tela pra facilitar toque */
+        padding-top: 60px !important;
+    }
+
+    /* 6. Corrige a "barrinha" de progresso colada */
+    #progress-bar-fixed-wrapper {
+        width: 90% !important;
+        left: 5% !important; /* Centraliza visualmente */
+    }
+}
