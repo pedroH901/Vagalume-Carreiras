@@ -798,56 +798,63 @@ a:hover {
 .radio-custom input[type="radio"] { margin-right:5px; accent-color:#BEF264; }
 
 /* ==============================================
-   CORREÇÃO DE MOBILE
+   CORREÇÃO DE MOBILE (Patch V2.0 - Completo)
    ============================================== */
 
 @media (max-width: 600px) {
     
-    /* 1. Desgrudar o Onboarding das bordas */
-    .onboarding-container {
-        width: 90% !important; /* Força largura fluida */
-        margin: 20px auto !important; /* Margem menor em cima/baixo */
-        padding: 25px 15px !important; /* Padding interno menor */
-        min-height: auto !important; /* Altura flexível */
+    /* 1. Desgrudar containers das bordas (Adicionei .form-container e outros) */
+    .onboarding-container, 
+    .form-container,        /* Pega Criar/Editar Vaga */
+    .politica-container,    /* Pega Política de Priv. */
+    .explore-container,     /* Pega Explorar Vagas */
+    .perfil-empresa-container, /* Pega Perfil Empresa */
+    .new-password-wrapper,  /* Pega Nova Senha */
+    .recovery-wrapper       /* Pega Recuperar Senha */
+    {
+        width: 92% !important; /* Força largura fluida */
+        margin: 20px auto !important; /* Margem menor */
+        padding: 20px 15px !important; /* Padding interno menor */
+        min-height: auto !important;
+        box-sizing: border-box !important;
     }
 
-    .onboarding-title {
-        font-size: 1.5rem !important; /* Título menor pra não quebrar */
+    /* 2. Ajustar Títulos Grandes */
+    h1, .onboarding-title, .titulo-pagina, .header-section h1 {
+        font-size: 1.8rem !important;
+        line-height: 1.2 !important;
+        word-wrap: break-word !important; /* Evita estourar texto longo */
     }
 
-    /* 2. Ajustar os Cards de Vagas e Painéis */
+    /* 3. Ajustar os Cards */
     .job-card, .perfil-box, .radar-highlight, .menu-card {
-        padding: 20px !important; /* Menos espaçamento interno */
+        padding: 20px !important;
         margin-bottom: 15px !important;
     }
 
-    /* 3. Arrumar o Header/Hero que estava gigante */
-    .hero {
+    /* 4. Arrumar o Header/Hero */
+    .hero, .header-section {
         padding: 30px 15px !important;
         min-height: auto !important;
     }
-    
-    .hero h1 {
-        font-size: 1.8rem !important;
-    }
 
-    /* 4. Botões que estouravam a largura */
-    .btn-create-big, .radar-btn {
-        width: 100% !important; /* Botão ocupa toda a largura */
+    /* 5. Botões que estouravam a largura */
+    .btn-create-big, .radar-btn, .btn-save, .btn-login-gradient {
+        width: 100% !important;
         justify-content: center;
         padding: 12px !important;
-        font-size: 1rem !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 
-    /* 5. Ajuste fino na Navbar Mobile (Overlay) */
+    /* 6. Ajuste da Navbar Mobile */
     .navbar-mobile-menu {
-        width: 85% !important; /* Menu ocupa quase toda a tela pra facilitar toque */
+        width: 85% !important;
         padding-top: 60px !important;
     }
 
-    /* 6. Corrige a "barrinha" de progresso colada */
-    #progress-bar-fixed-wrapper {
-        width: 90% !important;
-        left: 5% !important; /* Centraliza visualmente */
+    /* 7. Inputs de formulários não estourarem */
+    input, select, textarea {
+        max-width: 100% !important;
     }
 }
