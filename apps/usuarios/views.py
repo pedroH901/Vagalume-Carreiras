@@ -44,6 +44,8 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from twilio.rest import Client 
 from twilio.base.exceptions import TwilioRestException
 
+from django.core.management import call_command
+
 @transaction.atomic
 def cadastrar_candidato(request):
     """
@@ -1196,3 +1198,9 @@ def nova_senha_view(request):
     
     return render(request, 'usuarios/nova_senha.html', {'form': form})
 
+def executar_seed(request):
+    try:
+        call_command('seed')
+        return HttpResponse("<h1>✅ Sucesso!</h1><p>Banco populado.</p><a href='/admin/'>Ir para Admin</a> | <a href='/login/'>Ir para Login</a>")
+    except Exception as e:
+        return HttpResponse(f"<h1>❌ Erro</h1><p>{str(e)}</p>")

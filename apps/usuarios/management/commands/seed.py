@@ -10,6 +10,19 @@ class Command(BaseCommand):
         self.stdout.write('🌱 Iniciando o Seeding do Banco de Dados...')
 
         # ---------------------------------------------------------
+        # 0. CRIAR SUPERUSUÁRIO (ADMIN) - ADICIONADO AGORA
+        # ---------------------------------------------------------
+        if not Usuario.objects.filter(email='admin@vagalume.com').exists():
+            Usuario.objects.create_superuser(
+                username='admin@vagalume.com',
+                email='admin@vagalume.com',
+                password='admin', # Senha do Painel Admin
+                first_name='Super',
+                last_name='Admin'
+            )
+            self.stdout.write(self.style.SUCCESS('✅ Admin criado: admin@vagalume.com / admin'))
+
+        # ---------------------------------------------------------
         # 1. CRIAR PLANOS
         # ---------------------------------------------------------
         planos = [
@@ -32,14 +45,12 @@ class Command(BaseCommand):
         # ---------------------------------------------------------
         # 2. CRIAR EMPRESA (Vagalume Tech)
         # ---------------------------------------------------------
-        # CNPJ fictício
         empresa, created = Empresa.objects.get_or_create(
             cnpj='12345678000199',
             defaults={
                 'nome': 'Vagalume Tech',
                 'setor': 'Tecnologia',
                 'telefone': '11999998888',
-                # Define como Premium para você poder testar o Radar de Talentos
                 'plano_assinado': 'premium' 
             }
         )
@@ -57,12 +68,11 @@ class Command(BaseCommand):
             user_rec = Usuario.objects.create_user(
                 username=email_recrutador,
                 email=email_recrutador,
-                password='123', # Senha simples para o dia da apresentação
+                password='123',
                 first_name='Chefe',
                 last_name='Recrutador',
                 tipo_usuario='recrutador'
             )
-            # Vincula o usuário à empresa criada acima
             Recrutador.objects.create(usuario=user_rec, empresa=empresa)
             self.stdout.write(self.style.SUCCESS(f'✅ Recrutador criado: {email_recrutador} (Senha: 123)'))
         else:
@@ -73,11 +83,8 @@ class Command(BaseCommand):
         # ---------------------------------------------------------
         titulo_vaga = 'Desenvolvedor Python Junior'
         
-        # Só cria se não existir uma com esse título
         if not Vaga.objects.filter(titulo=titulo_vaga).exists():
-            # Pega o recrutador que acabamos de criar/buscar
             recrutador = Recrutador.objects.get(usuario__email=email_recrutador)
-            
             Vaga.objects.create(
                 empresa=empresa,
                 recrutador=recrutador,
@@ -111,22 +118,19 @@ class Command(BaseCommand):
             
             candidato = Candidato.objects.create(
                 usuario=user_cand,
-                cpf='11122233344', # CPF Fictício
+                cpf='11122233344',
                 headline='Desenvolvedor Backend Python | Django'
             )
             
-            # --- Adicionar Resumo (Importante para a IA ler) ---
             Resumo_Profissional.objects.create(
                 candidato=candidato,
                 texto="Sou um desenvolvedor focado em backend com Python. Tenho experiência prática na criação de APIs RESTful com Django e integração com serviços de Inteligência Artificial. Gosto de resolver problemas complexos e otimizar queries SQL. Busco minha primeira oportunidade júnior para crescer junto com a empresa."
             )
             
-            # --- Adicionar Skills ---
             skills = ['Python', 'Django', 'PostgreSQL', 'Git', 'APIs REST', 'Docker']
             for s in skills:
                 Skill.objects.create(candidato=candidato, nome=s, tipo='hard')
                 
-            # --- Adicionar Experiência ---
             Experiencia.objects.create(
                 candidato=candidato,
                 cargo='Estagiário de Desenvolvimento',
