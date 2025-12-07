@@ -805,18 +805,25 @@ a:hover {
     
     /* 1. Desgrudar containers das bordas (Adicionei .form-container e outros) */
     .onboarding-container, 
-    .form-container,        /* Pega Criar/Editar Vaga */
-    .politica-container,    /* Pega Política de Priv. */
-    .explore-container,     /* Pega Explorar Vagas */
-    .perfil-empresa-container, /* Pega Perfil Empresa */
-    .new-password-wrapper,  /* Pega Nova Senha */
-    .recovery-wrapper       /* Pega Recuperar Senha */
+    .form-container,
+    .politica-container,
+    .explore-container,
+    .perfil-empresa-container,
+    .new-password-wrapper,
+    .recovery-wrapper 
     {
-        width: 92% !important; /* Força largura fluida */
-        margin: 20px auto !important; /* Margem menor */
-        padding: 20px 15px !important; /* Padding interno menor */
-        min-height: auto !important;
-        box-sizing: border-box !important;
+        width: 90% !important;
+        margin: 20px auto !important;
+        padding: 20px 15px !important;
+        
+        /* --- AS LINHAS MÁGICAS DO SCROLL --- */
+        max-height: 85vh !important; /* Limita a altura a 85% da tela */
+        overflow-y: auto !important; /* Cria o scroll se passar disso */
+        display: block !important;   /* Garante comportamento de bloco */
+        
+        /* Ajuste fino para o scroll ficar bonito */
+        scrollbar-width: thin; 
+        scrollbar-color: #BEF264 #0D1B2A;
     }
 
     /* 2. Ajustar Títulos Grandes */
