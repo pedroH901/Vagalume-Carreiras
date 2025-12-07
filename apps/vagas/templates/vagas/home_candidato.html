@@ -303,6 +303,7 @@
         mainInterface.style.display = 'block';
         const notif = document.createElement('div'); notif.className = 'popup-info'; notif.innerText = "Perfil configurado!";
         document.body.appendChild(notif); setTimeout(() => notif.remove(), 4000);
+        window.location.reload();
         goToTab(0);
     }
     
