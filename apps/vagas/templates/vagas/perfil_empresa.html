@@ -8,13 +8,41 @@
 
 <div class="perfil-empresa-container">
 
-    <h1 class="titulo-pagina">Complete o Perfil da Sua Empresa</h1>
+    <a href="{% url 'home_recrutador' %}" style="color: #8b949e; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: 700;">
+        <i class="fas fa-arrow-left"></i> Voltar para o Painel
+    </a>
 
-    <form class="perfil-empresa-form">
+    <h1 class="titulo-pagina">Editar Perfil da Empresa</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="background: rgba(63, 185, 80, 0.2); color: #3fb950; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #3fb950;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form class="perfil-empresa-form" method="POST">
+        {% csrf_token %}
 
         <div class="form-group">
             <label for="nome_empresa">Nome da Empresa</label>
-            <input type="text" id="nome_empresa" name="nome_empresa" placeholder="Digite o nome da sua empresa">
+            <input type="text" id="nome_empresa" name="nome_empresa" value="{{ empresa.nome }}" placeholder="Digite o nome da sua empresa" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cnpj">CNPJ (Não editável)</label>
+            <input type="text" value="{{ empresa.cnpj }}" disabled style="opacity: 0.6; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+            <label for="setor_atuacao">Setor de Atuação</label>
+            <input type="text" id="setor_atuacao" name="setor_atuacao" value="{{ empresa.setor }}" placeholder="Ex: Tecnologia, Saúde...">
+        </div>
+
+        <div class="form-group">
+            <label for="telefone">Telefone de Contato</label>
+            <input type="text" id="telefone" name="telefone" value="{{ empresa.telefone|default:'' }}" placeholder="(XX) XXXXX-XXXX">
         </div>
 
         <div class="form-group">
@@ -27,33 +55,10 @@
             <textarea id="descricao" name="descricao" rows="4" placeholder="Fale um pouco sobre a empresa"></textarea>
         </div>
 
-        <div class="form-group">
-            <label for="setor_atuacao">Setor de Atuação</label>
-            <select id="setor_atuacao" name="setor_atuacao">
-                <option value="">Selecione...</option>
-                <option value="tecnologia">Tecnologia</option>
-                <option value="educacao">Educação</option>
-                <option value="saude">Saúde</option>
-                <option value="financeiro">Financeiro</option>
-                <option value="outros">Outros</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="localizacao">Localização</label>
-            <input type="text" id="localizacao" name="localizacao" placeholder="Cidade / Estado">
-        </div>
-
-        <div class="form-group">
-            <label for="redes_sociais">Redes Sociais</label>
-            <input type="text" id="redes_sociais" name="redes_sociais" placeholder="Ex: https://www.linkedin.com/empresa">
-        </div>
-
         <div class="btn-area">
             <button type="submit" class="btn-salvar">Salvar Informações</button>
         </div>
 
     </form>
 </div>
-
 {% endblock %}

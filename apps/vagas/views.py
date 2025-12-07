@@ -405,14 +405,33 @@ def aplicar_vaga(request, vaga_id):
 @login_required
 def perfil_empresa(request):
     """
-    View para o Recrutador editar o perfil da empresa.
+    View para editar dados da empresa.
+    Agora carrega os dados atuais e salva as edições.
     """
     if request.user.tipo_usuario != "recrutador":
         messages.error(request, "Acesso negado.")
         return redirect("home_candidato")
 
-    return render(request, "vagas/perfil_empresa.html")
+    # Pega o objeto da empresa vinculada ao usuário logado
+    recrutador = get_object_or_404(Recrutador, usuario=request.user)
+    empresa = recrutador.empresa
 
+    if request.method == 'POST':
+        # Pega os dados do formulário
+        novo_nome = request.POST.get('nome_empresa')
+        novo_setor = request.POST.get('setor_atuacao')
+        novo_telefone = request.POST.get('telefone')
+        
+        # Atualiza no banco
+        if novo_nome: empresa.nome = novo_nome
+        if novo_setor: empresa.setor = novo_setor
+        if novo_telefone: empresa.telefone = novo_telefone
+        
+        empresa.save()
+        messages.success(request, "Perfil da empresa atualizado com sucesso!")
+        return redirect('perfil_empresa')
+
+    return render(request, "vagas/perfil_empresa.html", {'empresa': empresa})
 
 @login_required
 def ver_candidatos_vaga(request, vaga_id):
