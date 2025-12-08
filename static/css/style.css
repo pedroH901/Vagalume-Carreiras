@@ -1196,3 +1196,30 @@ a:hover {
         flex-direction: column;
     }
 }
+
+/* =========================
+   CORREÇÃO FINAL: BOTÃO 'VER PERFIL' (LISTA DE CANDIDATOS)
+   ========================= */
+.btn-ver-perfil {
+    display: block; /* Faz o botão ocupar a linha toda */
+    width: 100%; /* Largura total do container pai */
+    text-align: center; /* Centraliza o texto do link */
+    padding: 12px 24px !important; /* Espaçamento interno generoso */
+    background-color: #161B22; /* Fundo escuro para contraste */
+    color: #c9d1d9 !important; /* Cor do texto clara */
+    border: 1px solid #30363d !important; /* Borda sutil */
+    border-radius: 8px; /* Cantos arredondados */
+    font-weight: 700 !important; /* Texto em negrito */
+    text-decoration: none !important; /* Remove o sublinhado do link */
+    transition: all 0.3s ease; /* Transição suave para o hover */
+    margin-top: 20px; /* Espaçamento superior para separar dos outros elementos */
+    box-sizing: border-box; /* Garante que padding não aumente a largura total */
+}
+
+/* Efeito ao passar o mouse (Hover) */
+.btn-ver-perfil:hover {
+    background-color: #BEF264 !important; /* Cor de fundo verde neon */
+    color: #0D1B2A !important; /* Cor do texto escura para contraste */
+    border-color: #BEF264 !important; /* Cor da borda verde neon */
+    transform: translateY(-2px); /* Leve elevação para dar um efeito de clique */
+}
