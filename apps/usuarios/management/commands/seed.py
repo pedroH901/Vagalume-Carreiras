@@ -23,29 +23,80 @@ class Command(BaseCommand):
         if not Usuario.objects.filter(email='admin@vagalume.com').exists():
             Usuario.objects.create_superuser('admin@vagalume.com', 'admin@vagalume.com', 'admin', first_name='Super', last_name='Admin')
 
-        # 3. EMPRESAS E RECRUTADORES (3 Empresas diferentes)
+ # 3. EMPRESAS E RECRUTADORES (3 Empresas diferentes)
+ # 3. EMPRESAS, RECRUTADORES E VAGAS MASSIVAS
+        self.stdout.write('🏭 Gerando Empresas e Vagas...')
+        
         empresas_data = [
             {'nome': 'Vagalume Tech', 'setor': 'Tecnologia', 'cnpj': '10000000000100', 'rec_nome': 'Chefe', 'rec_email': 'recrutador@vagalume.com'},
             {'nome': 'InovaSoft', 'setor': 'Tecnologia', 'cnpj': '20000000000100', 'rec_nome': 'Ana', 'rec_email': 'ana@inovasoft.com'},
             {'nome': 'Banco Futuro', 'setor': 'Financeiro', 'cnpj': '30000000000100', 'rec_nome': 'Carlos', 'rec_email': 'carlos@bancofuturo.com'},
+            {'nome': 'Agência Criativa', 'setor': 'Marketing', 'cnpj': '40000000000100', 'rec_nome': 'Mariana', 'rec_email': 'mariana@criativa.com'},
+            {'nome': 'Global RH', 'setor': 'Recursos Humanos', 'cnpj': '50000000000100', 'rec_nome': 'Roberto', 'rec_email': 'roberto@globalrh.com'},
         ]
 
+        # Lista de áreas para garantir que TODAS tenham vagas
+        areas_alvo = [
+            'Tecnologia', 'Design', 'Financeiro', 'Marketing', 
+            'Recursos Humanos', 'Vendas', 'Jurídico', 'Administração'
+        ]
+        
+        tipos_contrato = ['CLT', 'PJ', 'Remoto', 'Híbrido']
+
         for emp in empresas_data:
-            empresa, _ = Empresa.objects.get_or_create(
+            # Criar ou pegar Empresa
+            empresa, created = Empresa.objects.get_or_create(
                 cnpj=emp['cnpj'], 
-                defaults={'nome': emp['nome'], 'setor': emp['setor'], 'telefone': '11999999999', 'plano_assinado': 'premium'}
+                defaults={
+                    'nome': emp['nome'], 
+                    'setor': emp['setor'], 
+                    'telefone': '11999999999', 
+                    'plano_assinado': 'premium' # Premium para não ter limite de vagas
+                }
             )
             
+            # Criar ou pegar Recrutador
             if not Usuario.objects.filter(email=emp['rec_email']).exists():
-                u = Usuario.objects.create_user(emp['rec_email'], emp['rec_email'], '123', first_name=emp['rec_nome'], last_name='Recrutador', tipo_usuario='recrutador')
-                Recrutador.objects.create(usuario=u, empresa=empresa)
-                
-                # Criar vaga para essa empresa
-                Vaga.objects.create(
-                    empresa=empresa, recrutador=u.recrutador, titulo=f'Desenvolvedor em {emp["nome"]}',
-                    area_atuacao='tecnologia', descricao=f'Vaga incrível na {emp["nome"]}.', requisitos='Python, Django',
-                    tipo_contrato='CLT', localidade='São Paulo', faixa_salarial='R$ 5.000', status=True
+                u = Usuario.objects.create_user(
+                    emp['rec_email'], emp['rec_email'], '123', 
+                    first_name=emp['rec_nome'], last_name='Recrutador', 
+                    tipo_usuario='recrutador'
                 )
+                recrutador = Recrutador.objects.create(usuario=u, empresa=empresa)
+            else:
+                u = Usuario.objects.get(email=emp['rec_email'])
+                # Garante que o usuário existente tenha um perfil de recrutador
+                if hasattr(u, 'recrutador'):
+                    recrutador = u.recrutador
+                else:
+                    recrutador = Recrutador.objects.create(usuario=u, empresa=empresa)
+
+            # --- A MÁGICA ACONTECE AQUI: LOOP DE VAGAS ---
+            # Para CADA empresa, vamos criar 2 vagas em CADA área
+            for area in areas_alvo:
+                for i in range(1, 3): # Cria 2 vagas por área (range 1 a 3 exclusive)
+                    
+                    titulo_vaga = f"{area} Pleno - {emp['nome']}"
+                    if i == 2: titulo_vaga = f"Estágio em {area}"
+                    
+                    salario = random.randint(2, 15) * 1000
+                    contrato = random.choice(tipos_contrato)
+
+                    Vaga.objects.create(
+                        empresa=empresa, 
+                        recrutador=recrutador, 
+                        titulo=titulo_vaga,
+                        area_atuacao=area, # Essencial para seus filtros funcionarem
+                        descricao=f'Estamos buscando profissionais apaixonados por {area} para compor o time da {emp["nome"]}.', 
+                        requisitos='Experiência na área, vontade de aprender e proatividade.',
+                        tipo_contrato=contrato, 
+                        localidade=random.choice(['São Paulo', 'Rio de Janeiro', 'Remoto', 'Curitiba']), 
+                        faixa_salarial=f'R$ {salario},00', 
+                        status=True,
+                        data_publicacao=datetime.datetime.now()
+                    )
+        
+        self.stdout.write(f'✅ Vagas criadas! Total: {len(empresas_data) * len(areas_alvo) * 2} novas vagas.')
 
         # 4. CANDIDATOS (15 Perfis Variados)
         candidatos_data = [
