@@ -137,29 +137,31 @@
             <div class="container">
                 <div class="jobs-grid">
                     {% for vaga in vagas %}
-                    <div class="job-card">
-                        <div class="tags"><span class="tag">{{ vaga.tipo_contrato }}</span><span class="tag">{{ vaga.localidade }}</span></div>
-                        <h3 class="job-title">{{ vaga.titulo }}</h3>
-                        <span class="company">{{ vaga.empresa.nome }}</span>
-                        <div class="job-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+<div class="job-card">
+    <div class="tags">
+        <span class="tag">{{ vaga.tipo_contrato }}</span>
+        <span class="tag">{{ vaga.localidade }}</span>
+    </div>
     
-    <a href="{% url 'ver_vaga_detalhe' vaga.id %}" style="color: #BEF264; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
-        Ver Detalhes
+    <h3 class="job-title">{{ vaga.titulo }}</h3>
+    
+    <a href="{% url 'ver_empresa' vaga.empresa.id %}" class="company-link">
+        <i class="fas fa-building"></i> {{ vaga.empresa.nome }}
     </a>
 
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div class="candidates" style="font-size: 0.8rem; color: #64748b;">
-            <i class="fas fa-users"></i> +12
-        </div>
+    <div class="job-card-footer">
+        <a href="{% url 'ver_vaga_detalhe' vaga.id %}" class="btn-ver-mais" style="border: 1px solid #30363d; color: #fff; text-decoration: none; border-radius: 6px;">
+            Ver Detalhes
+        </a>
 
         <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">
             {% csrf_token %}
-            <button class="apply-btn">Candidatar</button>
+            <button class="apply-btn" style="width: 100%; border-radius: 6px;">
+                Candidatar-se
+            </button>
         </form>
     </div>
-
 </div>
-                    </div>
                     {% empty %}<p style="color:#8b949e; grid-column: 1/-1; text-align: center; padding: 40px;">Nenhuma vaga encontrada.</p>
                     
                     {% if vagas.has_other_pages %}

@@ -238,6 +238,14 @@
     </div>
     <h1 class="empresa-title">{{ empresa.nome }}</h1>
     <span class="empresa-setor">{{ empresa.setor }}</span>
+    <div class="empresa-header" style="background: #161B22; padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #30363d;">
+    <hr style="border-color: #30363d; margin: 20px 0;">
+    
+    <h3 style="color: #fff; margin-bottom: 10px;">Sobre a Empresa</h3>
+    <p style="color: #c9d1d9; line-height: 1.6;">
+        {{ empresa.descricao|default:"Nenhuma descrição cadastrada."|linebreaks }}
+    </p>
+</div>
 
     <div class="rating-display">
         <div class="rating-number">{{ media_nota }}</div>

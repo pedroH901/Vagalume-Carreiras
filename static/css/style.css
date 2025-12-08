@@ -239,26 +239,35 @@ a:hover {
     .hero p { color: #94a3b8; font-size: 1.1rem; margin-bottom: 15px; }
     
     /* NOTIFICAÇÕES FLUTUANTES */
-  .popup-info { 
+/* 1. TOAST NOTIFICATION (Correção para sumir de verdade) */
+.popup-info {
     position: fixed;
-    top: 100px; /* Logo abaixo da navbar */
+    top: 100px;
     left: 50%;
-    transform: translateX(-50%); /* Centraliza exato */
+    transform: translateX(-50%);
     z-index: 9999;
-    
-    color: #0D1B2A; 
-    background: #AFEB83; 
-    font-weight: 700; 
-    padding: 15px 30px; 
-    border-radius: 50px; 
+    background: #AFEB83;
+    color: #0D1B2A;
+    font-weight: 700;
+    padding: 15px 30px;
+    border-radius: 50px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: slideDownFade 0.5s ease forwards;
-    
-    white-space: nowrap;
-    max-width: 90%;
-    text-align: center;
+    /* Removemos a animation infinite ou forwards que travava ele */
+    animation: slideIn 0.5s ease forwards;
+    opacity: 1;
+    transition: opacity 0.5s ease, visibility 0.5s;
 }
-    @keyframes slideDownFade { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+
+.popup-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important; /* Impede clique fantasma */
+}
+
+@keyframes slideIn {
+    from { transform: translate(-50%, -20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
 
     /* =========================
        2. TABS & SLIDER
@@ -305,6 +314,16 @@ a:hover {
     .tag { padding: 4px 12px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid #2d3f52; border-radius: 20px; font-size: 0.8rem; color: #94a3b8; }
     .job-title { color: #fff; margin-bottom: 5px; font-size: 1.3rem; font-weight: 600; }
     .company { color: #64748b; font-size: 0.95rem; margin-bottom: 20px; display: block; }
+    .company-link {
+    color: #8b949e;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+.company-link:hover {
+    color: #BEF264;
+    text-decoration: underline;
+}
     .job-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     .apply-btn { background: #AFEB83; color: #0D1B2A; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.3s; }
     .apply-btn:hover { background: #BEF264; transform: scale(1.05); }
@@ -997,10 +1016,30 @@ a:hover {
 
     /* Cards de Vagas (Candidato) */
     .job-card-footer {
-        flex-direction: column; /* Botões embaixo */
-        align-items: stretch !important; /* Estica os botões */
-        gap: 15px;
-    }
+    display: flex !important;
+    flex-direction: row !important; /* Força linha */
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 15px;
+}
+
+.job-card-footer a, 
+.job-card-footer form {
+    flex: 1; /* Faz os botões terem o mesmo tamanho */
+}
+
+.job-card-footer .apply-btn, 
+.job-card-footer .btn-ver-mais {
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px; /* Altura fixa para alinhamento */
+    padding: 0 !important;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
     
     .apply-btn {
         width: 100%; /* Botão candidatar largura total */
@@ -1114,5 +1153,46 @@ a:hover {
     .page-btn {
         padding: 6px 10px;
         font-size: 0.8rem;
+    }
+}
+
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-action-profile {
+    flex: 1;
+    background: #161B22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 140px;
+}
+
+.btn-action-profile:hover {
+    border-color: #BEF264;
+    color: #BEF264;
+    background: rgba(190, 242, 100, 0.05);
+}
+
+/* MOBILE FIX ESPECÍFICO */
+@media (max-width: 600px) {
+    .job-card-footer {
+        flex-direction: row !important; /* Mantém lado a lado no mobile também */
+    }
+    .profile-actions {
+        flex-direction: column;
     }
 }
