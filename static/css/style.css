@@ -819,101 +819,75 @@ a:hover {
 }
 
 /* 2. CORREÇÃO GERAL DE CONTAINERS NO MOBILE */
-@media (max-width: 600px) {
+/* 1. CORREÇÃO DO CONTAINER DE ONBOARDING */
+    .onboarding-container {
+        width: 92% !important;
+        margin: 80px auto 40px auto !important; /* Margem topo maior para não ficar embaixo da barra */
+        padding: 25px 15px !important;
+        
+        /* CORREÇÃO CRÍTICA: Removemos o display: block !important */
+        /* Isso permite que o JS controle quem aparece e quem some */
+        min-height: auto !important; 
+        height: auto !important; 
+        position: relative;
+    }
+
+    /* Classe que o JS adiciona quando a etapa está ativa */
+    .onboarding-container.container-ativo {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    /* 2. CORREÇÃO DOS BOTÕES QUEBRADOS (Quadrados brancos) */
+    /* Força os botões a ficarem um embaixo do outro */
     
-    /* Desgrudar containers das bordas */
-    .onboarding-container, 
-    .form-container,
-    .politica-container,
-    .explore-container,
-    .perfil-empresa-container,
-    .new-password-wrapper,
-    .recovery-wrapper 
-    {
-        width: 92% !important; /* Mais largura útil no mobile */
-        margin: 20px auto !important;
-        padding: 20px 15px !important;
-        
-        max-height: 85vh !important; 
-        overflow-y: auto !important; 
-        display: block !important;
-        
-        scrollbar-width: thin; 
-        scrollbar-color: #BEF264 #0D1B2A;
+    /* Seleciona a div que envolve os botões no final do form */
+    .onboarding-container form > div:last-child {
+        display: flex !important;
+        flex-direction: column-reverse !important; /* Coloca o "Pular" por último visualmente */
+        gap: 15px !important;
+        align-items: center !important;
     }
 
-    /* Ajustar fontes grandes */
-    h1, .onboarding-title, .titulo-pagina, .header-section h1 {
-        font-size: 1.8rem !important;
-        line-height: 1.2 !important;
-        word-wrap: break-word !important;
-    }
-
-    /* Ajustar Cards */
-    .job-card, .perfil-box, .radar-highlight, .menu-card {
-        padding: 20px !important;
-        margin-bottom: 15px !important;
-    }
-
-    /* Header e Botões Largos */
-    .hero, .header-section {
-        padding: 30px 15px !important;
-        min-height: auto !important;
-    }
-
-    .btn-create-big, .radar-btn, .btn-save, .btn-login-gradient {
+    /* Seleciona a div interna que agrupa "+ Outra" e "Salvar" */
+    .onboarding-container form > div:last-child > div {
+        display: flex !important;
+        flex-direction: column !important; /* Um embaixo do outro */
         width: 100% !important;
-        justify-content: center;
-        padding: 12px !important;
+        gap: 10px !important;
     }
 
-    .navbar-mobile-menu {
-        width: 85% !important;
-        padding-top: 60px !important;
-    }
-
-    input, select, textarea {
+    /* Estilo para TODOS os botões do onboarding no mobile */
+    .onboarding-container button,
+    .onboarding-container .btn-save,
+    .onboarding-container .btn-outline {
+        width: 100% !important;  /* Ocupa a largura toda */
         max-width: 100% !important;
-    }
-}
-
-/* 3. CORREÇÃO DOS BOTÕES "COMEÇAR" E "SOU EMPRESA" */
-.container-botoes {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    margin-top: 20px;
-}
-
-/* Estilo padrão dos botões */
-.botao-comecar, 
-.botao-sou-empresa,
-.container-botoes a {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    /* Seus estilos visuais (cor, padding) ficam aqui ou no HTML */
-}
-
-/* Ajuste específico para MOBILE (quebra linha e centraliza) */
-@media (max-width: 768px) {
-    .container-botoes {
-        flex-direction: column; /* Um embaixo do outro */
-        gap: 15px;
+        padding: 14px 0 !important; /* Altura boa para o dedo */
+        margin: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .container-botoes a,
-    .botao-comecar, 
-    .botao-sou-empresa {
-        width: 100% !important; /* Largura total */
-        max-width: 320px;       /* Mas não gigante */
-        display: flex;          /* Garante flexibilidade */
-        margin: 0 auto;         /* Centraliza */
+    /* Botão "Pular Etapa" (Deixando ele mais discreto embaixo) */
+    .onboarding-container button[onclick*="avancarSemSalvar"],
+    .onboarding-container button.btn-outline[type="button"] {
+        background-color: transparent !important;
+        border: 1px solid #30363d !important;
+        color: #8b949e !important;
+        margin-top: 10px !important;
     }
-}
+
+    /* 3. Inputs do formulário */
+    .onboarding-container textarea,
+    .onboarding-container input[type="text"],
+    .onboarding-container input[type="date"],
+    .onboarding-container select {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important; /* Evita zoom automático no iPhone */
+    }
 
 /* ===================================================================
    RESPONSIVIDADE MOBILE: DASHBOARDS (CANDIDATO E RECRUTADOR)

@@ -612,6 +612,7 @@
     }
 }
 
+/* --- AQUI ESTÁ A CORREÇÃO PRINCIPAL --- */
 @media (max-width: 768px) {
     .navbar-container {
         padding: 10px 20px;
@@ -639,13 +640,17 @@
         display: block;
     }
     
+    /* Footer Centralizado */
     .footer {
         padding: 40px 20px 0;
         margin-top: 50px;
     }
     
+    /* Muda de Grid para Flex Coluna */
     .footer-container {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centraliza horizontalmente */
         gap: 30px;
         text-align: center;
         margin-bottom: 40px;
@@ -653,18 +658,22 @@
     
     .footer-logo-section {
         align-items: center;
+        width: 100%;
     }
     
     .footer-logo img {
         height: 140px;
+        margin: 0 auto 15px auto; /* Centraliza a imagem */
     }
     
     .footer-description {
         font-size: 0.9rem;
+        margin: 0 auto;
     }
     
     .footer-social,
     .footer-contact {
+        width: 100%;
         align-items: center;
     }
     
@@ -672,10 +681,12 @@
     .footer-contact h4 {
         text-align: center;
         font-size: 1rem;
+        width: 100%;
     }
     
     .footer-social-icons {
         justify-content: center;
+        width: 100%;
     }
     
     .footer-social-icons a {
@@ -686,6 +697,7 @@
     
     .footer-contact-info {
         align-items: center;
+        width: 100%;
     }
     
     .contact-item {
@@ -693,18 +705,30 @@
         justify-content: center;
     }
 
+    /* Sitemap (Links) centralizados */
     .footer-sitemap {
+        display: flex; /* Remove Grid */
+        flex-direction: column;
+        align-items: center;
         padding: 30px 20px 0;
         gap: 30px;
     }
     
     .sitemap-column {
+        width: 100%;
         text-align: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sitemap-column ul {
+        align-items: center;
     }
     
     .sitemap-column h4::after {
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%); /* Centraliza a linha decorativa */
     }
     
     .sitemap-column a {
@@ -714,10 +738,12 @@
     .footer-bottom {
         padding: 20px 20px;
         margin-top: 40px;
+        text-align: center;
     }
     
     .footer-copyright {
         font-size: 0.85rem;
+        justify-content: center;
     }
 }
 

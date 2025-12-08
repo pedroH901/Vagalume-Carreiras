@@ -28,7 +28,7 @@
         margin: 0;
     }
     
-    /* --- CSS PARA O NOVO FORMULÁRIO --- */
+    /* --- CSS PARA O FORMULÁRIO --- */
     .radar-form {
         background-color: #161B22;
         border: 1px solid #30363d;
@@ -43,10 +43,10 @@
         color: #c9d1d9;
         font-size: 1.1rem;
         font-weight: bold;
-        flex-shrink: 0; /* Não encolhe o label */
+        flex-shrink: 0; 
     }
     .radar-form select {
-        flex-grow: 1; /* Ocupa o espaço */
+        flex-grow: 1; 
         background-color: #0d1117; 
         border: 1px solid #30363d; 
         color: #c9d1d9; 
@@ -65,17 +65,17 @@
         border: none;
         cursor: pointer;
         font-size: 1rem;
+        white-space: nowrap; /* Garante que o texto não quebre no desktop */
     }
-    /* --- FIM DO CSS DO FORM --- */
     
     .radar-count {
-        color: #BEF264; /* Verde */
+        color: #BEF264; 
         font-size: 1.5rem;
         font-weight: bold;
         margin-bottom: 20px;
     }
     
-    /* (O CSS do .candidato-card fica igual) */
+    /* CARD DO CANDIDATO */
     .candidato-card {
         background: #161B22;
         border: 1px solid #30363d;
@@ -87,20 +87,89 @@
         align-items: center;
     }
     .candidato-info { display: flex; align-items: center; }
-    .candidato-foto { width: 60px; height: 60px; border-radius: 50%; background-color: #30363d; margin-right: 20px; }
+    .candidato-foto { width: 60px; height: 60px; border-radius: 50%; background-color: #30363d; margin-right: 20px; flex-shrink: 0; }
     .candidato-detalhes h3 { color: #fff; margin: 0 0 5px 0; font-size: 1.25rem; }
     .candidato-detalhes p { color: #8b949e; margin: 0; font-size: 0.95rem; }
-    .candidato-botoes a { display: block; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; text-align: center; }
-    .btn-ver-perfil { background-color: #AFEB83; color: #0D1117; margin-bottom: 8px; }
+    
+    .candidato-botoes {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 160px; /* Garante um tamanho mínimo para os botões */
+    }
+
+    .candidato-botoes a { 
+        display: block; 
+        text-decoration: none; 
+        padding: 10px 15px; 
+        border-radius: 5px; 
+        font-weight: bold; 
+        font-size: 0.9rem; 
+        text-align: center; 
+    }
+    .btn-ver-perfil { background-color: #AFEB83; color: #0D1117; }
     .btn-contato { background-color: transparent; border: 1px solid #30363d; color: #c9d1d9; }
+    .btn-contato:hover { border-color: #BEF264; color: #BEF264; }
+
+    /* =========================================
+       RESPONSIVIDADE MOBILE (Adicionado Agora)
+       ========================================= */
+    @media (max-width: 768px) {
+        .radar-container {
+            padding: 15px; /* Menos padding lateral */
+        }
+
+        /* Ajuste do Formulário (Empilhar) */
+        .radar-form {
+            flex-direction: column;
+            align-items: stretch; /* Estica os itens */
+            gap: 15px;
+            padding: 20px;
+        }
+        .radar-form label {
+            margin-bottom: 5px;
+        }
+        .btn-buscar-radar {
+            width: 100%;
+        }
+
+        /* Ajuste do Card de Candidato (Empilhar) */
+        .candidato-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .candidato-info {
+            flex-direction: column;
+        }
+
+        .candidato-foto {
+            margin-right: 0;
+            margin-bottom: 15px;
+            width: 80px; /* Foto um pouco maior no mobile */
+            height: 80px;
+        }
+
+        .candidato-botoes {
+            width: 100%;
+            flex-direction: column;
+        }
+        
+        .candidato-botoes a {
+            width: 100%;
+            padding: 12px; /* Área de toque maior */
+        }
+    }
 </style>
 
 <div class="radar-container">
     
     <div class="radar-header">
         <a href="{% url 'home_recrutador' %}" style="display: inline-block; margin-bottom: 20px; color: #8b949e; text-decoration: none; font-weight: bold;">
-        &larr; Voltar ao Painel
-    </a>
+            &larr; Voltar ao Painel
+        </a>
 
         <h1>Radar de Talentos Proativo</h1>
         <p>Encontre candidatos em todo o banco de dados que se encaixam perfeitamente em uma de suas vagas.</p>
@@ -129,25 +198,25 @@
             
             <div class="candidato-info">
                 <div class="candidato-foto">
-        <img src="https://ui-avatars.com/api/?name={{ item.candidato.usuario.get_full_name }}&background=random&color=fff&size=128" 
-         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" 
-         alt="Avatar">
+                    <img src="https://ui-avatars.com/api/?name={{ item.candidato.usuario.get_full_name }}&background=random&color=fff&size=128" 
+                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" 
+                         alt="Avatar">
                 </div>
-                <div class.="candidato-detalhes">
+                <div class="candidato-detalhes">
                     <h3>{{ item.candidato.usuario.get_full_name }} ({{item.score}}%)</h3>
                     <p>{{ item.candidato.headline|default:"Sem cargo" }}</p>
                 </div>
             </div>
 
-<div class="candidato-botoes">
-    <a href="{% url 'perfil_publico' item.candidato.usuario.username %}" class="btn-ver-perfil">
-        Ver Perfil
-    </a>
-    
-    <a href="mailto:{{ item.candidato.usuario.email }}" class="btn-contato">
-        Entrar em contato
-    </a>
-</div>
+            <div class="candidato-botoes">
+                <a href="{% url 'perfil_publico' item.candidato.usuario.username %}" class="btn-ver-perfil">
+                    Ver Perfil
+                </a>
+                
+                <a href="mailto:{{ item.candidato.usuario.email }}" class="btn-contato">
+                    Entrar em contato
+                </a>
+            </div>
 
         </div>
         {% empty %}
