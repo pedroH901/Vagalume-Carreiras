@@ -889,6 +889,24 @@ a:hover {
         font-size: 1rem !important; /* Evita zoom automático no iPhone */
     }
 
+    .btn-skip-onboarding {
+        position: relative !important; /* Deixa de flutuar (absolute) e passa a ocupar espaço */
+        top: auto !important;
+        right: auto !important;
+        
+        display: block !important;
+        width: 100% !important;       /* Largura total para facilitar o toque */
+        margin-bottom: 20px !important; /* Empurra o título para baixo */
+        text-align: right !important;   /* Alinha o texto à direita (opcional) */
+        
+        /* Ajuste visual para parecer um link no topo */
+        background: transparent !important;
+        border: none !important;
+        color: #8b949e !important;
+        padding: 0 !important;
+        height: auto !important;
+    }
+
 /* ===================================================================
    RESPONSIVIDADE MOBILE: DASHBOARDS (CANDIDATO E RECRUTADOR)
    =================================================================== */
