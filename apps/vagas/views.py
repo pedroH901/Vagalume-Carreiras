@@ -34,6 +34,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from .ai_advisor import gerar_dicas_perfil
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 
 def get_texto_candidato(candidato):
@@ -642,15 +643,15 @@ def politica_privacidade(request):
 @login_required
 def explorar_vagas(request):
     """
-    Lista vagas com filtros de busca e categoria.
+    Lista vagas com filtros de busca e categoria + PAGINAÇÃO.
     """
     # 1. Base: Apenas vagas abertas, ordenadas por data
-    vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
+    vagas_list = Vaga.objects.filter(status=True).order_by('-data_publicacao')
 
     # 2. Lógica da Barra de Pesquisa (parametro 'q')
     query = request.GET.get('q')
     if query:
-        vagas = vagas.filter(
+        vagas_list = vagas_list.filter(
             Q(titulo__icontains=query) |          # Busca no título
             Q(descricao__icontains=query) |       # Busca na descrição
             Q(empresa__nome__icontains=query)     # Busca pelo nome da empresa
@@ -660,16 +661,26 @@ def explorar_vagas(request):
     categoria = request.GET.get('categoria')
     if categoria and categoria != 'Recente':
         # Filtra pelo setor da empresa ou palavra-chave no título
-        vagas = vagas.filter(
+        vagas_list = vagas_list.filter(
             Q(empresa__setor__icontains=categoria) |
             Q(titulo__icontains=categoria)
         )
+    
+    # Mostra 9 vagas por página (pode mudar esse número se quiser)
+    paginator = Paginator(vagas_list, 9) 
+    
+    # Pega o número da página da URL (ex: ?page=2)
+    page_number = request.GET.get('page')
+    
+    # Pega apenas as vagas daquela página específica
+    page_obj = paginator.get_page(page_number)
 
     context = {
-        'vagas': vagas,
-        'query_atual': query,         # Para manter o texto na barra
-        'categoria_atual': categoria  # Para marcar a aba ativa
+        'vagas': page_obj,    # Agora enviamos a página fatiada, não a lista inteira
+        'query_atual': query,         
+        'categoria_atual': categoria  
     }
+    
     return render(request, 'vagas/explorar_vagas.html', context)
 
 @login_required

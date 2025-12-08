@@ -1058,3 +1058,61 @@ a:hover {
         padding: 12px 20px;
     }
 }
+
+/* =========================
+   PAGINAÇÃO (VAGAS)
+========================= */
+.pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #161B22;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid #30363d;
+}
+
+.page-btn {
+    text-decoration: none;
+    color: #c9d1d9;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #0D1B2A;
+    border: 1px solid #30363d;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.page-btn:hover {
+    border-color: #BEF264;
+    color: #BEF264;
+    transform: translateY(-2px);
+}
+
+.current-page {
+    color: #fff;
+    font-weight: 700;
+    margin: 0 10px;
+    font-size: 0.95rem;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 600px) {
+    .pagination {
+        padding: 10px;
+        gap: 5px;
+    }
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
