@@ -6,6 +6,7 @@
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,7 +53,8 @@
         }
 
         .hero-title span {
-            color: #BEF264; /* Verde Vagalume */
+            color: #BEF264;
+            /* Verde Vagalume */
         }
 
         .hero-subtitle {
@@ -145,26 +147,24 @@
             letter-spacing: 1px;
         }
 
-/* =========================
-           MARQUEE X (CORREÇÃO DEFINITIVA - FULL WIDTH)
+        /* =========================
+           MARQUEE X (CORREÇÃO DEFINITIVA)
         ========================= */
         .marquee-wrapper {
-            /* A MÁGICA DO BREAKOUT: */
-            width: 100vw; /* Largura total da janela (Viewport Width) */
-            margin-left: calc(50% - 50vw); /* Puxa para a esquerda para centralizar na tela, ignorando o pai */
-            margin-right: calc(50% - 50vw); /* Mesma coisa para a direita */
-            
-            overflow: hidden; 
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            overflow: hidden;
             position: relative;
             background-color: #0D1117;
-            padding: 80px 0; /* Altura do respiro */
+            padding: 80px 0;
             margin-top: 80px;
             margin-bottom: 80px;
         }
 
         .marquee-section {
             position: relative;
-            height: 1000px; /* Altura suficiente para o X girar sem cortar */
+            height: 1000px;
             width: 100%;
             display: flex;
             align-items: center;
@@ -173,67 +173,65 @@
 
         .marquee-stripe {
             position: absolute;
-            /* Como o wrapper já é 100vw, 150% aqui garante sobra para a rotação */
-            width: 150%; 
+            width: 150%;
             left: 50%;
             top: 50%;
-            
             padding: 30px 0;
             background: linear-gradient(to bottom, #BEF264, #ffffff);
             color: #0D1B2A;
             font-weight: 800;
             font-size: 2.5rem;
-            display: flex; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-transform: uppercase;
             letter-spacing: 2px;
-            
-            /* Centraliza o ponto de rotação */
             transform-origin: center center;
         }
 
-        /* Faixa 1 (Descendo) */
         .stripe-1 {
-            /* Centraliza (x, y) e Gira */
             transform: translate(-50%, -50%) rotate(4deg);
-            z-index: 2; 
+            z-index: 2;
         }
-        
-        /* Faixa 2 (Subindo) */
+
         .stripe-2 {
-            /* Centraliza (x, y) e Gira Inverso */
             transform: translate(-50%, -50%) rotate(-4deg);
             z-index: 1;
-            opacity: 0.9; 
+            opacity: 0.9;
             filter: brightness(0.9);
         }
 
         .marquee-inner {
             display: flex;
-            width: 100%; 
+            width: 100%;
             animation: scroll-left 20s linear infinite;
         }
-        
+
         .marquee-group {
             display: flex;
-            justify-content: space-around; 
+            justify-content: space-around;
             align-items: center;
             width: 100%;
-            flex-shrink: 0; 
+            flex-shrink: 0;
         }
 
+        /* CORREÇÃO AQUI: flex-shrink: 0 impede sobreposição */
         .marquee-group span {
-            white-space: nowrap; 
+            white-space: nowrap;
             padding: 0 50px;
+            flex-shrink: 0 !important; /* Importante para não amassar */
         }
-        
+
         @keyframes scroll-left {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100%); }
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-100%);
+            }
         }
 
         /* =========================
-           JOBS SECTION (Dinâmica)
+           JOBS SECTION
         ========================= */
         .jobs-section {
             width: 100%;
@@ -258,7 +256,7 @@
             color: #BEF264;
         }
 
-        .jobs-container > p {
+        .jobs-container>p {
             font-size: clamp(1rem, 2vw, 1.2rem);
             color: #8b949e;
             margin-bottom: 40px;
@@ -272,7 +270,6 @@
             margin-bottom: 40px;
         }
 
-        /* Card de Vaga */
         .job-card {
             background: #0D1117;
             border: 1px solid #30363d;
@@ -378,7 +375,7 @@
             padding: 0 20px;
         }
 
-        .categories-section > h2 {
+        .categories-section>h2 {
             font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 800;
             color: #fff;
@@ -386,7 +383,7 @@
             text-align: center;
         }
 
-        .categories-section > p {
+        .categories-section>p {
             font-size: clamp(1rem, 2vw, 1.2rem);
             color: #8b949e;
             margin-bottom: 50px;
@@ -532,76 +529,149 @@
         .social-proof-animation {
             flex: 1;
             min-width: 300px;
-            height: 400px;
+            height: 500px;
             position: relative;
-            border: 2px dashed #30363d;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #30363d;
-            font-size: 0.9rem;
+            overflow: hidden;
+        }
+
+        .radar-system {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px dashed rgba(190, 242, 100, 0.3);
+            box-shadow: 0 0 20px rgba(190, 242, 100, 0.05);
+        }
+
+        .ring-1 {
+            width: 100%;
+            height: 100%;
+            animation: spin 60s linear infinite;
+        }
+
+        .ring-2 {
+            width: 65%;
+            height: 65%;
+            animation: spin 40s linear infinite reverse;
+        }
+
+        .ring-3 {
+            width: 35%;
+            height: 35%;
+            border-style: solid;
+            border-color: rgba(190, 242, 100, 0.1);
+        }
+
+        .avatar-center {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #BEF264;
+            overflow: hidden;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(190, 242, 100, 0.4);
+            position: relative;
+        }
+
+        .avatar-center img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .orbit-item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #161B22;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+
+        .orbit-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: counter-spin inherit;
+        }
+
+        .pos-1 { transform: rotate(0deg) translate(225px) rotate(0deg); }
+        .pos-2 { transform: rotate(72deg) translate(225px) rotate(-72deg); }
+        .pos-3 { transform: rotate(144deg) translate(225px) rotate(-144deg); }
+        .pos-4 { transform: rotate(216deg) translate(225px) rotate(-216deg); }
+        .pos-5 { transform: rotate(288deg) translate(225px) rotate(-288deg); }
+        .pos-6 { transform: rotate(45deg) translate(146px) rotate(-45deg); }
+        .pos-7 { transform: rotate(165deg) translate(146px) rotate(-165deg); }
+        .pos-8 { transform: rotate(285deg) translate(146px) rotate(-285deg); }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes counter-spin { 100% { transform: rotate(-360deg); } }
+
+        @media (max-width: 600px) {
+            .radar-system { width: 320px; height: 320px; }
+            .pos-1, .pos-2, .pos-3, .pos-4, .pos-5 {
+                transform: rotate(var(--deg)) translate(160px) rotate(calc(var(--deg) * -1));
+            }
         }
 
         /* =========================
            ANIMATIONS
         ========================= */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* =========================
-           RESPONSIVE
+           RESPONSIVE (MOBILE FIX)
         ========================= */
         @media (max-width: 900px) {
-            .categories-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .social-proof-section {
-                flex-direction: column;
-                text-align: center;
-            }
+            .categories-content { grid-template-columns: 1fr; }
+            .social-proof-section { flex-direction: column; text-align: center; }
         }
 
         @media (max-width: 600px) {
-            .hero-section {
-                min-height: 70vh;
-            }
-
+            .hero-section { min-height: 70vh; }
+            
+            /* CORREÇÃO AQUI: Botões centralizados */
             .hero-buttons {
                 flex-direction: column;
                 width: 100%;
+                align-items: center; /* Centraliza a coluna */
+                gap: 15px;
             }
 
             .btn-cta-green,
             .btn-cta-outline {
                 width: 100%;
                 max-width: 300px;
+                display: flex; /* Garante que o texto fique no meio */
+                justify-content: center;
+                margin: 0 auto; /* Centraliza o botão no container */
+                text-align: center;
             }
 
-            .stats-section {
-                flex-direction: column;
-                gap: 40px;
-            }
-
-            .marquee-section {
-                height: 220px;
-            }
-
-            .categories-grid {
-                grid-template-columns: 1fr;
-            }
+            .stats-section { flex-direction: column; gap: 40px; }
+            .marquee-section { height: 220px; }
+            .categories-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
+
 <body>
     <div class="main-container">
         <section class="hero-section">
@@ -652,7 +722,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="marquee-stripe stripe-2">
                     <div class="marquee-inner" style="animation-direction: reverse;">
                         <div class="marquee-group">
@@ -689,20 +759,20 @@
                         <p>{{ vaga.empresa.nome }}</p>
                         <div class="job-card-footer">
                             {% if user.is_authenticated and user.tipo_usuario == 'candidato' %}
-                                <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-candidatar">Candidatar-se</button>
-                                </form>
+                            <form action="{% url 'aplicar_vaga' vaga.id %}" method="POST" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-candidatar">Candidatar-se</button>
+                            </form>
                             {% else %}
-                                <a href="{% url 'login' %}" class="btn-candidatar">Login p/ Aplicar</a>
+                            <a href="{% url 'login' %}" class="btn-candidatar">Login p/ Aplicar</a>
                             {% endif %}
                             <span class="job-card-candidates">Nova</span>
                         </div>
                     </div>
                     {% empty %}
-                        <p style="color: #8b949e; text-align: center; grid-column: 1/-1;">
-                            Nenhuma vaga publicada recentemente.
-                        </p>
+                    <p style="color: #8b949e; text-align: center; grid-column: 1/-1;">
+                        Nenhuma vaga publicada recentemente.
+                    </p>
                     {% endfor %}
                 </div>
 
@@ -710,36 +780,36 @@
             </div>
         </section>
 
-    <section class="categories-section">
+        <section class="categories-section">
             <h2>Explore pelas categorias</h2>
             <p>Veja as áreas com mais oportunidades no momento</p>
 
             <div class="categories-content">
-                
+
                 <div class="categories-list">
                     <h3>Cargos em Alta</h3>
-                    
+
                     {% for cargo in top_cargos %}
-                        <div class="category-list-item">
-                            <span>{{ cargo.titulo }}</span>
-                            <span>{{ cargo.total }}</span>
-                        </div>
+                    <div class="category-list-item">
+                        <span>{{ cargo.titulo }}</span>
+                        <span>{{ cargo.total }}</span>
+                    </div>
                     {% empty %}
-                        <p style="color: #8b949e;">Nenhuma vaga cadastrada ainda.</p>
+                    <p style="color: #8b949e;">Nenhuma vaga cadastrada ainda.</p>
                     {% endfor %}
                 </div>
 
                 <div class="categories-grid">
                     {% for setor in top_setores %}
-                        <div class="category-grid-item">
-                            {{ setor.empresa__setor }}
-                            
-                            <div style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">
-                                {{ setor.total }} vagas
-                            </div>
+                    <div class="category-grid-item">
+                        {{ setor.empresa__setor }}
+
+                        <div style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">
+                            {{ setor.total }} vagas
                         </div>
+                    </div>
                     {% empty %}
-                        <div class="category-grid-item">Sem setores disponíveis</div>
+                    <div class="category-grid-item">Sem setores disponíveis</div>
                     {% endfor %}
                 </div>
 
@@ -760,17 +830,45 @@
         <section class="social-proof-section">
             <div class="social-proof-text">
                 <h2>Muitas pessoas estão usando pelo mundo</h2>
-                <p>Entre agora e anuncie sua vaga</p>
+                <p>A tecnologia do Vagalume conecta os pontos entre o talento e a oportunidade. Entre agora e anuncie
+                    sua vaga.</p>
                 <a href="{% url 'cadastro_recrutador' %}" class="btn-cta-green">Postar uma vaga</a>
             </div>
+
             <div class="social-proof-animation">
-                <div style="width: 100%; height: 100%; background: #161B22; border-radius: 20px; border: 1px dashed #30363d; display: flex; align-items: center; justify-content: center; color: #30363d;">
-                    Animação de Perfis
-                 </div>
+                <div class="radar-system">
+
+                    <div class="radar-ring ring-1">
+                        <div class="orbit-item pos-1" style="--deg: 0deg"><img src="https://i.pravatar.cc/150?img=11"
+                                alt="User"></div>
+                        <div class="orbit-item pos-2" style="--deg: 72deg"><img src="https://i.pravatar.cc/150?img=33"
+                                alt="User"></div>
+                        <div class="orbit-item pos-3" style="--deg: 144deg"><img src="https://i.pravatar.cc/150?img=12"
+                                alt="User"></div>
+                        <div class="orbit-item pos-4" style="--deg: 216deg"><img src="https://i.pravatar.cc/150?img=59"
+                                alt="User"></div>
+                        <div class="orbit-item pos-5" style="--deg: 288deg"><img src="https://i.pravatar.cc/150?img=68"
+                                alt="User"></div>
+                    </div>
+
+                    <div class="radar-ring ring-2">
+                        <div class="orbit-item pos-6"><img src="https://i.pravatar.cc/150?img=8" alt="User"></div>
+                        <div class="orbit-item pos-7"><img src="https://i.pravatar.cc/150?img=53" alt="User"></div>
+                        <div class="orbit-item pos-8"><img src="https://i.pravatar.cc/150?img=3" alt="User"></div>
+                    </div>
+
+                    <div class="radar-ring ring-3"></div>
+
+                    <div class="avatar-center">
+                        <img src="https://i.pravatar.cc/150?img=13" alt="Center User">
+                    </div>
+
+                </div>
             </div>
         </section>
     </div>
 </body>
+
 </html>
 
 {% endblock %}

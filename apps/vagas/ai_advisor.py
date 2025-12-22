@@ -3,72 +3,68 @@ import os
 from django.conf import settings
 from google.api_core import exceptions
 
-API_KEY = "AIzaSyDRCM04_8yh5VcTTqTt3-wopvgkYiUyA-Q" 
-
 def configurar_ia():
     try:
-        genai.configure(api_key=API_KEY)
+        # LÊ DO SETTINGS.PY (CRUCIAL PARA O RAILWAY)
+        api_key = settings.GOOGLE_API_KEY
+        
+        if not api_key:
+            print("❌ ERRO: GOOGLE_API_KEY não encontrada no settings.")
+            return False
+            
+        genai.configure(api_key=api_key)
         return True
     except Exception as e:
-        print(f"Erro ao configurar IA: {e}")
+        print(f"❌ Erro ao configurar IA: {e}")
         return False
 
 def gerar_dicas_perfil(perfil_texto):
-    """
-    Recebe o texto do perfil do candidato e retorna dicas de melhoria em HTML.
-    Tenta vários modelos disponíveis para evitar erros de cota ou indisponibilidade.
-    """
     if not configurar_ia():
-        return "<ul><li>Erro de conexão com a IA. Verifique a API Key.</li></ul>"
-
-    # Lista de modelos baseada na SUA lista disponível (do melhor para o mais leve)
-    modelos_para_tentar = [
-        'gemini-2.0-flash',          # 1. Tentativa Principal (Rápido e Inteligente)
-        'gemini-2.0-flash-lite',     # 2. Fallback Leve (Ótimo para economizar cota)
-        'gemini-2.0-pro-exp-02-05',  # 3. Fallback Potente (Se os Flash falharem)
-    ]
+        return "<ul><li>Erro: Chave de API não configurada no painel.</li></ul>"
 
     prompt = f"""
-    Aja como um recrutador sênior de tecnologia e 'Career Coach'.
-    Analise o seguinte perfil de candidato e me dê 3 dicas práticas, diretas e construtivas
-    para ele melhorar o perfil e conseguir mais entrevistas.
+    Aja como um recrutador sênior. Analise o perfil abaixo e dê 3 dicas curtas e diretas.
+    SAÍDA OBRIGATÓRIA: Apenas código HTML cru (tags <ul>, <li>, <strong>).
+    NÃO use crases de markdown (```html). NÃO coloque introdução.
     
-    Foque em: Palavras-chave, clareza, impacto e tecnologias faltantes (se aplicável).
-    
-    Perfil do Candidato:
-    "{perfil_texto}"
-    
-    IMPORTANTE: Sua resposta deve ser APENAS uma lista HTML (<ul> com <li>), sem tags <html>, <head> ou markdown ```html.
-    Seja amigável mas profissional.
+    Perfil: "{perfil_texto}"
     """
 
-    for nome_modelo in modelos_para_tentar:
-        try:
-            print(f"Tentando usar modelo: {nome_modelo}...") 
-            model = genai.GenerativeModel(nome_modelo)
-            
-            # Configuração para resposta mais criativa e direta
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
-                    candidate_count=1,
-                    max_output_tokens=500,
-                    temperature=0.7
-                )
-            )
-            return response.text 
-            
-        except exceptions.ResourceExhausted:
-            print(f"Cota excedida para {nome_modelo}. Tentando próximo...")
-            continue # Pula para o próximo modelo da lista
-            
-        except Exception as e:
-            print(f"Erro no modelo {nome_modelo}: {e}")
-            # Se o erro for "not found" (caso o Google mude o nome), tenta o próximo
-            if "404" in str(e) or "not found" in str(e).lower():
-                continue
-            # Se for outro erro grave, para por aqui
-            continue
+    try:
+        # --- MUDANÇA: BUSCA DINÂMICA DE MODELOS ---
+        print("🔍 Buscando modelos disponíveis na API...")
+        
+        # Lista todos os modelos que a sua chave tem acesso
+        modelos_disponiveis = []
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                # Prioriza modelos 'gemini'
+                if 'gemini' in m.name:
+                    modelos_disponiveis.append(m.name)
+        
+        # Ordena para tentar os mais recentes primeiro (opcional, mas bom)
+        modelos_disponiveis.sort(reverse=True) 
+        
+        print(f"📋 Modelos encontrados: {modelos_disponiveis}")
 
-    # Se todos os modelos falharem
-    return "<ul><li>O Vagalume AI está temporariamente sobrecarregado. Por favor, tente novamente em alguns instantes.</li></ul>"
+        if not modelos_disponiveis:
+            return "<ul><li>Nenhum modelo de IA disponível para esta chave.</li></ul>"
+
+        # Tenta um por um da lista real que o Google devolveu
+        for modelo_nome in modelos_disponiveis:
+            try:
+                print(f"Tentando usar: {modelo_nome}...")
+                model = genai.GenerativeModel(modelo_nome)
+                response = model.generate_content(prompt)
+                texto_limpo = response.text
+                texto_limpo = texto_limpo.replace("```html", "").replace("```", "")
+                return texto_limpo
+            except Exception as e:
+                print(f"❌ Erro no modelo {modelo_nome}: {e}")
+                continue
+    
+    except Exception as e:
+        print(f"Erro fatal ao listar modelos: {e}")
+        return f"<ul><li>Erro de conexão com a IA: {e}</li></ul>"
+            
+    return "<ul><li>IA temporariamente indisponível (Cota excedida ou erro interno).</li></ul>"

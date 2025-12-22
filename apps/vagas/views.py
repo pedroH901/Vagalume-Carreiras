@@ -34,6 +34,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from .ai_advisor import gerar_dicas_perfil
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 
 def get_texto_candidato(candidato):
@@ -203,7 +204,6 @@ def home_candidato(request):
     candidato = request.user.candidato
 
     # --- SALVAR PERFIL ---
-    # Se for POST e não tiver 'continuar' (que é do onboarding), é edição de perfil
     if request.method == "POST" and "continuar" not in request.POST:
         perfil_user_form = PerfilUsuarioForm(request.POST, instance=request.user)
         perfil_candidato_form = PerfilCandidatoForm(request.POST, instance=candidato)
@@ -216,24 +216,27 @@ def home_candidato(request):
         else:
             messages.error(request, "Erro ao atualizar. Verifique os dados.")
 
-    # --- PREPARAÇÃO DOS DADOS PARA EXIBIÇÃO ---
-
-    # Forms para Edição (Preenchidos com dados atuais)
+    # --- PREPARAÇÃO DOS DADOS ---
     perfil_user_form = PerfilUsuarioForm(instance=request.user)
     perfil_candidato_form = PerfilCandidatoForm(instance=candidato)
-
-    # Forms para o Onboarding (Vazios)
     experiencia_form = ExperienciaForm()
     formacao_form = FormacaoForm()
     skill_form = SkillForm()
     curriculo_form = CurriculoForm()
 
-    # Dados do Currículo (Para leitura - Versão Segura)
     resumo = getattr(candidato, "resumo_profissional", None)
     texto_resumo = resumo.texto if resumo else "Nenhum resumo cadastrado."
 
+    # --- PAGINAÇÃO DAS VAGAS RECOMENDADAS ---
+    vagas_list = Vaga.objects.filter(status=True).order_by("-data_publicacao")
+    
+    # Mostra 5 vagas por página no Dashboard (para não ficar muito longo)
+    paginator = Paginator(vagas_list, 5) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     contexto = {
-        "vagas": Vaga.objects.filter(status=True).order_by("-data_publicacao"),
+        "vagas": page_obj, # Agora paginado!
         # Forms
         "perfil_user_form": perfil_user_form,
         "perfil_candidato_form": perfil_candidato_form,
@@ -241,16 +244,12 @@ def home_candidato(request):
         "formacao_form": formacao_form,
         "skill_form": skill_form,
         "curriculo_form": curriculo_form,
-        # Dados Visuais (Ordenados)
+        # Dados Visuais
         "texto_resumo": texto_resumo,
         "hard_skills": Skill.objects.filter(candidato=candidato, tipo="hard"),
         "soft_skills": Skill.objects.filter(candidato=candidato, tipo="soft"),
-        "experiencias": Experiencia.objects.filter(candidato=candidato).order_by(
-            "-data_inicio"
-        ),
-        "formacoes": Formacao_Academica.objects.filter(candidato=candidato).order_by(
-            "-data_inicio"
-        ),
+        "experiencias": Experiencia.objects.filter(candidato=candidato).order_by("-data_inicio"),
+        "formacoes": Formacao_Academica.objects.filter(candidato=candidato).order_by("-data_inicio"),
     }
 
     return render(request, "vagas/home_candidato.html", contexto)
@@ -259,10 +258,7 @@ def home_candidato(request):
 @login_required
 def home_recrutador(request):
     """
-    Painel do Recrutador.
-    Agora busca o plano atual da empresa para mostrar na Badge.
-    Painel do Recrutador, lista as vagas criadas por ele. (R do CRUD)
-    Adiciona o plano atual da empresa ao contexto.
+    Painel do Recrutador com Paginação nas Vagas.
     """
     if request.user.tipo_usuario != "recrutador":
         messages.error(request, "Acesso negado.")
@@ -270,50 +266,35 @@ def home_recrutador(request):
 
     try:
         recrutador = request.user.recrutador
-        empresa = recrutador.empresa # Pega a empresa
+        empresa = recrutador.empresa
         
         # --- LÓGICA DO PLANO ---
-        # Dicionário para traduzir 'premium' -> 'Plano Premium'
-        # 1. Obter a Empresa do Recrutador
-        empresa = recrutador.empresa
-
-        # 2. Dicionário para formatar o nome do plano
         planos_nomes = {
             "basico": "Plano Básico",
             "intermediario": "Plano Intermediário",
             "premium": "Plano Premium"
         }
-        
-        # Pega o código do banco (ex: 'premium')
         slug = getattr(empresa, 'plano_assinado', 'basico')
-        
-        # Traduz para o nome bonito
         plano_atual_nome = planos_nomes.get(slug, "Plano Básico")
-        # -----------------------
-
-        plano_atual_slug = empresa.plano_assinado 
-        # Obtém o nome amigável. Usa 'Nenhum Plano' como fallback
-        plano_atual_nome = planos_nomes.get(plano_atual_slug, "Nenhum Plano") 
 
     except Recrutador.DoesNotExist:
         messages.error(request, "Você não possui um perfil de recrutador.")
         return redirect("home_candidato")
 
-    minhas_vagas = Vaga.objects.filter(recrutador=recrutador)
+    # --- PAGINAÇÃO DAS VAGAS DO RECRUTADOR ---
+    minhas_vagas_list = Vaga.objects.filter(recrutador=recrutador).order_by('-data_publicacao')
+    
+    # Mostra 6 vagas por página no painel do recrutador
+    paginator = Paginator(minhas_vagas_list, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     contexto = {
-        "vagas": minhas_vagas,
-        "plano_atual_nome": plano_atual_nome, # <--- ENVIANDO PARA O HTML
+        "vagas": page_obj, # Agora paginado!
+        "plano_atual_nome": plano_atual_nome,
     }
     
     return render(request, "vagas/home_recrutador.html", contexto)
-    
-    contexto = {
-        'vagas': minhas_vagas,
-        # 3. Adiciona o nome do plano ao contexto
-        'plano_atual_nome': plano_atual_nome 
-    }
-    return render(request, 'vagas/home_recrutador.html', contexto)
 
 @login_required
 def editar_vaga(request, vaga_id):
@@ -405,14 +386,33 @@ def aplicar_vaga(request, vaga_id):
 @login_required
 def perfil_empresa(request):
     """
-    View para o Recrutador editar o perfil da empresa.
+    View para editar dados da empresa.
+    Agora carrega os dados atuais e salva as edições.
     """
     if request.user.tipo_usuario != "recrutador":
         messages.error(request, "Acesso negado.")
         return redirect("home_candidato")
 
-    return render(request, "vagas/perfil_empresa.html")
+    # Pega o objeto da empresa vinculada ao usuário logado
+    recrutador = get_object_or_404(Recrutador, usuario=request.user)
+    empresa = recrutador.empresa
 
+    if request.method == 'POST':
+        # Pega os dados do formulário
+        novo_nome = request.POST.get('nome_empresa')
+        novo_setor = request.POST.get('setor_atuacao')
+        novo_telefone = request.POST.get('telefone')
+        
+        # Atualiza no banco
+        if novo_nome: empresa.nome = novo_nome
+        if novo_setor: empresa.setor = novo_setor
+        if novo_telefone: empresa.telefone = novo_telefone
+        
+        empresa.save()
+        messages.success(request, "Perfil da empresa atualizado com sucesso!")
+        return redirect('perfil_empresa')
+
+    return render(request, "vagas/perfil_empresa.html", {'empresa': empresa})
 
 @login_required
 def ver_candidatos_vaga(request, vaga_id):
@@ -466,6 +466,7 @@ def ver_candidatos_vaga(request, vaga_id):
 def radar_de_talentos(request):
     """
     A nova tela de "Radar de Talentos" com a "Engine de IA".
+    AGORA RESTRITA AO PLANO PREMIUM.
     """
     if request.user.tipo_usuario != "recrutador":
         messages.error(request, "Acesso negado.")
@@ -473,9 +474,21 @@ def radar_de_talentos(request):
 
     try:
         recrutador = request.user.recrutador
+        empresa = recrutador.empresa
     except Recrutador.DoesNotExist:
         messages.error(request, "Você não possui um perfil de recrutador associado.")
         return redirect("home_candidato")
+
+    # --- TRAVA DE PLANO (NOVO) ---
+    # Se o plano NÃO for Premium, bloqueia e manda para a tela de upgrade
+    if empresa.plano_assinado != 'premium':
+        messages.warning(
+            request, 
+            "🔒 O Radar de Talentos com IA é exclusivo do Plano Premium. "
+            "Faça o upgrade para desbloquear essa funcionalidade poderosa!"
+        )
+        return redirect('planos_empresa')
+    # -----------------------------
 
     minhas_vagas = Vaga.objects.filter(recrutador=recrutador, status=True)
     candidatos_ordenados = []
@@ -489,14 +502,8 @@ def radar_de_talentos(request):
                 Vaga, id=vaga_selecionada_id, recrutador=recrutador
             )
 
-            # --- CORREÇÃO BUG 0% ---
-            # Adicionando de volta a otimização de performance
-            todos_os_candidatos = (
-                Candidato.objects.all()
-                .select_related("usuario", "resumo_profissional")
-                .prefetch_related("skills", "experiencias", "formacoes")
-            )
-
+            # otimização pesada: Limita aos 20 últimos para não estourar a RAM (512MB)
+            todos_os_candidatos = Candidato.objects.select_related("usuario").order_by('-usuario__date_joined')[:20]
             candidatos_com_score = []
             for candidato in todos_os_candidatos:
                 score = calcular_similaridade_tags(vaga, candidato)
@@ -531,13 +538,9 @@ def planos_empresa(request):
         messages.error(request, "Acesso negado.")
         return redirect("home_candidato")
 
-    # --- CORREÇÃO ---
-    # O caminho do template precisa do prefixo da pasta 'vagas/'
     return render(request, "vagas/planos_empresa.html")
 
 
-# --- CORREÇÃO ---
-# Adicionando de volta a view 'painel_admin' que estava faltando
 @login_required
 def painel_admin(request):
     """
@@ -620,10 +623,45 @@ def politica_privacidade(request):
 @login_required
 def explorar_vagas(request):
     """
-    Lista TODAS as vagas abertas no sistema.
+    Lista vagas com filtros de busca e categoria + PAGINAÇÃO.
     """
-    vagas = Vaga.objects.filter(status=True).order_by('-data_publicacao')
-    return render(request, 'vagas/explorar_vagas.html', {'vagas': vagas})
+    # 1. Base: Apenas vagas abertas, ordenadas por data
+    vagas_list = Vaga.objects.filter(status=True).order_by('-data_publicacao')
+
+    # 2. Lógica da Barra de Pesquisa (parametro 'q')
+    query = request.GET.get('q')
+    if query:
+        vagas_list = vagas_list.filter(
+            Q(titulo__icontains=query) |          # Busca no título
+            Q(descricao__icontains=query) |       # Busca na descrição
+            Q(empresa__nome__icontains=query)     # Busca pelo nome da empresa
+        )
+
+    # 3. Lógica das Categorias (parametro 'categoria')
+    categoria = request.GET.get('categoria')
+    if categoria and categoria != 'Recente':
+        # Filtra pelo setor da empresa ou palavra-chave no título
+        vagas_list = vagas_list.filter(
+            Q(empresa__setor__icontains=categoria) |
+            Q(titulo__icontains=categoria)
+        )
+    
+    # Mostra 9 vagas por página (pode mudar esse número se quiser)
+    paginator = Paginator(vagas_list, 9) 
+    
+    # Pega o número da página da URL (ex: ?page=2)
+    page_number = request.GET.get('page')
+    
+    # Pega apenas as vagas daquela página específica
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'vagas': page_obj,    # Agora enviamos a página fatiada, não a lista inteira
+        'query_atual': query,         
+        'categoria_atual': categoria  
+    }
+    
+    return render(request, 'vagas/explorar_vagas.html', context)
 
 @login_required
 def ver_empresa(request, empresa_id):
@@ -816,3 +854,10 @@ def ajax_analise_ia_perfil(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
             
     return JsonResponse({'status': 'error', 'message': 'Método inválido'})
+
+def ver_vaga_detalhe(request, vaga_id):
+    """
+    Exibe os detalhes completos de uma vaga pública.
+    """
+    vaga = get_object_or_404(Vaga, id=vaga_id)
+    return render(request, 'vagas/ver_vaga_detalhe.html', {'vaga': vaga})

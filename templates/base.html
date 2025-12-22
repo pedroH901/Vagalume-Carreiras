@@ -612,6 +612,7 @@
     }
 }
 
+/* --- AQUI ESTÁ A CORREÇÃO PRINCIPAL --- */
 @media (max-width: 768px) {
     .navbar-container {
         padding: 10px 20px;
@@ -639,13 +640,17 @@
         display: block;
     }
     
+    /* Footer Centralizado */
     .footer {
         padding: 40px 20px 0;
         margin-top: 50px;
     }
     
+    /* Muda de Grid para Flex Coluna */
     .footer-container {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centraliza horizontalmente */
         gap: 30px;
         text-align: center;
         margin-bottom: 40px;
@@ -653,18 +658,22 @@
     
     .footer-logo-section {
         align-items: center;
+        width: 100%;
     }
     
     .footer-logo img {
         height: 140px;
+        margin: 0 auto 15px auto; /* Centraliza a imagem */
     }
     
     .footer-description {
         font-size: 0.9rem;
+        margin: 0 auto;
     }
     
     .footer-social,
     .footer-contact {
+        width: 100%;
         align-items: center;
     }
     
@@ -672,10 +681,12 @@
     .footer-contact h4 {
         text-align: center;
         font-size: 1rem;
+        width: 100%;
     }
     
     .footer-social-icons {
         justify-content: center;
+        width: 100%;
     }
     
     .footer-social-icons a {
@@ -686,6 +697,7 @@
     
     .footer-contact-info {
         align-items: center;
+        width: 100%;
     }
     
     .contact-item {
@@ -693,18 +705,30 @@
         justify-content: center;
     }
 
+    /* Sitemap (Links) centralizados */
     .footer-sitemap {
+        display: flex; /* Remove Grid */
+        flex-direction: column;
+        align-items: center;
         padding: 30px 20px 0;
         gap: 30px;
     }
     
     .sitemap-column {
+        width: 100%;
         text-align: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sitemap-column ul {
+        align-items: center;
     }
     
     .sitemap-column h4::after {
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%); /* Centraliza a linha decorativa */
     }
     
     .sitemap-column a {
@@ -714,10 +738,12 @@
     .footer-bottom {
         padding: 20px 20px;
         margin-top: 40px;
+        text-align: center;
     }
     
     .footer-copyright {
         font-size: 0.85rem;
+        justify-content: center;
     }
 }
 
@@ -939,10 +965,9 @@
 
     <div class="navbar-overlay" id="navbarOverlay"></div>
     <div class="navbar-mobile-menu" id="navbarMobileMenu">
-        <div class="navbar-mobile-links">
+            <div class="navbar-mobile-links">
             <a href="{% url 'landing_page' %}">Home</a>
             <a href="{% url 'sobre_nos' %}">Sobre Nós</a>
-            <a href="#">Conteúdo</a>
             <a href="{% url 'explorar_vagas' %}">Explorar Vagas</a>
             <a href="{% url 'politica_de_privacidade' %}">Política de Privacidade</a>
 
@@ -950,7 +975,6 @@
                 <hr style="border-color: #30363d; margin: 10px 0;">
                 <span style="color: #8b949e; font-size: 0.85rem; padding-left: 0;">Área do Candidato</span>
                 <a href="{% url 'home_candidato' %}">Meu Painel (Dashboard)</a>
-                <a href="{% url 'financas_candidato' %}">Finanças Pessoais</a>
                 <a href="{% url 'perfil_publico' user.username %}">Ver Meu Perfil Público</a>
             {% endif %}
 
@@ -973,17 +997,14 @@
             {% endif %}
         </div>
 
-        <div class="navbar-mobile-auth">
-            {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="btn-cadastro-outline">Sair</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn-login-gradient">Login</a>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="{% url 'cadastro_candidato' %}" class="btn-cadastro-outline" style="flex:1; font-size: 0.8rem;">Sou Candidato</a>
-                    <a href="{% url 'cadastro_recrutador' %}" class="btn-cadastro-outline" style="flex:1; font-size: 0.8rem;">Sou Empresa</a>
-                </div>
-            {% endif %}
-        </div>
+<div class="navbar-mobile-auth">
+    {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="btn-cadastro-outline">Sair</a>
+    {% else %}
+        <a href="{% url 'login' %}" class="btn-login-gradient">Login</a>
+        <a href="{% url 'cadastro_candidato' %}" class="btn-cadastro-outline">Cadastrar-se</a>
+    {% endif %}
+</div>
     </div>
 
     <main class="main-container">
@@ -1120,6 +1141,24 @@
                 toggleMenu();
             }
         });
+        document.addEventListener("DOMContentLoaded", function() {
+        const toasts = document.querySelectorAll('.popup-info');
+        
+        toasts.forEach(toast => {
+            // Espera 4 segundos
+            setTimeout(() => {
+                // Adiciona classe que tira opacidade e clique
+                toast.classList.add('popup-hidden');
+                
+                // Espera a transição CSS (0.5s) terminar e remove do HTML
+                setTimeout(() => {
+                    if(toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 600); 
+            }, 4000);
+        });
+    });
     </script>
 
 </body>
